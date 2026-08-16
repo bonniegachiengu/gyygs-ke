@@ -1,0 +1,26 @@
+{
+  "name": "gyygs",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Myra Cleaning quote calculator — v0 of the gyygs.ke platform",
+  "workspaces": [
+    "apps/web"
+  ],
+  "packageManager": "npm@10.9.0",
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "scripts": {
+    "dev": "npm run dev -w apps/web",
+    "build": "npm run build -w apps/web",
+    "lint": "npm run lint -w apps/web",
+    "test": "npm run test -w apps/web",
+    "api:openapi": "python apps/api/scripts/export_openapi.py",
+    "api:types": "openapi-typescript packages/contracts/openapi.json -o apps/web/src/lib/api/schema.d.ts",
+    "gen": "npm run api:openapi && npm run api:types",
+    "gen:check": "npm run gen && git diff --exit-code packages/contracts apps/web/src/lib/api/schema.d.ts"
+  },
+  "devDependencies": {
+    "openapi-typescript": "7.13.0"
+  }
+}

@@ -1,0 +1,50 @@
+# ── Secrets & environment (never commit) ──
+.env
+.env.*
+!.env.example
+secrets/*
+!secrets/.gitkeep
+*service-account*.json
+*.pem
+*.key
+infra/cloudflared/*.json
+
+# ── Runtime data (quote-ref counter lives here in local dev) ──
+data/
+
+# ── Python (apps/api) ──
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+
+# ── Node / frontend (apps/web) ──
+node_modules/
+.next/
+.nuxt/
+.svelte-kit/
+.turbo/
+.vite/
+dist/
+build/
+coverage/
+playwright-report/
+test-results/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-error.log*
+*.local
+
+# ── OS / editors ──
+.DS_Store
+Thumbs.db
+.idea/
+
+# NOTE: packages/contracts/openapi.json and apps/web/src/lib/api/schema.d.ts are
+# GENERATED but deliberately COMMITTED — a fresh clone must typecheck with no
+# Python installed, and CI diffs them to catch contract drift. Do not ignore them.

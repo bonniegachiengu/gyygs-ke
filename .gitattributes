@@ -1,0 +1,18 @@
+# Normalise line endings. Git for Windows would otherwise check out CRLF files
+# that Alpine's nginx and /bin/sh reject inside the containers.
+* text=auto eol=lf
+
+*.conf     text eol=lf
+Dockerfile text eol=lf
+*.sh       text eol=lf
+*.yml      text eol=lf
+*.yaml     text eol=lf
+
+# Generated, but committed on purpose (see .gitignore note).
+apps/web/src/lib/api/schema.d.ts linguist-generated=true
+packages/contracts/openapi.json  linguist-generated=true
+
+# Binary
+*.png binary
+*.jpg binary
+*.svg text eol=lf
