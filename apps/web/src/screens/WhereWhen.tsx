@@ -36,10 +36,11 @@ export function WhereWhen({ catalogue }: { catalogue: Catalogue }) {
 
         <div className="mt-3">
           <Field
-            label="Estate or building (optional)"
+            label="Estate, building or landmark"
+            hint="Helps Mercy find you — it goes on the quote."
             value={estate}
             onChange={(e) => set({ estate: e.target.value })}
-            placeholder="e.g. Membley, Block C"
+            placeholder="e.g. Kasarani, Membley, Block C"
           />
         </div>
 

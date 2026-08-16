@@ -24,6 +24,9 @@ class Lead(BaseModel):
     discount: int
     total: int
     area: str
+    # Additive column: the estate/building inside the area. Kept out of `area`
+    # so that column stays a clean key for the funnel analytics in SPEC §2.
+    estate: str = ""
     preferred: str  # "2026-08-16 morning", or "" when unspecified
     visit_first: bool
     sent_to_wa: bool

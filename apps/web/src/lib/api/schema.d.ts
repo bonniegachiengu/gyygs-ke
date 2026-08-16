@@ -283,6 +283,8 @@ export interface components {
             /** Business Name */
             business_name?: string | null;
             contact: components["schemas"]["Contact"];
+            /** Estate */
+            estate?: string | null;
             /** Items */
             items?: components["schemas"]["QuoteItem"][];
             /** Kra Pin */

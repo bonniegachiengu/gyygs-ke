@@ -99,6 +99,18 @@ def test_minimum_callout_is_explained_rather_than_hidden() -> None:
     assert "Minimum call-out applied: KSh 1,500" in msg
 
 
+def test_estate_rides_along_on_the_area_line() -> None:
+    """Regression: the estate was captured in the UI and dropped on the floor —
+    never sent, never logged, never in the message Mercy reads."""
+    msg = _worked_example(area_label="Nairobi & suburbs", estate="Kasarani")
+    assert "Area: Nairobi & suburbs — Kasarani  ·  Preferred: Sat, morning" in msg
+
+
+def test_estate_is_omitted_when_blank() -> None:
+    for blank in (None, "", "   "):
+        assert "Area: Ruiru  ·" in _worked_example(estate=blank)
+
+
 def test_recurring_line_states_the_rate_without_discounting_this_job() -> None:
     msg = _worked_example(recurring=True, recurring_discount_pct=10)
     assert "Estimated total: KSh 3,800" in msg  # this job is full price

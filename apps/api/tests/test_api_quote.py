@@ -225,6 +225,22 @@ def test_commercial_item_forces_visit_first(client: TestClient) -> None:
     assert "from KSh" in text
 
 
+def test_estate_reaches_the_message_and_the_lead(client: TestClient, repo) -> None:
+    """Regression: this field was collected on screen and silently discarded."""
+    body = {**WORKED_EXAMPLE, "area": "nairobi", "estate": "Kasarani"}
+    q = client.post("/api/quote", json=body).json()
+
+    text = unquote(q["whatsapp_url"].split("?text=", 1)[1])
+    assert "Area: Nairobi & suburbs — Kasarani" in text
+    assert repo.list()[0].estate == "Kasarani"
+
+
+def test_estate_is_optional(client: TestClient, repo) -> None:
+    q = client.post("/api/quote", json=WORKED_EXAMPLE).json()
+    assert "Area: Ruiru  ·" in unquote(q["whatsapp_url"].split("?text=", 1)[1])
+    assert repo.list()[0].estate == ""
+
+
 def test_recurring_is_intent_only_and_never_discounts_over_the_api(client: TestClient) -> None:
     """No route in v1 can hand out the repeat rate — there is no customer record,
     so every quote is priced as a first job."""

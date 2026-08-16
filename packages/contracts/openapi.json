@@ -513,6 +513,18 @@
           "contact": {
             "$ref": "#/components/schemas/Contact"
           },
+          "estate": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estate"
+          },
           "items": {
             "items": {
               "$ref": "#/components/schemas/QuoteItem"

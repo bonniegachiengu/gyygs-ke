@@ -53,6 +53,7 @@ def build_message(
     total: int,
     quote_ref: str,
     area_label: str,
+    estate: str | None = None,
     site_host: str,
     visit_first: bool,
     preferred: Preferred | None = None,
@@ -96,8 +97,11 @@ def build_message(
 
     out.append(WA_TRANSPORT)
 
-    # Two spaces either side of the middle dot, per §7.
+    # Two spaces either side of the middle dot, per §7. The estate is appended to
+    # the area rather than given its own line — Mercy reads this as one location.
     area_line = f"Area: {area_label}"
+    if estate and estate.strip():
+        area_line += f" — {estate.strip()}"
     pref = format_preferred(preferred)
     if pref:
         area_line += f"  ·  Preferred: {pref}"

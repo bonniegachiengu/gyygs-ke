@@ -232,6 +232,10 @@ class QuoteRequest(BaseModel):
     items: list[QuoteItem] = Field(default_factory=list)
     addons: list[QuoteAddon] = Field(default_factory=list)
     area: str
+    # The estate, building or landmark inside the area — "Kasarani" under
+    # "Nairobi & suburbs". Mercy needs it to actually find the place, so it rides
+    # along on the Area line of the WhatsApp message and is logged with the lead.
+    estate: str | None = Field(None, max_length=120)
     preferred: Preferred | None = None
     contact: Contact
     recurring: bool = False

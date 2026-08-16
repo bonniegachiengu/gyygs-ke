@@ -52,6 +52,7 @@ export function Send({ catalogue }: { catalogue: Catalogue }) {
               items,
               addons,
               area: state.area ?? "",
+              estate: state.estate.trim() || null,
               preferred:
                 state.day || state.window
                   ? { day: state.day, window: state.window }
@@ -156,6 +157,7 @@ export function Send({ catalogue }: { catalogue: Catalogue }) {
         </p>
         <p className="mt-1 text-sm text-ink/55">
           {areaLabel}
+          {state.estate.trim() ? ` — ${state.estate.trim()}` : ""}
           {preferred ? ` · ${preferred}` : ""} · {state.name}
         </p>
       </Card>
