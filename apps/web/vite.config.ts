@@ -4,6 +4,13 @@ import { defineConfig } from "vite";
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  // npm workspaces hoist react to the repo root while this config lives in
+  // apps/web. Without an explicit dedupe the dev server can serve a pre-bundled
+  // React to some modules and the raw one to others, which surfaces as
+  // "Invalid hook call … more than one copy of React" and a blank screen on the
+  // first state change. Harmless in the production build; fatal in dev.
+  resolve: { dedupe: ["react", "react-dom"] },
+  optimizeDeps: { include: ["react", "react-dom", "react/jsx-runtime", "zustand"] },
   server: {
     // `host: true` binds every interface so a real Android phone on the same
     // Wi-Fi can hit http://<lan-ip>:5173 — DISPATCH_BRIEF M3 requires phone QA.

@@ -15,8 +15,8 @@
     "build": "npm run build -w apps/web",
     "lint": "npm run lint -w apps/web",
     "test": "npm run test -w apps/web",
-    "api:openapi": "python apps/api/scripts/export_openapi.py",
-    "api:types": "openapi-typescript packages/contracts/openapi.json -o apps/web/src/lib/api/schema.d.ts",
+    "api:openapi": "node scripts/run-python.mjs apps/api/scripts/export_openapi.py",
+    "api:types": "openapi-typescript packages/contracts/openapi.json --default-non-nullable false -o apps/web/src/lib/api/schema.d.ts",
     "gen": "npm run api:openapi && npm run api:types",
     "gen:check": "npm run gen && git diff --exit-code packages/contracts apps/web/src/lib/api/schema.d.ts"
   },

@@ -82,7 +82,7 @@ CARPET = Service(
     larger="visit",
     # "Thick / shaggy carpets: + KSh 300 - 500" — a range, so it also makes the
     # quote visit-first (PRICES.md, Calculator handling rules).
-    modifiers=[Modifier(key="thick_shaggy", label="Thick / shaggy", add_range=(300, 500))],
+    modifiers=[Modifier(key="thick_shaggy", label="Thick / shaggy", add_range=[300, 500])],
 )
 
 # ── G · Mattress, by ft size ──────────────────────────────────────────────
@@ -150,7 +150,7 @@ ADDONS: list[Addon] = [
     Addon(key="microwave", label="Microwave", price=400),
     Addon(key="balcony", label="Balcony", price=500),
     # A range, so visit-first; contributes its lower bound.
-    Addon(key="inside_cabinets", label="Inside cabinets", price_range=(500, 1000)),
+    Addon(key="inside_cabinets", label="Inside cabinets", price_range=[500, 1000]),
     Addon(key="wall_spot", label="Wall spot cleaning", price=500, from_=True),
     Addon(key="rust", label="Rust stain removal", price=500, from_=True),
     Addon(key="grease", label="Heavy grease removal", price=500, from_=True),

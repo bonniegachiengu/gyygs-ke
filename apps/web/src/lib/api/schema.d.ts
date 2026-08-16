@@ -92,7 +92,7 @@ export interface components {
              * From
              * @default true
              */
-            from: boolean;
+            from?: boolean;
             /** Key */
             key: string;
             /** Label */
@@ -106,7 +106,7 @@ export interface components {
              * From
              * @default false
              */
-            from: boolean;
+            from?: boolean;
             /** Key */
             key: string;
             /** Label */
@@ -116,10 +116,7 @@ export interface components {
             /** Price */
             price?: number | null;
             /** Price Range */
-            price_range?: [
-                number,
-                number
-            ] | null;
+            price_range?: number[] | null;
         };
         /** Area */
         Area: {
@@ -131,7 +128,7 @@ export interface components {
              * Visit
              * @default false
              */
-            visit: boolean;
+            visit?: boolean;
         };
         /** Contact */
         Contact: {
@@ -154,7 +151,7 @@ export interface components {
              * @default unit
              * @constant
              */
-            per: "unit";
+            per?: "unit";
             /** Price */
             price: number;
         };
@@ -170,7 +167,7 @@ export interface components {
              * @default ok
              * @constant
              */
-            status: "ok";
+            status?: "ok";
             /** Version */
             version: string;
         };
@@ -189,10 +186,7 @@ export interface components {
             /** Add */
             add?: number | null;
             /** Add Range */
-            add_range?: [
-                number,
-                number
-            ] | null;
+            add_range?: number[] | null;
             /** Key */
             key: string;
             /** Label */
@@ -229,7 +223,7 @@ export interface components {
              * Qty
              * @default 1
              */
-            qty: number;
+            qty?: number;
         };
         /** QuoteItem */
         QuoteItem: {
@@ -237,7 +231,7 @@ export interface components {
              * Extra Bedrooms
              * @default 0
              */
-            extra_bedrooms: number;
+            extra_bedrooms?: number;
             /** Extras */
             extras?: components["schemas"]["QuoteItemExtra"][];
             /** Modifiers */
@@ -248,7 +242,7 @@ export interface components {
              * Qty
              * @default 1
              */
-            qty: number;
+            qty?: number;
             /** Seats */
             seats?: number | null;
             /** Service */
@@ -266,7 +260,7 @@ export interface components {
              * Qty
              * @default 1
              */
-            qty: number;
+            qty?: number;
         };
         /**
          * QuoteLine
@@ -296,7 +290,7 @@ export interface components {
              * Recurring
              * @default false
              */
-            recurring: boolean;
+            recurring?: boolean;
             site_visit?: components["schemas"]["SiteVisitDetails"] | null;
         };
         /** QuoteResponse */
@@ -307,7 +301,7 @@ export interface components {
              * Currency
              * @default KSh
              */
-            currency: string;
+            currency?: string;
             /** Discount */
             discount: number;
             /** Etims Note */
@@ -337,13 +331,13 @@ export interface components {
              * Recurring Requires Visit
              * @default false
              */
-            recurring_requires_visit: boolean;
+            recurring_requires_visit?: boolean;
             /**
              * Transport
              * @default separate
              * @constant
              */
-            transport: "separate";
+            transport?: "separate";
         };
         /** Service */
         Service: {
@@ -355,7 +349,7 @@ export interface components {
              * Free Text
              * @default false
              */
-            free_text: boolean;
+            free_text?: boolean;
             /** From */
             from?: number | null;
             /** From Label */

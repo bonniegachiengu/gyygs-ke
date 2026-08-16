@@ -59,7 +59,10 @@ class Modifier(BaseModel):
     key: str
     label: str
     add: int | None = None
-    add_range: tuple[int, int] | None = None
+    # A 2-element list rather than tuple[int, int]: openapi-typescript renders a
+    # tuple as [number, number] in one position and number[] in another, which
+    # makes the generated client fail to typecheck against itself.
+    add_range: Annotated[list[int], Field(min_length=2, max_length=2)] | None = None
 
 
 class AboveDef(BaseModel):
@@ -109,7 +112,8 @@ class Addon(BaseModel):
     key: str
     label: str
     price: int | None = None
-    price_range: tuple[int, int] | None = None
+    # See Modifier.add_range for why this is a list, not a tuple.
+    price_range: Annotated[list[int], Field(min_length=2, max_length=2)] | None = None
     per: Literal["unit"] | None = None
     from_: bool = Field(False, alias="from")
 
