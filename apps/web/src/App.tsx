@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 
+import { api, type Health } from "./lib/api/client";
+
 /**
  * M0 — the pipe. This page exists to prove one thing end to end: the browser can
  * reach the API through whatever is proxying `/api` (Vite in dev, nginx in prod,
- * Cloudflare Tunnel in production). It is replaced by the calculator in M1.
+ * Cloudflare Tunnel in production), through the generated typed client.
+ * It is replaced by the calculator in M1.
  */
 
-type Health = { status: string; version: string };
 type Probe =
   | { state: "loading" }
   | { state: "ok"; health: Health }
@@ -17,16 +19,21 @@ export default function App() {
 
   useEffect(() => {
     const ac = new AbortController();
-    fetch("/api/health", { signal: ac.signal })
-      .then(async (r) => {
-        if (!r.ok) throw new Error(`API returned ${r.status}`);
-        return (await r.json()) as Health;
+
+    api
+      .GET("/api/health", { signal: ac.signal })
+      .then((result) => {
+        // Not destructured on purpose: /api/health declares no error response,
+        // so openapi-fetch's error branch is `never` and destructuring collapses
+        // the whole result to `never`.
+        if (!result.data) throw new Error(`API returned ${result.response.status}`);
+        setProbe({ state: "ok", health: result.data });
       })
-      .then((health) => setProbe({ state: "ok", health }))
       .catch((err: unknown) => {
         if (ac.signal.aborted) return;
         setProbe({ state: "error", message: err instanceof Error ? err.message : String(err) });
       });
+
     return () => ac.abort();
   }, []);
 
@@ -37,9 +44,7 @@ export default function App() {
           Myra Cleaning Services
         </p>
         <h1 className="mt-1 text-3xl font-bold text-navy">Quote calculator</h1>
-        <p className="mt-2 text-sm text-ink/70">
-          v0 of gyygs.ke — deployment pipe check.
-        </p>
+        <p className="mt-2 text-sm text-ink/70">v0 of gyygs.ke — deployment pipe check.</p>
       </header>
 
       <section
