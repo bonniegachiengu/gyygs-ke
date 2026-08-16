@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+/* Brand — QUOTE_CALCULATOR_SPEC.md §11. Navy #14315F + green #3F9D24.
+   Tailwind v4 is CSS-first: these tokens generate bg-navy, text-green, etc. */
+@theme {
+  --color-navy: #14315f;
+  --color-navy-deep: #0f2549;
+  --color-green: #3f9d24;
+  --color-green-deep: #35841e;
+  --color-ink: #0f1b2d;
+  --color-mist: #f4f6fa;
+
+  /* System font stack on purpose: a webfont is a blocking round trip on the
+     mid-range Android over mobile data this app targets (§12). */
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    sans-serif;
+
+  --radius-card: 1rem;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-mist);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  /* Keeps the itemised quote column aligned when digits change. */
+  font-variant-numeric: tabular-nums;
+}
+
+/* Respect users who ask for less motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
