@@ -21,10 +21,148 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/pricing": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Price catalogue */
+        get: operations["pricing_api_pricing_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/quote": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Price a basket and build the WhatsApp handoff */
+        post: operations["post_quote_api_quote_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/quote/{quote_ref}/sent": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Mark a quote as handed off to WhatsApp
+         * @description Beacon from the Send button.
+         *
+         *     Without it every lead would sit at sent_to_wa=false and the drop-off metric
+         *     SPEC §8 asks for would be meaningless. Idempotent — the button is guarded
+         *     against double-taps, but a retried beacon must not be an error.
+         */
+        post: operations["mark_sent_api_quote__quote_ref__sent_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * AboveDef
+         * @description The open-ended top of a size ladder (mattress "6x7 & above").
+         */
+        AboveDef: {
+            /**
+             * From
+             * @default true
+             */
+            from: boolean;
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /** Price */
+            price: number;
+        };
+        /** Addon */
+        Addon: {
+            /**
+             * From
+             * @default false
+             */
+            from: boolean;
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /** Per */
+            per?: "unit" | null;
+            /** Price */
+            price?: number | null;
+            /** Price Range */
+            price_range?: [
+                number,
+                number
+            ] | null;
+        };
+        /** Area */
+        Area: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /**
+             * Visit
+             * @default false
+             */
+            visit: boolean;
+        };
+        /** Contact */
+        Contact: {
+            /** Name */
+            name: string;
+            /** Phone */
+            phone?: string | null;
+        };
+        /**
+         * ExtraDef
+         * @description A priced add-on attached to a service (extra bedroom, dining chair).
+         */
+        ExtraDef: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /**
+             * Per
+             * @default unit
+             * @constant
+             */
+            per: "unit";
+            /** Price */
+            price: number;
+        };
+        /** HTTPValidationError */
+        HTTPValidationError: {
+            /** Detail */
+            detail?: components["schemas"]["ValidationError"][];
+        };
         /** HealthResponse */
         HealthResponse: {
             /**
@@ -35,6 +173,255 @@ export interface components {
             status: "ok";
             /** Version */
             version: string;
+        };
+        /**
+         * Modifier
+         * @description An additive surcharge on a line (carpet thick/shaggy).
+         *
+         *     ARCHITECTURE §6 describes modifiers as multiplicative — "strategy result x
+         *     (1 + modifiers)" — but its own §5 data says `add_range: [300, 500]` and
+         *     PRICES.md §F says "+ KSh 300 - 500". Additive wins: the source of truth and
+         *     the concrete data agree against one line of loose prose. The two happen to
+         *     coincide on a 5x7 carpet (1000 + 300 == 1000 * 1.3), which is exactly how
+         *     this would ship unnoticed, so the test asserts on a 6x9 instead.
+         */
+        Modifier: {
+            /** Add */
+            add?: number | null;
+            /** Add Range */
+            add_range?: [
+                number,
+                number
+            ] | null;
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+        };
+        /** Preferred */
+        Preferred: {
+            /** Day */
+            day?: string | null;
+            /** Window */
+            window?: ("morning" | "afternoon") | null;
+        };
+        /** PricingCatalogue */
+        PricingCatalogue: {
+            /** Addons */
+            addons: components["schemas"]["Addon"][];
+            /** Areas */
+            areas: components["schemas"]["Area"][];
+            /** Currency */
+            currency: string;
+            /** Minimum Callout */
+            minimum_callout: number;
+            rules: components["schemas"]["Rules"];
+            /** Services */
+            services: components["schemas"]["Service"][];
+            /** Version */
+            version: string;
+        };
+        /** QuoteAddon */
+        QuoteAddon: {
+            /** Key */
+            key: string;
+            /**
+             * Qty
+             * @default 1
+             */
+            qty: number;
+        };
+        /** QuoteItem */
+        QuoteItem: {
+            /**
+             * Extra Bedrooms
+             * @default 0
+             */
+            extra_bedrooms: number;
+            /** Extras */
+            extras?: components["schemas"]["QuoteItemExtra"][];
+            /** Modifiers */
+            modifiers?: string[];
+            /** Note */
+            note?: string | null;
+            /**
+             * Qty
+             * @default 1
+             */
+            qty: number;
+            /** Seats */
+            seats?: number | null;
+            /** Service */
+            service: string;
+            /** Size */
+            size?: string | null;
+            /** Tier */
+            tier?: string | null;
+        };
+        /** QuoteItemExtra */
+        QuoteItemExtra: {
+            /** Key */
+            key: string;
+            /**
+             * Qty
+             * @default 1
+             */
+            qty: number;
+        };
+        /**
+         * QuoteLine
+         * @description Exactly the §5 shape — {label, amount}. Do not add keys.
+         */
+        QuoteLine: {
+            /** Amount */
+            amount: number;
+            /** Label */
+            label: string;
+        };
+        /** QuoteRequest */
+        QuoteRequest: {
+            /** Addons */
+            addons?: components["schemas"]["QuoteAddon"][];
+            /** Area */
+            area: string;
+            /** Business Name */
+            business_name?: string | null;
+            contact: components["schemas"]["Contact"];
+            /** Items */
+            items?: components["schemas"]["QuoteItem"][];
+            /** Kra Pin */
+            kra_pin?: string | null;
+            preferred?: components["schemas"]["Preferred"] | null;
+            /**
+             * Recurring
+             * @default false
+             */
+            recurring: boolean;
+            site_visit?: components["schemas"]["SiteVisitDetails"] | null;
+        };
+        /** QuoteResponse */
+        QuoteResponse: {
+            /** Created At */
+            created_at: string;
+            /**
+             * Currency
+             * @default KSh
+             */
+            currency: string;
+            /** Discount */
+            discount: number;
+            /** Etims Note */
+            etims_note?: string | null;
+            /** Lines */
+            lines: components["schemas"]["QuoteLine"][];
+            /** Quote Ref */
+            quote_ref: string;
+            /** Subtotal */
+            subtotal: number;
+            /** Total */
+            total: number;
+            /** Transport Note */
+            transport_note: string;
+            /** Vat */
+            vat?: number | null;
+            /** Visit First */
+            visit_first: boolean;
+            /** Whatsapp Url */
+            whatsapp_url: string;
+        };
+        /** Rules */
+        Rules: {
+            /** Recurring Discount Pct */
+            recurring_discount_pct: number;
+            /**
+             * Recurring Requires Visit
+             * @default false
+             */
+            recurring_requires_visit: boolean;
+            /**
+             * Transport
+             * @default separate
+             * @constant
+             */
+            transport: "separate";
+        };
+        /** Service */
+        Service: {
+            above?: components["schemas"]["AboveDef"] | null;
+            extra?: components["schemas"]["ExtraDef"] | null;
+            /** Extras */
+            extras?: components["schemas"]["ExtraDef"][] | null;
+            /**
+             * Free Text
+             * @default false
+             */
+            free_text: boolean;
+            /** From */
+            from?: number | null;
+            /** From Label */
+            from_label?: number | null;
+            /** Icon */
+            icon?: string | null;
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /** Larger */
+            larger?: "visit" | null;
+            /** Max Units */
+            max_units?: number | null;
+            /** Min Units */
+            min_units?: number | null;
+            /** Modifiers */
+            modifiers?: components["schemas"]["Modifier"][] | null;
+            /** Rate */
+            rate?: number | null;
+            /**
+             * Strategy
+             * @enum {string}
+             */
+            strategy: "per_unit" | "tier" | "size_tier" | "flat" | "visit";
+            /** Tiers */
+            tiers?: components["schemas"]["Tier"][] | null;
+            /** Unit */
+            unit?: string | null;
+        };
+        /**
+         * SiteVisitDetails
+         * @description QUOTE_CALCULATOR_SPEC §5.7 — collected instead of an instant total.
+         */
+        SiteVisitDetails: {
+            /** Frequency */
+            frequency?: ("one_off" | "weekly" | "fortnightly" | "monthly") | null;
+            /** Premises Type */
+            premises_type?: string | null;
+            /** Rough Size */
+            rough_size?: string | null;
+        };
+        /**
+         * Tier
+         * @description One fixed-price option: a house size, or a carpet/mattress ft size.
+         */
+        Tier: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /** Price */
+            price: number;
+        };
+        /** ValidationError */
+        ValidationError: {
+            /** Context */
+            ctx?: Record<string, never>;
+            /** Input */
+            input?: unknown;
+            /** Location */
+            loc: (string | number)[];
+            /** Message */
+            msg: string;
+            /** Error Type */
+            type: string;
         };
     };
     responses: never;
@@ -61,6 +448,88 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HealthResponse"];
+                };
+            };
+        };
+    };
+    pricing_api_pricing_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PricingCatalogue"];
+                };
+            };
+        };
+    };
+    post_quote_api_quote_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["QuoteRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuoteResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    mark_sent_api_quote__quote_ref__sent_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                quote_ref: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

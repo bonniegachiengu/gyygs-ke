@@ -1,6 +1,194 @@
 {
   "components": {
     "schemas": {
+      "AboveDef": {
+        "description": "The open-ended top of a size ladder (mattress \"6x7 & above\").",
+        "properties": {
+          "from": {
+            "default": true,
+            "title": "From",
+            "type": "boolean"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "price": {
+            "title": "Price",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "price"
+        ],
+        "title": "AboveDef",
+        "type": "object"
+      },
+      "Addon": {
+        "properties": {
+          "from": {
+            "default": false,
+            "title": "From",
+            "type": "boolean"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "per": {
+            "anyOf": [
+              {
+                "const": "unit",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Per"
+          },
+          "price": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price"
+          },
+          "price_range": {
+            "anyOf": [
+              {
+                "maxItems": 2,
+                "minItems": 2,
+                "prefixItems": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price Range"
+          }
+        },
+        "required": [
+          "key",
+          "label"
+        ],
+        "title": "Addon",
+        "type": "object"
+      },
+      "Area": {
+        "properties": {
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "visit": {
+            "default": false,
+            "title": "Visit",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "key",
+          "label"
+        ],
+        "title": "Area",
+        "type": "object"
+      },
+      "Contact": {
+        "properties": {
+          "name": {
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "phone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "Contact",
+        "type": "object"
+      },
+      "ExtraDef": {
+        "description": "A priced add-on attached to a service (extra bedroom, dining chair).",
+        "properties": {
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "per": {
+            "const": "unit",
+            "default": "unit",
+            "title": "Per",
+            "type": "string"
+          },
+          "price": {
+            "title": "Price",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "price"
+        ],
+        "title": "ExtraDef",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
       "HealthResponse": {
         "properties": {
           "status": {
@@ -18,6 +206,773 @@
           "version"
         ],
         "title": "HealthResponse",
+        "type": "object"
+      },
+      "Modifier": {
+        "description": "An additive surcharge on a line (carpet thick/shaggy).\n\nARCHITECTURE §6 describes modifiers as multiplicative — \"strategy result x\n(1 + modifiers)\" — but its own §5 data says `add_range: [300, 500]` and\nPRICES.md §F says \"+ KSh 300 - 500\". Additive wins: the source of truth and\nthe concrete data agree against one line of loose prose. The two happen to\ncoincide on a 5x7 carpet (1000 + 300 == 1000 * 1.3), which is exactly how\nthis would ship unnoticed, so the test asserts on a 6x9 instead.",
+        "properties": {
+          "add": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Add"
+          },
+          "add_range": {
+            "anyOf": [
+              {
+                "maxItems": 2,
+                "minItems": 2,
+                "prefixItems": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Add Range"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "label"
+        ],
+        "title": "Modifier",
+        "type": "object"
+      },
+      "Preferred": {
+        "properties": {
+          "day": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Day"
+          },
+          "window": {
+            "anyOf": [
+              {
+                "enum": [
+                  "morning",
+                  "afternoon"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Window"
+          }
+        },
+        "title": "Preferred",
+        "type": "object"
+      },
+      "PricingCatalogue": {
+        "properties": {
+          "addons": {
+            "items": {
+              "$ref": "#/components/schemas/Addon"
+            },
+            "title": "Addons",
+            "type": "array"
+          },
+          "areas": {
+            "items": {
+              "$ref": "#/components/schemas/Area"
+            },
+            "title": "Areas",
+            "type": "array"
+          },
+          "currency": {
+            "title": "Currency",
+            "type": "string"
+          },
+          "minimum_callout": {
+            "title": "Minimum Callout",
+            "type": "integer"
+          },
+          "rules": {
+            "$ref": "#/components/schemas/Rules"
+          },
+          "services": {
+            "items": {
+              "$ref": "#/components/schemas/Service"
+            },
+            "title": "Services",
+            "type": "array"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "version",
+          "currency",
+          "minimum_callout",
+          "services",
+          "addons",
+          "areas",
+          "rules"
+        ],
+        "title": "PricingCatalogue",
+        "type": "object"
+      },
+      "QuoteAddon": {
+        "properties": {
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "qty": {
+            "default": 1,
+            "maximum": 50.0,
+            "minimum": 1.0,
+            "title": "Qty",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "key"
+        ],
+        "title": "QuoteAddon",
+        "type": "object"
+      },
+      "QuoteItem": {
+        "properties": {
+          "extra_bedrooms": {
+            "default": 0,
+            "maximum": 10.0,
+            "minimum": 0.0,
+            "title": "Extra Bedrooms",
+            "type": "integer"
+          },
+          "extras": {
+            "items": {
+              "$ref": "#/components/schemas/QuoteItemExtra"
+            },
+            "title": "Extras",
+            "type": "array"
+          },
+          "modifiers": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Modifiers",
+            "type": "array"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "maxLength": 500,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "qty": {
+            "default": 1,
+            "maximum": 50.0,
+            "minimum": 1.0,
+            "title": "Qty",
+            "type": "integer"
+          },
+          "seats": {
+            "anyOf": [
+              {
+                "maximum": 9.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Seats"
+          },
+          "service": {
+            "title": "Service",
+            "type": "string"
+          },
+          "size": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Size"
+          },
+          "tier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tier"
+          }
+        },
+        "required": [
+          "service"
+        ],
+        "title": "QuoteItem",
+        "type": "object"
+      },
+      "QuoteItemExtra": {
+        "properties": {
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "qty": {
+            "default": 1,
+            "maximum": 50.0,
+            "minimum": 1.0,
+            "title": "Qty",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "key"
+        ],
+        "title": "QuoteItemExtra",
+        "type": "object"
+      },
+      "QuoteLine": {
+        "description": "Exactly the §5 shape — {label, amount}. Do not add keys.",
+        "properties": {
+          "amount": {
+            "title": "Amount",
+            "type": "integer"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "amount"
+        ],
+        "title": "QuoteLine",
+        "type": "object"
+      },
+      "QuoteRequest": {
+        "properties": {
+          "addons": {
+            "items": {
+              "$ref": "#/components/schemas/QuoteAddon"
+            },
+            "title": "Addons",
+            "type": "array"
+          },
+          "area": {
+            "title": "Area",
+            "type": "string"
+          },
+          "business_name": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Business Name"
+          },
+          "contact": {
+            "$ref": "#/components/schemas/Contact"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/QuoteItem"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "kra_pin": {
+            "anyOf": [
+              {
+                "maxLength": 20,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kra Pin"
+          },
+          "preferred": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Preferred"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "recurring": {
+            "default": false,
+            "title": "Recurring",
+            "type": "boolean"
+          },
+          "site_visit": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SiteVisitDetails"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "area",
+          "contact"
+        ],
+        "title": "QuoteRequest",
+        "type": "object"
+      },
+      "QuoteResponse": {
+        "properties": {
+          "created_at": {
+            "title": "Created At",
+            "type": "string"
+          },
+          "currency": {
+            "default": "KSh",
+            "title": "Currency",
+            "type": "string"
+          },
+          "discount": {
+            "title": "Discount",
+            "type": "integer"
+          },
+          "etims_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Etims Note"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/QuoteLine"
+            },
+            "title": "Lines",
+            "type": "array"
+          },
+          "quote_ref": {
+            "title": "Quote Ref",
+            "type": "string"
+          },
+          "subtotal": {
+            "title": "Subtotal",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          },
+          "transport_note": {
+            "title": "Transport Note",
+            "type": "string"
+          },
+          "vat": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vat"
+          },
+          "visit_first": {
+            "title": "Visit First",
+            "type": "boolean"
+          },
+          "whatsapp_url": {
+            "title": "Whatsapp Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "quote_ref",
+          "lines",
+          "subtotal",
+          "discount",
+          "total",
+          "visit_first",
+          "transport_note",
+          "whatsapp_url",
+          "created_at"
+        ],
+        "title": "QuoteResponse",
+        "type": "object"
+      },
+      "Rules": {
+        "properties": {
+          "recurring_discount_pct": {
+            "title": "Recurring Discount Pct",
+            "type": "integer"
+          },
+          "recurring_requires_visit": {
+            "default": false,
+            "title": "Recurring Requires Visit",
+            "type": "boolean"
+          },
+          "transport": {
+            "const": "separate",
+            "default": "separate",
+            "title": "Transport",
+            "type": "string"
+          }
+        },
+        "required": [
+          "recurring_discount_pct"
+        ],
+        "title": "Rules",
+        "type": "object"
+      },
+      "Service": {
+        "properties": {
+          "above": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AboveDef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "extra": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ExtraDef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "extras": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ExtraDef"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Extras"
+          },
+          "free_text": {
+            "default": false,
+            "title": "Free Text",
+            "type": "boolean"
+          },
+          "from": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "From"
+          },
+          "from_label": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "From Label"
+          },
+          "icon": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Icon"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "larger": {
+            "anyOf": [
+              {
+                "const": "visit",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Larger"
+          },
+          "max_units": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Units"
+          },
+          "min_units": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Units"
+          },
+          "modifiers": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/Modifier"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Modifiers"
+          },
+          "rate": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rate"
+          },
+          "strategy": {
+            "enum": [
+              "per_unit",
+              "tier",
+              "size_tier",
+              "flat",
+              "visit"
+            ],
+            "title": "Strategy",
+            "type": "string"
+          },
+          "tiers": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/Tier"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tiers"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit"
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "strategy"
+        ],
+        "title": "Service",
+        "type": "object"
+      },
+      "SiteVisitDetails": {
+        "description": "QUOTE_CALCULATOR_SPEC §5.7 — collected instead of an instant total.",
+        "properties": {
+          "frequency": {
+            "anyOf": [
+              {
+                "enum": [
+                  "one_off",
+                  "weekly",
+                  "fortnightly",
+                  "monthly"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Frequency"
+          },
+          "premises_type": {
+            "anyOf": [
+              {
+                "maxLength": 60,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Premises Type"
+          },
+          "rough_size": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rough Size"
+          }
+        },
+        "title": "SiteVisitDetails",
+        "type": "object"
+      },
+      "Tier": {
+        "description": "One fixed-price option: a house size, or a carpet/mattress ft size.",
+        "properties": {
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "price": {
+            "title": "Price",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "price"
+        ],
+        "title": "Tier",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
         "type": "object"
       }
     }
@@ -47,6 +1002,104 @@
         "summary": "Service health",
         "tags": [
           "health"
+        ]
+      }
+    },
+    "/api/pricing": {
+      "get": {
+        "operationId": "pricing_api_pricing_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PricingCatalogue"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Price catalogue",
+        "tags": [
+          "pricing"
+        ]
+      }
+    },
+    "/api/quote": {
+      "post": {
+        "operationId": "post_quote_api_quote_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuoteRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Price a basket and build the WhatsApp handoff",
+        "tags": [
+          "quote"
+        ]
+      }
+    },
+    "/api/quote/{quote_ref}/sent": {
+      "post": {
+        "description": "Beacon from the Send button.\n\nWithout it every lead would sit at sent_to_wa=false and the drop-off metric\nSPEC §8 asks for would be meaningless. Idempotent — the button is guarded\nagainst double-taps, but a retried beacon must not be an error.",
+        "operationId": "mark_sent_api_quote__quote_ref__sent_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "quote_ref",
+            "required": true,
+            "schema": {
+              "title": "Quote Ref",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Mark a quote as handed off to WhatsApp",
+        "tags": [
+          "quote"
         ]
       }
     }
