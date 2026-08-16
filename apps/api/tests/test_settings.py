@@ -54,7 +54,7 @@ def test_settings_constructs_from_env_example() -> None:
     assert s.business_kra_pin == "pending"
 
     # Pricing rules — both are pending Mercy's confirmation, see CLAUDE.md.
-    assert s.minimum_callout == 1500
+    assert s.minimum_callout == 0
     assert s.recurring_discount_pct == 10
     assert s.recurring_requires_visit is False
 

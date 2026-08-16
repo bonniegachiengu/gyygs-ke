@@ -53,9 +53,11 @@ function perUnit(item: DraftItem, svc: Service): EstimateLine[] {
   const units = Math.max(item.seats ?? floor, floor);
   const qty = item.qty ?? 1;
 
+  // Singular matters now that a single seat is quotable (no 2-seat floor).
+  const unitWord = units === 1 ? svc.unit : `${svc.unit}s`;
   const lines: EstimateLine[] = [
     {
-      label: `${svc.label}${SEP}${units} ${svc.unit}s${qtySuffix(qty)}`,
+      label: `${svc.label}${SEP}${units} ${unitWord}${qtySuffix(qty)}`,
       amount: rate * units * qty,
       visit: false,
     },

@@ -114,9 +114,11 @@ def _price_per_unit(item: QuoteItem, svc: Service) -> list[LineResult]:
             f"{svc.label.lower()} tops out at {svc.max_units} {svc.unit}s", field="items.seats"
         )
 
+    # Singular matters now that a single seat is quotable (no 2-seat floor).
+    unit_word = svc.unit if units == 1 else f"{svc.unit}s"
     lines = [
         LineResult(
-            label=f"{svc.label}{_SEP}{units} {svc.unit}s{_qty_suffix(item.qty)}",
+            label=f"{svc.label}{_SEP}{units} {unit_word}{_qty_suffix(item.qty)}",
             amount=rate * units * item.qty,
         )
     ]

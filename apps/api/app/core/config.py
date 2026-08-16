@@ -33,7 +33,10 @@ class Settings(BaseSettings):
     whatsapp_number: str = "254716869648"
 
     # ── Pricing rules (mirror of PRICES.md — see CLAUDE.md before changing) ──
-    minimum_callout: int = 1500
+    # 0 = no floor. Mercy's call, 16 Aug 2026: "don't cap the price". The flyer's
+    # numbers are the numbers. The mechanism is kept (not deleted) so a floor is a
+    # config change if she ever wants one, but nothing imposes one by default.
+    minimum_callout: int = 0
     recurring_discount_pct: int = 10
     recurring_requires_visit: bool = False
 

@@ -135,30 +135,45 @@ def test_per_unit_addons_multiply_and_label_quantity() -> None:
 # ─────────────────────────── the §6 edge cases, by name ───────────────────────────
 
 
-def test_minimum_callout_floor() -> None:
-    """A single microwave is 400; the call-out floor lifts it to 1,500."""
+def test_no_price_floor_by_default() -> None:
+    """Mercy, 16 Aug 2026: "don't cap the price, no 1000 or 1500 or any other cap."
+
+    The flyer's numbers are the numbers. A single microwave is 400 and quotes at
+    400 — nothing silently rounds a small job up.
+    """
     c = totals(quote(addons=[QuoteAddon(key="microwave")]))
     assert c.subtotal == 400
-    assert c.total == 1500
-    assert c.minimum_applied is True
-    assert c.minimum_adjustment == 1100
-    # The floor is shown as its own row under the subtotal, never folded into an
-    # item line — so the itemised card still adds up to the subtotal.
+    assert c.total == 400
+    assert c.minimum_applied is False
+    assert c.minimum_adjustment == 0
     assert sum(line.amount for line in c.lines) == c.subtotal
 
 
-def test_minimum_not_applied_above_the_floor() -> None:
-    c = totals(quote(items=[QuoteItem(service="mattress", size="6x6")]))
-    assert c.total == 1800
-    assert c.minimum_applied is False
-    assert c.minimum_adjustment == 0
+@pytest.mark.parametrize(
+    ("service", "kwargs", "price"),
+    [
+        ("sofa", {"seats": 1}, 500),
+        ("sofa", {"seats": 2}, 1000),
+        ("mattress", {"size": "3x6"}, 1000),
+        ("carpet", {"size": "3x5"}, 500),
+    ],
+)
+def test_small_jobs_quote_at_their_flyer_price(service: str, kwargs: dict, price: int) -> None:
+    """Every one of these used to be repriced upward by the 1,500 floor."""
+    c = totals(quote(items=[QuoteItem(service=service, **kwargs)]))
+    assert c.total == price
 
 
-def test_minimum_callout_is_configurable_off() -> None:
-    """PRICES.md never states a floor — MINIMUM_CALLOUT=0 must honour the flyer."""
-    cat = build_catalogue(minimum_callout=0)
-    c = compute_quote(quote(items=[QuoteItem(service="sofa", seats=2)]), cat)
-    assert c.total == 1000  # the flyer's 2-seater price, not 1,500
+def test_floor_mechanism_still_works_if_it_is_ever_switched_back_on() -> None:
+    """Kept, not deleted — a floor is a config change, not a code change."""
+    cat = build_catalogue(minimum_callout=1500)
+    c = compute_quote(quote(addons=[QuoteAddon(key="microwave")]), cat)
+    assert c.total == 1500
+    assert c.minimum_applied is True
+    assert c.minimum_adjustment == 1100
+    # Shown as its own row under the subtotal, never folded into an item line —
+    # so the itemised card still adds up to the subtotal.
+    assert sum(line.amount for line in c.lines) == c.subtotal
 
 
 def test_extra_bedroom_beyond_4br() -> None:
@@ -224,8 +239,13 @@ def test_visit_first_false_when_every_item_is_a_hard_price() -> None:
 # ────────────────────────────── rules and ranges ──────────────────────────────
 
 
-def test_sofa_floors_at_the_two_seater_minimum() -> None:
-    assert totals(quote(items=[QuoteItem(service="sofa", seats=1)])).subtotal == 1000
+def test_single_seat_is_charged_per_seat() -> None:
+    """PRICES.md §E's own note is "Price is per seat (1 seat)" — its table just
+    starts at a 2-seater, which was never a stated minimum. Part of Mercy's
+    "no cap of any kind"."""
+    c = totals(quote(items=[QuoteItem(service="sofa", seats=1)]))
+    assert c.subtotal == 500
+    assert c.lines[0].label == "Sofa — 1 seat"
 
 
 def test_sofa_rejects_more_than_nine_seats() -> None:
@@ -282,13 +302,15 @@ def test_recurring_discount_floors_to_whole_shillings() -> None:
 
 
 def test_recurring_discount_then_the_minimum_floor() -> None:
-    """Pins ARCHITECTURE §6 over QUOTE_CALCULATOR_SPEC §6.
+    """Pins ARCHITECTURE §6 over QUOTE_CALCULATOR_SPEC §6, for the day a floor
+    is ever switched back on.
 
-    §6 of the tech contract compares the floor against the DISCOUNTED value;
-    the UX spec's summary compares it against the raw subtotal. They only differ
-    here: 1,600 - 10% = 1,440, which is under the 1,500 floor.
+    §6 of the tech contract compares the floor against the DISCOUNTED value; the
+    UX spec's summary compares it against the raw subtotal. They only differ
+    here: 1,600 - 10% = 1,440, which is under a 1,500 floor.
     """
-    c = totals(quote(addons=[QuoteAddon(key="bathroom", qty=2)], recurring=True))
+    cat = build_catalogue(minimum_callout=1500)
+    c = compute_quote(quote(addons=[QuoteAddon(key="bathroom", qty=2)], recurring=True), cat)
     assert c.subtotal == 1600
     assert c.discount == 160
     assert c.total == 1500  # not 1,440, and not 1,600
@@ -301,24 +323,19 @@ def test_residential_recurring_still_gets_a_real_total() -> None:
     assert c.total == 4500
 
 
-def test_minimum_floor_swallows_the_recurring_discount_on_small_baskets() -> None:
-    """⚠ Business consequence, not a bug — flagged for Mercy.
+def test_recurring_discount_is_visible_on_a_small_basket() -> None:
+    """Regression guard for the bug removing the floor fixed.
 
-    A 3-seat sofa is 1,500. Recurring -10% takes it to 1,350, which is under the
-    1,500 call-out floor, so the customer is charged 1,500 and sees no discount
-    at all. With both values at their current defaults the loyalty discount is
-    invisible on every job under ~1,667 KSh — which includes the 3-seater, the
-    single most common basket in the specs.
-
-    Two dials fix it, both config: lower MINIMUM_CALLOUT, or accept that the
-    discount only applies above the floor. This test pins the behaviour so the
-    trade-off stays visible rather than silently surprising a repeat customer.
+    A 3-seat sofa is 1,500. With the old 1,500 call-out floor, -10% took it to
+    1,350 and the floor pushed it straight back to 1,500 — the loyalty discount
+    was invisible on every job under ~1,667, which included the single most
+    common basket in the specs. With no floor it simply shows.
     """
     c = totals(quote(items=[QuoteItem(service="sofa", seats=3)], recurring=True))
     assert c.subtotal == 1500
     assert c.discount == 150
-    assert c.total == 1500  # not 1,350 — the floor took the discount back
-    assert c.minimum_applied is True
+    assert c.total == 1350
+    assert c.minimum_applied is False
 
     # With the floor off, the discount lands as the customer expects.
     off = compute_quote(

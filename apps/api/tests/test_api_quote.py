@@ -33,7 +33,7 @@ def test_pricing_returns_the_catalogue(client: TestClient) -> None:
     cat = r.json()
 
     assert cat["currency"] == "KSh"
-    assert cat["minimum_callout"] == 1500
+    assert cat["minimum_callout"] == 0
     assert cat["rules"] == {
         "recurring_discount_pct": 10,
         "transport": "separate",

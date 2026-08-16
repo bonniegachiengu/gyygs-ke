@@ -38,17 +38,18 @@ job already scoped and priced. API-first, evolvable — **NOT a throwaway**.
 | Decision | Value |
 |---|---|
 | Frontend framework | React + Vite + Tailwind (matches the VOS III stack Bonnie maintains) |
-| Minimum call-out | Kept at 1,500 but **rendered as an explicit line** so the card sums to the total. `MINIMUM_CALLOUT=0` disables it. |
+| Minimum call-out | **None. `MINIMUM_CALLOUT=0`.** Mercy, 16 Aug 2026: *"don't cap the price, so no 1000 or 1500 or any other cap."* The flyer's numbers are the numbers. Sofa `min_units` dropped to 1 for the same reason. The floor mechanism is kept so it is a config change if ever revisited. |
 | Recurring | **Premises decides.** Office / commercial / post-construction / BnB → site visit. Residential recurring → −10% and a real total. `RECURRING_REQUIRES_VISIT=false`. |
 | Tunnel | New named tunnel `myra`, created by CLI against the existing zone cert. No Zero Trust dashboard. |
 
 ## Open — needs Mercy (Friday)
 
 - `RECURRING_DISCOUNT_PCT=10` is a **placeholder**. `FRIDAY_WITH_MERCY.md §3`: *"You set the number."*
-- `MINIMUM_CALLOUT=1500` is **not in `PRICES.md`** — it comes from `ARCHITECTURE §5/§6`, and the
-  flyer advertises jobs below it (2-seater sofa 1,000, mattress 3×6 1,000, carpet 3×5 500).
-  `QUOTE_CALCULATOR_SPEC §5` Step 2 even calls the 2-seater *"the KSh 1,000 minimum"*.
-  If the floor is real, add a row to `PRICES.md` — the doc leads the code, never the reverse.
+- **The discount is self-declared and unearned.** `recurring` is a checkbox on the Where&When
+  screen; anyone can tick it and take 10% off a one-off job, on their first booking, with
+  nothing given in return. At a 50–55% gross margin, 10% off list is ~20% of the gross margin.
+  Nothing verifies the customer ever comes back. Recommendation on the table — do not treat
+  the current behaviour as settled.
 - Business identity stubs (`BUSINESS_LEGAL_NAME`, `BUSINESS_KRA_PIN`, `BUSINESS_REG_NO`) stay
   "pending registration" until the eCitizen/KRA steps in `REGISTRATION.md` are done.
 

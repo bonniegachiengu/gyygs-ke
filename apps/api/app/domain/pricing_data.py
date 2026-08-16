@@ -44,16 +44,20 @@ HOUSE = Service(
     extra=ExtraDef(key="extra_bedroom", label="Extra bedroom", price=1500),
 )
 
-# ── E · Sofa, per seat (~KSh 500/seat; the 2-seater at 1,000 is the floor) ──
+# ── E · Sofa, per seat (KSh 500/seat) ─────────────────────────────────────
+# min_units was 2, making a single armchair cost 1,000. Mercy's "no 1,000, no
+# 1,500, no cap of any kind" (16 Aug 2026) removes it: PRICES.md §E's own note
+# says "Price is per seat (1 seat)", so one seat is 500. The flyer's table simply
+# starts at a 2-seater; it was never a stated minimum.
 SOFA = Service(
     key="sofa",
     label="Sofa",
     strategy="per_unit",
     icon="🛋",
-    from_label=1000,
+    from_label=500,
     unit="seat",
     rate=500,
-    min_units=2,
+    min_units=1,
     max_units=9,  # PRICES.md §E stops at a 9-seater
     extras=[
         ExtraDef(key="dining_chair", label="Dining chair", price=250),
@@ -175,7 +179,7 @@ AREAS: list[Area] = [
 
 def build_catalogue(
     *,
-    minimum_callout: int = 1500,
+    minimum_callout: int = 0,
     recurring_discount_pct: int = 10,
     recurring_requires_visit: bool = False,
 ) -> PricingCatalogue:
