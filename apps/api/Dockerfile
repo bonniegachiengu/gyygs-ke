@@ -20,14 +20,14 @@ WORKDIR /srv
 COPY --chown=app:app apps/api/app ./app
 
 USER app
-EXPOSE 8000
+EXPOSE 8010
 
 HEALTHCHECK --interval=15s --timeout=3s --start-period=10s --retries=5 \
-  CMD python -c "import urllib.request;urllib.request.urlopen('http://127.0.0.1:8000/api/health')"
+  CMD python -c "import urllib.request;urllib.request.urlopen('http://127.0.0.1:8010/api/health')"
 
 # --forwarded-allow-ips is safe here: this container publishes no ports, so only
 # `web` (nginx) can reach it, and the rate limiter needs the real client IP.
 CMD ["uvicorn", "app.main:app", \
-     "--host", "0.0.0.0", "--port", "8000", \
+     "--host", "0.0.0.0", "--port", "8010", \
      "--proxy-headers", "--forwarded-allow-ips", "*", \
      "--no-server-header"]

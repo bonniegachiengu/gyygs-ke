@@ -29,14 +29,18 @@ No Docker needed for the day-to-day loop.
 cd apps/api
 py -3.11 -m venv .venv && .venv/Scripts/activate      # macOS/Linux: source .venv/bin/activate
 pip install -e ".[dev]"
-uvicorn app.main:app --reload --port 8000
+uvicorn app.main:app --reload --port 8010
 
 # terminal B — the web app, from the repo root
 npm install
 npm run dev                                            # http://localhost:5173
 ```
 
-Vite proxies `/api/*` to `127.0.0.1:8000`, and nginx does the same in production — so the
+> **Port 8010, not 8000.** On Bonnie's machine WSL forwards `localhost:8000` to the VOS III
+> backend, which runs live M-Pesa capture. Myra uses 8010 everywhere — local dev, the container,
+> and the nginx upstream — so the two projects can run side by side.
+
+Vite proxies `/api/*` to `127.0.0.1:8010`, and nginx does the same in production — so the
 frontend calls the API same-origin in both worlds and there is no `VITE_API_BASE` to get wrong.
 `npm run dev` binds all interfaces, so a real Android phone on the same Wi-Fi can hit
 `http://<your-lan-ip>:5173` for QA.

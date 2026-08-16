@@ -12,7 +12,9 @@ export default defineConfig({
     proxy: {
       // Mirrors what nginx does in production, so the app calls the API
       // same-origin in both worlds and there is no API base URL to configure.
-      "/api": { target: "http://127.0.0.1:8000", changeOrigin: false },
+      // Port 8010, not 8000: on Bonnie's machine WSL forwards localhost:8000 to
+      // the VOS III backend, which is live and must not be disturbed.
+      "/api": { target: "http://127.0.0.1:8010", changeOrigin: false },
     },
   },
   build: {
