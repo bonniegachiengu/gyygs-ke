@@ -1,0 +1,58 @@
+name: myra
+
+# Run from this directory: `docker compose up -d`.
+# Relative paths below resolve against THIS file's location, not your shell's cwd.
+
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: apps/api/Dockerfile
+    env_file:
+      - ../.env
+    environment:
+      # Container-local overrides for the two path settings.
+      QUOTE_SEQ_PATH: /data/quote_seq.json
+      GOOGLE_SERVICE_ACCOUNT_JSON: /run/secrets/service-account.json
+    volumes:
+      # Durable per-day quote-ref counter — survives restarts and recreates.
+      - api_data:/data
+      # Service-account JSON for the Sheets lead store (M2). Gitignored.
+      - ../secrets:/run/secrets:ro
+    expose:
+      - "8010"
+    # Deliberately NOT published. Only `web` may reach the API, which is what
+    # makes uvicorn's --forwarded-allow-ips "*" safe.
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ..
+      dockerfile: apps/web/Dockerfile
+    depends_on:
+      api:
+        condition: service_healthy
+    expose:
+      - "3000"
+    ports:
+      # For LAN phone QA (DISPATCH_BRIEF M3). Safe to drop for tunnel-only serving.
+      - "3000:3000"
+    restart: unless-stopped
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    # Named tunnel with credentials-file auth. ARCHITECTURE §10 assumed a
+    # dashboard token, but Cloudflare Zero Trust gates tunnel creation behind
+    # card verification; the zone cert already in WSL authorises the CLI route,
+    # so this repo uses that instead. TUNNEL_TOKEN stays documented in
+    # .env.example as the alternative.
+    command: tunnel --no-autoupdate --config /etc/cloudflared/config.yml run myra
+    volumes:
+      - ./cloudflared:/etc/cloudflared:ro
+    depends_on:
+      web:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  api_data: {}

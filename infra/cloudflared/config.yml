@@ -1,0 +1,23 @@
+# Cloudflare named tunnel for myra.vyybandasky.online.
+#
+# The UUID is an identifier, not a secret, so this file is committed. The
+# credentials it points at (<uuid>.json) are gitignored and copied in by hand —
+# see the tunnel section of README.md.
+#
+# Created with:
+#   cloudflared tunnel create myra
+#   cloudflared --config /dev/null tunnel route dns myra myra.vyybandasky.online
+#
+# The `--config /dev/null` matters: without it the CLI picks up the tunnel named
+# in ~/.cloudflared/config.yml (vyyb-os on this machine) and points the CNAME at
+# the wrong tunnel, silently.
+
+tunnel: ff3356b1-319e-4f65-a451-08b0cdfc212b
+credentials-file: /etc/cloudflared/ff3356b1-319e-4f65-a451-08b0cdfc212b.json
+loglevel: info
+
+ingress:
+  # One public hostname; nginx fronts the API internally on /api.
+  - hostname: myra.vyybandasky.online
+    service: http://web:3000
+  - service: http_status:404
