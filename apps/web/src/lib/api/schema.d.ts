@@ -325,6 +325,11 @@ export interface components {
         };
         /** Rules */
         Rules: {
+            /**
+             * Recurring Discount From Job
+             * @default 2
+             */
+            recurring_discount_from_job?: number;
             /** Recurring Discount Pct */
             recurring_discount_pct: number;
             /**

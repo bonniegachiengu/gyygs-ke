@@ -281,24 +281,58 @@ def test_office_chair_is_350() -> None:
     assert c.subtotal == 1350
 
 
-def test_recurring_discount_is_ten_percent() -> None:
+# ── the repeat discount is EARNED, not claimed (Bonnie + Mercy, 16 Aug 2026) ──
+
+
+def test_ticking_recurring_does_not_discount_the_first_job() -> None:
+    """The headline rule. `recurring` is intent; it never moves the price.
+
+    Before this, anyone could tick "I'd like this regularly" and take 10% off a
+    one-off job on their first booking, having promised nothing. At a 50-55%
+    gross margin that is ~20% of the margin, handed to someone who may never
+    come back — and the customer most likely to hunt for the checkbox is the
+    price-sensitive one-off.
+    """
     c = totals(quote(items=[QuoteItem(service="house", tier="2br")], recurring=True))
+    assert c.subtotal == 5000
+    assert c.discount == 0
+    assert c.total == 5000
+
+
+def test_repeat_customer_earns_the_discount() -> None:
+    """What Phase 3's booking flow will set once a second job is real."""
+    c = totals(
+        quote(items=[QuoteItem(service="house", tier="2br")], recurring=True),
+        repeat_customer=True,
+    )
     assert c.subtotal == 5000
     assert c.discount == 500
     assert c.total == 4500
 
 
-def test_recurring_discount_floors_to_whole_shillings() -> None:
-    # 3,805 x 10% = 380.5 -> 380, never a fractional shilling.
+def test_repeat_discount_does_not_need_the_recurring_flag() -> None:
+    """A returning customer is a returning customer, checkbox or not."""
+    c = totals(quote(items=[QuoteItem(service="house", tier="2br")]), repeat_customer=True)
+    assert c.discount == 500
+
+
+def test_catalogue_states_which_job_the_discount_starts_on() -> None:
+    """The frontend builds its promise copy from this rather than hardcoding it."""
+    assert CAT.rules.recurring_discount_from_job == 2
+    assert CAT.rules.recurring_discount_pct == 10
+
+
+def test_repeat_discount_floors_to_whole_shillings() -> None:
+    # 4,150 x 10% = 415.0; use a basket that would otherwise land on a half.
     c = totals(
         quote(
             items=[QuoteItem(service="mattress", size="5x6")],
             addons=[QuoteAddon(key="windows_inside", qty=15), QuoteAddon(key="microwave")],
-            recurring=True,
-        )
+        ),
+        repeat_customer=True,
     )
     assert c.subtotal == 1500 + 2250 + 400
-    assert c.discount == c.subtotal * 10 // 100
+    assert c.discount == c.subtotal * 10 // 100  # integer floor, never a fraction
 
 
 def test_recurring_discount_then_the_minimum_floor() -> None:
@@ -310,39 +344,32 @@ def test_recurring_discount_then_the_minimum_floor() -> None:
     here: 1,600 - 10% = 1,440, which is under a 1,500 floor.
     """
     cat = build_catalogue(minimum_callout=1500)
-    c = compute_quote(quote(addons=[QuoteAddon(key="bathroom", qty=2)], recurring=True), cat)
+    c = compute_quote(quote(addons=[QuoteAddon(key="bathroom", qty=2)]), cat, repeat_customer=True)
     assert c.subtotal == 1600
     assert c.discount == 160
     assert c.total == 1500  # not 1,440, and not 1,600
 
 
 def test_residential_recurring_still_gets_a_real_total() -> None:
-    """Bonnie's call: premises decides the visit branch, not the recurring flag."""
+    """Premises decides the visit branch, not the recurring flag."""
     c = totals(quote(items=[QuoteItem(service="house", tier="2br")], recurring=True))
     assert c.visit_first is False
-    assert c.total == 4500
+    assert c.total == 5000
 
 
-def test_recurring_discount_is_visible_on_a_small_basket() -> None:
-    """Regression guard for the bug removing the floor fixed.
+def test_repeat_discount_is_visible_on_a_small_basket() -> None:
+    """Regression guard for the bug that removing the price floor fixed.
 
-    A 3-seat sofa is 1,500. With the old 1,500 call-out floor, -10% took it to
-    1,350 and the floor pushed it straight back to 1,500 — the loyalty discount
+    A 3-seat sofa is 1,500. Under the old 1,500 call-out floor, -10% took it to
+    1,350 and the floor pushed it straight back to 1,500 — so the repeat rate
     was invisible on every job under ~1,667, which included the single most
     common basket in the specs. With no floor it simply shows.
     """
-    c = totals(quote(items=[QuoteItem(service="sofa", seats=3)], recurring=True))
+    c = totals(quote(items=[QuoteItem(service="sofa", seats=3)]), repeat_customer=True)
     assert c.subtotal == 1500
     assert c.discount == 150
     assert c.total == 1350
     assert c.minimum_applied is False
-
-    # With the floor off, the discount lands as the customer expects.
-    off = compute_quote(
-        quote(items=[QuoteItem(service="sofa", seats=3)], recurring=True),
-        build_catalogue(minimum_callout=0),
-    )
-    assert off.total == 1350
 
 
 def test_recurring_can_be_forced_to_visit_first_by_config() -> None:

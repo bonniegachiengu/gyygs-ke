@@ -80,10 +80,12 @@ export function WhereWhen({ catalogue }: { catalogue: Catalogue }) {
 
       <Card>
         <Chip selected={recurring} onClick={() => set({ recurring: !recurring })}>
-          {recurring ? "✓ " : ""}I&apos;d like this regularly
+          {recurring ? "✓ " : ""}I&apos;ll want this regularly
         </Chip>
+        {/* Intent, not a price lever. The rate is earned on the next clean, so
+            this never changes today's total. */}
         <p className="mt-2 text-sm text-ink/55">
-          Repeat customers get {catalogue.rules.recurring_discount_pct}% off.
+          Every clean after your first is {catalogue.rules.recurring_discount_pct}% off.
         </p>
       </Card>
 

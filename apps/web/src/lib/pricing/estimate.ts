@@ -187,11 +187,18 @@ export function priceAddon(addon: DraftAddon, cat: Catalogue): EstimateLine | nu
 
 // ──────────────────────────────── assembly ────────────────────────────────
 
+/**
+ * `recurring` is intent and never moves the price — it only feeds the
+ * recurring_requires_visit rule. `repeatCustomer` is what earns the discount,
+ * and nothing in v1 sets it: there is no customer record, so every quote is
+ * priced as a first job. Booking (Phase 3) is what will set it.
+ */
 export function estimate(
   cat: Catalogue | null,
   items: DraftItem[],
   addons: DraftAddon[],
   recurring: boolean,
+  repeatCustomer = false,
 ): Estimate {
   if (!cat) return EMPTY_ESTIMATE;
 
@@ -205,7 +212,7 @@ export function estimate(
 
   const subtotal = lines.reduce((sum, l) => sum + l.amount, 0);
   // Integer floor division, exactly like the server — no fractional shillings.
-  const discount = recurring
+  const discount = repeatCustomer
     ? Math.floor((subtotal * cat.rules.recurring_discount_pct) / 100)
     : 0;
 

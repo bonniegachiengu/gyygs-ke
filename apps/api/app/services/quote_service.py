@@ -47,7 +47,17 @@ def create_quote(
 
     # Recompute from the request's SELECTIONS. Any total the client sent was
     # dropped at the schema boundary (QuoteRequest uses extra="ignore").
-    comp = compute_quote(req, cat, vat_registered=vat_registered, vat_rate=vat_rate)
+    #
+    # repeat_customer is hard-false in v1: there is no customer record, so every
+    # quote is priced as a first job. req.recurring is intent only — it never
+    # discounts. Booking (Phase 3) is what will set this.
+    comp = compute_quote(
+        req,
+        cat,
+        vat_registered=vat_registered,
+        vat_rate=vat_rate,
+        repeat_customer=False,
+    )
 
     quote_ref = refs.next_ref(now)
     area = _area(cat, req.area)
@@ -70,6 +80,8 @@ def create_quote(
         vat=comp.vat,
         vat_rate=vat_rate,
         area_needs_coverage_check=bool(area and area.visit),
+        recurring=req.recurring,
+        recurring_discount_pct=cat.rules.recurring_discount_pct,
         business_name=req.business_name,
         kra_pin=req.kra_pin,
         etims_note=etims_note,

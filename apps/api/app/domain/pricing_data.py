@@ -182,6 +182,7 @@ def build_catalogue(
     minimum_callout: int = 0,
     recurring_discount_pct: int = 10,
     recurring_requires_visit: bool = False,
+    recurring_discount_from_job: int = 2,
 ) -> PricingCatalogue:
     """Assemble the catalogue. The three rule values come from config so a
     business decision (Mercy's Friday calls) is a config change, not a deploy."""
@@ -196,6 +197,7 @@ def build_catalogue(
             recurring_discount_pct=recurring_discount_pct,
             transport="separate",
             recurring_requires_visit=recurring_requires_visit,
+            recurring_discount_from_job=recurring_discount_from_job,
         ),
     )
 

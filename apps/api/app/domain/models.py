@@ -135,6 +135,11 @@ class Rules(BaseModel):
     # False: premises type decides the site-visit branch, so a residential repeat
     # customer still gets a real total. See CLAUDE.md.
     recurring_requires_visit: bool = False
+    # The repeat discount is EARNED, not claimed. It applies from this job number
+    # onward — 2 means "full price on the first clean, discount from the second".
+    # 1 would restore the old behaviour (discount on a self-declared checkbox,
+    # first job, no commitment). Decided by Bonnie + Mercy, 16 Aug 2026.
+    recurring_discount_from_job: int = 2
 
 
 class PricingCatalogue(BaseModel):

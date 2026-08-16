@@ -39,6 +39,9 @@ class Settings(BaseSettings):
     minimum_callout: int = 0
     recurring_discount_pct: int = 10
     recurring_requires_visit: bool = False
+    # 2 = full price on the first clean, discount from the second. 1 would give it
+    # away on a self-declared checkbox with nothing earned.
+    recurring_discount_from_job: int = 2
 
     # ── Lead store ──
     lead_store: Literal["memory", "sheets"] = "memory"

@@ -99,6 +99,16 @@ def test_minimum_callout_is_explained_rather_than_hidden() -> None:
     assert "Minimum call-out applied: KSh 1,500" in msg
 
 
+def test_recurring_line_states_the_rate_without_discounting_this_job() -> None:
+    msg = _worked_example(recurring=True, recurring_discount_pct=10)
+    assert "Estimated total: KSh 3,800" in msg  # this job is full price
+    assert "Regular service: yes — I understand every clean after my first is 10% off" in msg
+
+
+def test_recurring_line_absent_when_not_requested() -> None:
+    assert "Regular service" not in _worked_example()
+
+
 def test_other_area_adds_the_coverage_note() -> None:
     assert "We'll confirm we cover your area." in _worked_example(
         area_label="Other", area_needs_coverage_check=True

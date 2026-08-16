@@ -70,6 +70,19 @@ export function QuoteSummary({ catalogue }: { catalogue: Catalogue }) {
         <p className="mt-3 text-sm text-ink/55">
           Fixed price · transport charged separately · pay after the job
         </p>
+
+        {/* Unconditional: this screen is where the price lands, so it is where
+            the incentive to book again belongs — and it comes before the
+            "I'll want this regularly" checkbox on the next step anyway.
+            A promise about the NEXT clean, never a discount on this one, so
+            today's number stays honest and nothing is given away to a customer
+            who may never come back. */}
+        {catalogue.rules.recurring_discount_pct > 0 && (
+          <p className="mt-2 rounded-xl bg-green/10 px-3 py-2 text-sm font-medium text-green-deep">
+            Booking again? Every clean after your first is{" "}
+            {catalogue.rules.recurring_discount_pct}% off.
+          </p>
+        )}
       </Card>
 
       {est.minimumApplied && (

@@ -276,7 +276,20 @@ def compute_quote(
     *,
     vat_registered: bool = False,
     vat_rate: int = 16,
+    repeat_customer: bool = False,
 ) -> Computation:
+    """`repeat_customer` — NOT `req.recurring` — is what earns the discount.
+
+    `req.recurring` is the customer ticking "I'll want this regularly": intent,
+    logged for Mercy, worth nothing on its own. Anyone could tick it on a first
+    job and take 10% off having promised nothing, and at a 50-55% gross margin
+    that is ~20% of the margin given to someone who may never return.
+
+    Nothing in v1 sets `repeat_customer` true — there is no customer record yet,
+    so every quote is priced as a first job. Booking (Phase 3) is what will set
+    it, at which point the discount lands where it was earned. The parameter
+    exists now so the engine and its tests already describe the real rule.
+    """
     if not any(a.key == req.area for a in cat.areas):
         raise DomainError(f"unknown area '{req.area}'", field="area")
     if not req.items and not req.addons:
@@ -293,7 +306,7 @@ def compute_quote(
 
     discount = (
         (subtotal * cat.rules.recurring_discount_pct) // 100  # integer floor, no cents
-        if req.recurring
+        if repeat_customer
         else 0
     )
 

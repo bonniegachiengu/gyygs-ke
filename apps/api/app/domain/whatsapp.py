@@ -64,6 +64,8 @@ def build_message(
     vat: int = 0,
     vat_rate: int = 16,
     area_needs_coverage_check: bool = False,
+    recurring: bool = False,
+    recurring_discount_pct: int = 0,
     business_name: str | None = None,
     kra_pin: str | None = None,
     etims_note: str | None = None,
@@ -105,6 +107,17 @@ def build_message(
         out.append("We'll confirm we cover your area.")
 
     out.append(f"Name: {contact_name}")
+
+    # In the customer's own voice — they are the one sending this. It tells Mercy
+    # to expect a return booking and states the rate she'll honour, without
+    # discounting the job in front of her.
+    if recurring and recurring_discount_pct > 0:
+        out.append(
+            f"Regular service: yes — I understand every clean after my first "
+            f"is {recurring_discount_pct}% off"
+        )
+    elif recurring:
+        out.append("Regular service: yes")
 
     if business_name:
         detail = f"Business: {business_name}"

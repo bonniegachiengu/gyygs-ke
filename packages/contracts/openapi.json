@@ -645,6 +645,11 @@
       },
       "Rules": {
         "properties": {
+          "recurring_discount_from_job": {
+            "default": 2,
+            "title": "Recurring Discount From Job",
+            "type": "integer"
+          },
           "recurring_discount_pct": {
             "title": "Recurring Discount Pct",
             "type": "integer"

@@ -38,6 +38,8 @@ def test_pricing_returns_the_catalogue(client: TestClient) -> None:
         "recurring_discount_pct": 10,
         "transport": "separate",
         "recurring_requires_visit": False,
+        # Full price on the first clean, repeat rate from the second.
+        "recurring_discount_from_job": 2,
     }
     # All seven cards QUOTE_CALCULATOR_SPEC §5 Step 1 requires.
     assert {s["key"] for s in cat["services"]} == {
@@ -207,6 +209,24 @@ def test_commercial_item_forces_visit_first(client: TestClient) -> None:
     assert q["visit_first"] is True
     text = unquote(q["whatsapp_url"].split("?text=", 1)[1])
     assert "from KSh" in text
+
+
+def test_recurring_is_intent_only_and_never_discounts_over_the_api(client: TestClient) -> None:
+    """No route in v1 can hand out the repeat rate — there is no customer record,
+    so every quote is priced as a first job."""
+    q = client.post("/api/quote", json={**WORKED_EXAMPLE, "recurring": True}).json()
+    assert q["discount"] == 0
+    assert q["total"] == 3800
+
+    text = unquote(q["whatsapp_url"].split("?text=", 1)[1])
+    # Mercy still sees the intent, and the rate she'll honour next time.
+    assert "Regular service: yes" in text
+    assert "every clean after my first is 10% off" in text
+
+
+def test_recurring_intent_is_logged_for_the_funnel(client: TestClient, repo) -> None:
+    client.post("/api/quote", json={**WORKED_EXAMPLE, "recurring": True})
+    assert json.loads(repo.list()[0].items)["recurring"] is True
 
 
 def test_business_name_yields_the_etims_promise(client: TestClient) -> None:
