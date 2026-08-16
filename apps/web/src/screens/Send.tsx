@@ -8,7 +8,6 @@ import type { Catalogue } from "../lib/useCatalogue";
 import { buildFallbackText, copyToClipboard, waUrl, webWaUrl } from "../lib/whatsapp";
 import { toDraftAddons, toDraftItems, useQuote } from "../store/quote";
 
-const WHATSAPP_NUMBER = "254716869648";
 const FALLBACK_AFTER_MS = 2500;
 
 /**
@@ -79,16 +78,20 @@ export function Send({ catalogue }: { catalogue: Catalogue }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // The number comes from the catalogue, never a constant here — switching it
+  // (e.g. to Bonnie's line for testing) must be a config change, not a rebuild.
+  const number = catalogue.whatsapp_number;
+
   const fallbackText = buildFallbackText({
     estimate: est,
     areaLabel,
     preferred,
     name: state.name,
-    siteHost: "myra.vyybandasky.online",
+    siteHost: window.location.host,
   });
 
   const server = state.server;
-  const href = server?.whatsapp_url ?? waUrl(fallbackText, WHATSAPP_NUMBER);
+  const href = server?.whatsapp_url ?? waUrl(fallbackText, number);
   const text = server ? decodeURIComponent(href.split("?text=")[1] ?? "") : fallbackText;
   const ready = Boolean(server) || allowFallback;
 
@@ -177,13 +180,13 @@ export function Send({ catalogue }: { catalogue: Catalogue }) {
         </Button>
         <a
           className="inline-flex min-h-12 items-center justify-center rounded-xl px-5 text-base font-semibold text-navy ring-1 ring-navy/20"
-          href="tel:+254716869648"
+          href={`tel:+${number}`}
         >
           Call instead
         </a>
         <a
           className="text-center text-sm text-ink/50 underline"
-          href={webWaUrl(text, WHATSAPP_NUMBER)}
+          href={webWaUrl(text, number)}
           target="_blank"
           rel="noreferrer"
         >

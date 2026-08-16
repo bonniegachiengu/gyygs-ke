@@ -73,6 +73,20 @@ def test_pricing_serialises_from_under_its_json_name(client: TestClient) -> None
     assert mattress["above"]["from"] is True
 
 
+def test_catalogue_carries_the_whatsapp_number(client: TestClient, settings) -> None:
+    """Served, not hardcoded in the frontend — switching the handoff number must
+    be a config change plus a restart, never a rebuild."""
+    assert client.get("/api/pricing").json()["whatsapp_number"] == settings.whatsapp_number
+
+
+def test_handoff_number_follows_config(client: TestClient) -> None:
+    """The same value drives the server-built wa.me URL, so the catalogue and the
+    quote can never disagree about where a customer is sent."""
+    number = client.get("/api/pricing").json()["whatsapp_number"]
+    q = client.post("/api/quote", json=WORKED_EXAMPLE).json()
+    assert q["whatsapp_url"].startswith(f"https://wa.me/{number}?text=")
+
+
 def test_pricing_is_cacheable(client: TestClient) -> None:
     assert client.get("/api/pricing").headers["cache-control"] == "public, max-age=300"
 

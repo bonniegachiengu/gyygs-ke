@@ -46,13 +46,14 @@ def get_ref_allocator(settings: SettingsDep) -> QuoteRefAllocator:
 
 @lru_cache
 def _catalogue(
-    minimum_callout: int, pct: int, requires_visit: bool, from_job: int
+    minimum_callout: int, pct: int, requires_visit: bool, from_job: int, whatsapp: str
 ) -> PricingCatalogue:
     return build_catalogue(
         minimum_callout=minimum_callout,
         recurring_discount_pct=pct,
         recurring_requires_visit=requires_visit,
         recurring_discount_from_job=from_job,
+        whatsapp_number=whatsapp,
     )
 
 
@@ -62,6 +63,7 @@ def get_catalogue(settings: SettingsDep) -> PricingCatalogue:
         settings.recurring_discount_pct,
         settings.recurring_requires_visit,
         settings.recurring_discount_from_job,
+        settings.whatsapp_number,
     )
 
 

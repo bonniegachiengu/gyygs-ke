@@ -319,12 +319,17 @@
           "version": {
             "title": "Version",
             "type": "string"
+          },
+          "whatsapp_number": {
+            "title": "Whatsapp Number",
+            "type": "string"
           }
         },
         "required": [
           "version",
           "currency",
           "minimum_callout",
+          "whatsapp_number",
           "services",
           "addons",
           "areas",

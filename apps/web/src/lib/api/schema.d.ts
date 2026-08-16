@@ -214,6 +214,8 @@ export interface components {
             services: components["schemas"]["Service"][];
             /** Version */
             version: string;
+            /** Whatsapp Number */
+            whatsapp_number: string;
         };
         /** QuoteAddon */
         QuoteAddon: {

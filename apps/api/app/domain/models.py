@@ -146,6 +146,12 @@ class PricingCatalogue(BaseModel):
     version: str
     currency: str
     minimum_callout: int
+    # Served rather than hardcoded in the frontend so the handoff number lives in
+    # exactly one place (WHATSAPP_NUMBER). The happy path uses the server-built
+    # whatsapp_url, but the offline fallback and the "Call instead" link need it
+    # too — and changing the number must be a config change + restart, never a
+    # frontend rebuild.
+    whatsapp_number: str
     services: list[Service]
     addons: list[Addon]
     areas: list[Area]
