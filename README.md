@@ -111,8 +111,15 @@ question. Two mechanisms, one inside Docker and one outside it:
 
 - `restart: unless-stopped` on every service — a crashed container comes back on
   its own, and all three restart automatically once the engine is available.
-- **`infra/watchdog.ps1`**, run by the `Myra site watchdog` scheduled task at
-  logon and every 5 minutes thereafter.
+- **`infra/watchdog.sh`**, run by a `systemd --user` timer inside WSL, every 5
+  minutes plus 2 minutes after boot.
+
+It lives in WSL, not a Windows scheduled task, for a reason worth keeping: Task
+Scheduler launching `powershell.exe` **flashes a console window on every run**.
+`-WindowStyle Hidden` cannot prevent it — PowerShell applies the style after the
+console host already exists. Every five minutes, visibly, forever. WSL also
+matches how VOS III already runs on this machine, so there is one operational
+pattern rather than two.
 
 The watchdog checks the **public URL end to end**, not a local process. That is
 deliberate: the failure mode this project has actually seen is `cloudflared`
@@ -123,17 +130,43 @@ It is silent when healthy. When it has to intervene it logs to `logs/watchdog.lo
 and pushes a notification to the ntfy topic in `infra/.ntfy-topic` (both
 gitignored).
 
-Install or reinstall the task — no admin rights needed, and safe to re-run:
+Install or reinstall the timer — idempotent, no admin rights:
 
-```powershell
-powershell -ExecutionPolicy Bypass -File infra/install-watchdog.ps1
+```bash
+wsl -e bash -lc 'bash /mnt/c/Users/DELL/dev/gyygs.ke/infra/install-watchdog-wsl.sh'
 ```
 
 Force a recovery run for testing, even when the site looks fine:
 
-```powershell
-powershell -ExecutionPolicy Bypass -File infra/watchdog.ps1 -Force
+```bash
+wsl -e bash -lc 'bash /mnt/c/Users/DELL/dev/gyygs.ke/infra/watchdog.sh --force'
 ```
+
+Check it, or read what it did:
+
+```bash
+wsl -e bash -lc 'systemctl --user list-timers myra-watchdog.timer'
+tail logs/watchdog.log
+```
+
+### Starting Docker Desktop from WSL — do not "fix" this
+
+The watchdog starts Docker Desktop with `cmd.exe /c start`, handing the launch
+to the Windows shell. Running it directly from the script (`nohup "$DD" &`)
+looks equivalent and is not: it parents the GUI to the WSL process tree and
+Docker Desktop comes up half-started — its own `docker-desktop` distro stays
+`Stopped` and the engine never appears.
+
+Related, and worth knowing before reaching for Task Manager: **force-killing
+Docker Desktop orphans its AF_UNIX sockets** (`%LOCALAPPDATA%\Dockerun\*`,
+`%LOCALAPPDATA%\docker-secrets-engine`). Windows then cannot delete them and
+every subsequent start crashes with an error dialog. WSL *can* delete them:
+
+```bash
+wsl -e bash -lc 'rm -rf /mnt/c/Users/DELL/AppData/Local/Docker/run/* /mnt/c/Users/DELL/AppData/Local/docker-secrets-engine'
+```
+
+Always stop it with `docker desktop stop`, never a kill.
 
 ### The one gap this cannot close
 
