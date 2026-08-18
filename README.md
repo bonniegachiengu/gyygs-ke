@@ -159,7 +159,6 @@ Docker Desktop comes up half-started — its own `docker-desktop` distro stays
 
 Related, and worth knowing before reaching for Task Manager: **force-killing
 Docker Desktop orphans its AF_UNIX sockets** (`%LOCALAPPDATA%/Docker/run/*`,
-un\*`,
 `%LOCALAPPDATA%/docker-secrets-engine`). Windows then cannot delete them and
 every subsequent start crashes with an error dialog. WSL *can* delete them:
 
