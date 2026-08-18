@@ -104,6 +104,49 @@ Copy **only** `~/.cloudflared/<UUID>.json` into `infra/cloudflared/` (gitignored
 UUID into `infra/cloudflared/config.yml`. Do **not** copy `cert.pem` — it is zone-wide authority
 and the running tunnel does not need it.
 
+## Staying up
+
+The site is served from Bonnie's laptop, so "is it running" is a real operational
+question. Two mechanisms, one inside Docker and one outside it:
+
+- `restart: unless-stopped` on every service — a crashed container comes back on
+  its own, and all three restart automatically once the engine is available.
+- **`infra/watchdog.ps1`**, run by the `Myra site watchdog` scheduled task at
+  logon and every 5 minutes thereafter.
+
+The watchdog checks the **public URL end to end**, not a local process. That is
+deliberate: the failure mode this project has actually seen is `cloudflared`
+alive but not serving, which every process-level check reports as healthy. Only
+a real request through Cloudflare proves a customer can reach the site.
+
+It is silent when healthy. When it has to intervene it logs to `logs/watchdog.log`
+and pushes a notification to the ntfy topic in `infra/.ntfy-topic` (both
+gitignored).
+
+Install or reinstall the task — no admin rights needed, and safe to re-run:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File infra/install-watchdog.ps1
+```
+
+Force a recovery run for testing, even when the site looks fine:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File infra/watchdog.ps1 -Force
+```
+
+### The one gap this cannot close
+
+Docker Desktop on Windows is a per-user GUI app: it needs a **logged-on
+session**. If the machine reboots and sits at the lock screen without anyone
+signing in, neither trigger fires and the site stays down. Windows Update
+reboots are the usual cause — the 18 Aug 2026 outage was exactly this.
+
+Two ways out, when it matters enough: turn on Windows' *"Use my sign-in info to
+automatically finish setting up my device after an update"*, or move the stack
+into WSL beside VOS III, where `systemd` + `loginctl enable-linger` already
+survives logout. The second is the real fix.
+
 ## Secrets
 
 Nothing secret is committed. `.env`, `secrets/*.json` and `infra/cloudflared/*.json` are

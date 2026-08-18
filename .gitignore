@@ -9,6 +9,13 @@ secrets/*
 *.key
 infra/cloudflared/*.json
 
+# ── Watchdog ──
+logs/
+# ntfy topic name. Public-but-unguessable, same stance as any other credential:
+# anyone who knows it can read and post alerts. infra/watchdog.ps1 degrades
+# quietly to "no notifications" when it is absent.
+infra/.ntfy-topic
+
 # ── Runtime data (quote-ref counter lives here in local dev) ──
 data/
 
