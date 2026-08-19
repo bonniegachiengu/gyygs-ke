@@ -54,5 +54,25 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  # LaunchGear — static marketing site (LAUNCHGEAR_DEPLOY.md §2).
+  # Same compose file as api/web so it shares the default network and the tunnel
+  # can reach it by service name. Deliberately NOT a depends_on of cloudflared:
+  # a LaunchGear problem must never hold up Myra — "adding a product never
+  # touches the others" (DOMAINS.md).
+  launchgear:
+    image: nginx:alpine
+    restart: unless-stopped
+    expose:
+      - "80"                       # internal only — the tunnel fronts it
+    volumes:
+      - ../apps/launchgear:/usr/share/nginx/html:ro
+      - ./launchgear-nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
 volumes:
   api_data: {}
