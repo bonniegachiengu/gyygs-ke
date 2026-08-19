@@ -1,4 +1,4 @@
-# Cloudflare named tunnel for myra.vyybandasky.online.
+# Cloudflare named tunnel serving every product on this host.
 #
 # The UUID is an identifier, not a secret, so this file is committed. The
 # credentials it points at (<uuid>.json) are gitignored and copied in by hand —
@@ -16,8 +16,22 @@ tunnel: ff3356b1-319e-4f65-a451-08b0cdfc212b
 credentials-file: /etc/cloudflared/ff3356b1-319e-4f65-a451-08b0cdfc212b.json
 loglevel: info
 
+# Convention (DOMAINS.md): one short canonical subdomain per product, each with
+# an optional long-name alias pointing at the SAME service. The short name is
+# what goes in copy, QR codes and links.
+#
+# Every rule must sit above the catch-all — cloudflared matches in order.
 ingress:
-  # One public hostname; nginx fronts the API internally on /api.
+  # ── Myra — quote calculator (nginx fronts the API internally on /api) ──
   - hostname: myra.vyybandasky.online
     service: http://web:3000
+  - hostname: myracleaning.vyybandasky.online      # alias -> same service
+    service: http://web:3000
+
+  # ── LaunchGear — static marketing site ──
+  - hostname: lg.vyybandasky.online                # canonical
+    service: http://launchgear:80
+  - hostname: launchgear.vyybandasky.online        # alias -> same service
+    service: http://launchgear:80
+
   - service: http_status:404
