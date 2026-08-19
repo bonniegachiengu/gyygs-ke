@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LaunchGear — small tools that make your work easier. Built by Bonnie.</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%20width%3D%22512%22%20height%3D%22512%22%20role%3D%22img%22%20aria-label%3D%22LaunchGear%22%3E%20%3Cdefs%3E%20%3Cmask%20id%3D%22lgi%22%20maskUnits%3D%22userSpaceOnUse%22%20x%3D%220%22%20y%3D%220%22%20width%3D%22100%22%20height%3D%22100%22%3E%20%3Cpath%20d%3D%22M42.5%2C18.9%20L46.9%2C10.1%20L53.1%2C10.1%20L57.5%2C18.9%20L62.2%2C20.4%20L70.9%2C15.9%20L76.0%2C19.6%20L74.3%2C29.2%20L77.3%2C33.3%20L87.0%2C34.7%20L88.9%2C40.7%20L81.9%2C47.5%20L81.9%2C52.5%20L88.9%2C59.3%20L87.0%2C65.3%20L77.3%2C66.7%20L74.3%2C70.8%20L76.0%2C80.4%20L70.9%2C84.1%20L62.2%2C79.6%20L57.5%2C81.1%20L53.1%2C89.9%20L46.9%2C89.9%20L42.5%2C81.1%20L37.8%2C79.6%20L29.1%2C84.1%20L24.0%2C80.4%20L25.7%2C70.8%20L22.7%2C66.7%20L13.0%2C65.3%20L11.1%2C59.3%20L18.1%2C52.5%20L18.1%2C47.5%20L11.1%2C40.7%20L13.0%2C34.7%20L22.7%2C33.3%20L25.7%2C29.2%20L24.0%2C19.6%20L29.1%2C15.9%20L37.8%2C20.4%20Z%22%20fill%3D%22%23fff%22%20stroke%3D%22%23fff%22%20stroke-width%3D%224.5%22%20stroke-linejoin%3D%22round%22%2F%3E%20%3Cpath%20d%3D%22M50%2C18%20L56%2C34%20L56%2C46%20L62%2C54%20L62%2C58%20L55%2C54.5%20L55%2C57%20L45%2C57%20L45%2C54.5%20L38%2C58%20L38%2C54%20L44%2C46%20L44%2C34%20Z%22%20fill%3D%22%23000%22%20stroke%3D%22%23000%22%20stroke-width%3D%221.5%22%20stroke-linejoin%3D%22round%22%2F%3E%20%3Ccircle%20cx%3D%2250%22%20cy%3D%2271%22%20r%3D%2210%22%20fill%3D%22%23000%22%2F%3E%20%3Ccircle%20cx%3D%2233%22%20cy%3D%2276%22%20r%3D%2211%22%20fill%3D%22%23000%22%2F%3E%20%3Ccircle%20cx%3D%2267%22%20cy%3D%2276%22%20r%3D%2211%22%20fill%3D%22%23000%22%2F%3E%20%3Cpath%20d%3D%22M6%2C71%20L94%2C71%20L94%2C100%20L6%2C100%20Z%22%20fill%3D%22%23000%22%2F%3E%20%3C%2Fmask%3E%20%3C%2Fdefs%3E%20%3Crect%20width%3D%22100%22%20height%3D%22100%22%20rx%3D%2222%22%20fill%3D%22%23E4712B%22%2F%3E%20%3Csvg%20x%3D%2217%22%20y%3D%2226%22%20width%3D%2266%22%20height%3D%2252%22%20viewBox%3D%228%206%2084%2066%22%3E%3Crect%20width%3D%22100%22%20height%3D%22100%22%20fill%3D%22%231C1E22%22%20mask%3D%22url(%23lgi)%22%2F%3E%3C%2Fsvg%3E%20%3C%2Fsvg%3E" />
+<meta name="description" content="Custom software for Kenyan businesses — quotes, bookings, payments, the books. Live in a week. Built by Bonnie." />
+<script>document.documentElement.className='js';</script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --ink:#1C1E22; --ink-2:#232630; --ink-3:#2A2E38;
+  --bone:#EDE7DF; --bone-dim:#C9C4BC;
+  --grey:#8A8D91; --orange:#E4712B; --orange-soft:#F0925A; --teal:#2F6F6A;
+  --line:rgba(237,231,223,0.14); --line-strong:rgba(237,231,223,0.28);
+  --serif:'Fraunces',Georgia,'Times New Roman',serif;
+  --sans:'Space Grotesk',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  --mono:'Space Mono','JetBrains Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--ink); color:var(--bone); font-family:var(--sans);
+  line-height:1.55; -webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(1200px 600px at 80% -10%, rgba(228,113,43,0.10), transparent 60%);
+  overflow-x:hidden;
+}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+a{color:inherit;text-decoration:none}
+.mono{font-family:var(--mono)}
+.serif{font-family:var(--serif)}
+
+/* kicker labels */
+.kicker{font-family:var(--mono);font-size:12px;letter-spacing:0.22em;text-transform:uppercase;color:var(--grey)}
+.kicker .n{color:var(--orange)}
+.rule{height:1px;background:var(--line);border:0}
+
+/* top bar */
+.top{position:sticky;top:0;z-index:50;background:rgba(28,30,34,0.82);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;height:60px}
+.brand{font-family:var(--sans);font-weight:700;letter-spacing:0.16em;text-transform:uppercase;font-size:15px;display:flex;align-items:center;gap:9px}
+.brand .dot{width:9px;height:9px;background:var(--orange);border-radius:2px;transform:rotate(45deg);display:inline-block}
+.bmk{width:28px;height:22px;display:block;flex:none}
+.top .tag{font-family:var(--mono);font-size:11px;letter-spacing:0.14em;color:var(--grey);text-transform:uppercase}
+.top .tag b{color:var(--bone-dim);font-weight:400}
+.top .wa{display:none}
+@media(min-width:720px){.top .wa{display:inline-flex}}
+.btn{font-family:var(--sans);font-weight:600;font-size:14px;letter-spacing:0.02em;border-radius:8px;padding:11px 18px;display:inline-flex;align-items:center;gap:8px;cursor:pointer;border:1px solid transparent;transition:.18s ease;white-space:nowrap}
+.btn-o{background:var(--orange);color:#1a1206}
+.btn-o:hover{background:var(--orange-soft)}
+.btn-ghost{background:transparent;color:var(--bone);border-color:var(--line-strong)}
+.btn-ghost:hover{border-color:var(--bone);background:rgba(237,231,223,0.04)}
+.btn-sm{padding:8px 14px;font-size:13px}
+
+/* section frame */
+section{padding:76px 0;position:relative}
+.sec-head{display:flex;align-items:baseline;gap:18px;margin-bottom:34px;flex-wrap:wrap}
+.sec-idx{font-family:var(--serif);font-weight:600;font-size:clamp(38px,7vw,64px);line-height:.8;color:transparent;-webkit-text-stroke:1px rgba(237,231,223,0.32);letter-spacing:-0.02em}
+.sec-title{font-family:var(--serif);font-weight:500;font-size:clamp(24px,4vw,34px);letter-spacing:-0.01em;line-height:1.05}
+.sec-sub{color:var(--bone-dim);max-width:56ch;margin-top:8px;font-size:15.5px}
+
+/* HERO */
+.hero{padding-top:64px;padding-bottom:40px}
+.hero-grid{display:grid;grid-template-columns:1fr;gap:40px;align-items:end}
+@media(min-width:900px){.hero-grid{grid-template-columns:1.35fr .85fr}}
+.hero h1{font-family:var(--serif);font-weight:500;font-size:clamp(38px,6.6vw,74px);line-height:1.0;letter-spacing:-0.02em;margin:20px 0 0}
+.hero h1 .u{color:var(--orange);font-style:italic;font-weight:600}
+.hero .sub{margin-top:22px;font-size:clamp(16px,2.1vw,19px);color:var(--bone-dim);max-width:48ch}
+.hero .cta-row{margin-top:30px;display:flex;gap:12px;flex-wrap:wrap}
+.hero .trust{margin-top:26px;display:flex;gap:18px;flex-wrap:wrap;font-family:var(--mono);font-size:11.5px;letter-spacing:0.1em;color:var(--grey);text-transform:uppercase}
+.hero .trust span{display:inline-flex;align-items:center;gap:7px}
+.hero .trust i{width:5px;height:5px;background:var(--teal);border-radius:50%;font-style:normal}
+
+/* phone mockup (software hero) */
+.phone-wrap{display:flex;flex-direction:column;align-items:center;gap:16px}
+.phone{width:250px;background:#0d0f12;border:1px solid var(--line-strong);border-radius:38px;padding:12px;box-shadow:0 44px 80px -34px rgba(0,0,0,.72);position:relative}
+.phone:before{content:"";position:absolute;top:22px;left:50%;transform:translateX(-50%);width:9px;height:9px;border-radius:50%;background:rgba(237,231,223,0.22);z-index:2}
+.screen{background:linear-gradient(180deg,#191c22,#141619);border-radius:28px;overflow:hidden;padding:24px 17px 17px}
+.s-bar{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:10px;color:var(--grey);letter-spacing:.06em;margin-bottom:18px}
+.s-dots{display:inline-flex;gap:3px}
+.s-dots i{width:4px;height:4px;border-radius:50%;background:var(--grey)}
+.s-appbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.s-logo{font-weight:700;font-size:13px;letter-spacing:.02em;color:var(--bone)}
+.s-live{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--teal);display:flex;align-items:center;gap:5px}
+.s-live b{width:5px;height:5px;border-radius:50%;background:var(--teal);display:inline-block}
+.s-metric{margin-bottom:14px}
+.s-k{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--grey)}
+.s-v{font-family:var(--serif);font-weight:600;font-size:31px;line-height:1;margin:5px 0 4px;color:var(--bone)}
+.s-sub{font-family:var(--mono);font-size:10px;color:var(--orange-soft)}
+.s-row{display:flex;align-items:center;gap:9px;padding:9px 0;border-top:1px solid var(--line);font-size:12px;color:var(--bone-dim)}
+.s-row .s-amt{margin-left:auto;font-family:var(--mono);font-weight:700;color:var(--bone)}
+.s-dot{width:7px;height:7px;border-radius:50%;flex:none}
+.s-dot.o{background:var(--orange)} .s-dot.t{background:var(--teal)} .s-dot.g{background:var(--grey)}
+.s-btn{margin-top:15px;background:var(--orange);color:#1a1206;font-weight:600;font-size:12.5px;text-align:center;padding:12px;border-radius:11px}
+.phone-cap{font-family:var(--mono);font-size:11px;color:var(--grey);letter-spacing:.03em;text-align:center;max-width:236px}
+
+/* generic card */
+.card{background:var(--ink-2);border:1px solid var(--line);border-radius:14px;padding:22px}
+.grid-2{display:grid;grid-template-columns:1fr;gap:20px}
+@media(min-width:900px){.grid-2{grid-template-columns:1fr 1fr}}
+
+/* DEMOS */
+.demo{background:linear-gradient(180deg,var(--ink-2),#20232c);border:1px solid var(--line-strong);border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
+.demo-top{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--line);background:rgba(0,0,0,0.15)}
+.demo-top .t{font-weight:600;font-size:15px;display:flex;align-items:center;gap:9px}
+.demo-top .t .ic{width:26px;height:26px;border-radius:7px;background:rgba(228,113,43,0.16);color:var(--orange);display:grid;place-items:center;font-size:14px}
+.demo-top .chip-live{font-family:var(--mono);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--teal);display:flex;align-items:center;gap:6px}
+.demo-top .chip-live b{width:6px;height:6px;border-radius:50%;background:var(--teal);display:inline-block;animation:pulse 1.8s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.demo-body{padding:18px;display:flex;flex-direction:column;gap:14px;flex:1}
+.demo-note{font-family:var(--mono);font-size:11px;color:var(--grey);letter-spacing:0.04em}
+
+/* parser demo */
+textarea,input,select{font-family:var(--sans);color:var(--bone);background:var(--ink);border:1px solid var(--line-strong);border-radius:10px;padding:12px 13px;font-size:14px;width:100%;outline:none}
+textarea{min-height:92px;resize:vertical;font-family:var(--mono);font-size:12.5px;line-height:1.5}
+textarea:focus,input:focus,select:focus{border-color:var(--orange)}
+label.fld{display:block}
+label.fld .cap{font-family:var(--mono);font-size:10.5px;letter-spacing:0.14em;text-transform:uppercase;color:var(--grey);margin-bottom:6px;display:block}
+.samples{display:flex;gap:8px;flex-wrap:wrap}
+.samp{font-family:var(--mono);font-size:11px;padding:7px 11px;border:1px solid var(--line-strong);border-radius:999px;color:var(--bone-dim);cursor:pointer;transition:.15s;background:transparent}
+.samp:hover{border-color:var(--orange);color:var(--bone)}
+.parsed{border:1px solid var(--line);border-radius:12px;background:var(--ink);overflow:hidden;opacity:0;transform:translateY(8px);transition:.35s}
+.parsed.show{opacity:1;transform:none}
+.parsed .phd{display:flex;justify-content:space-between;align-items:center;padding:12px 15px;border-bottom:1px solid var(--line)}
+.parsed .phd .src{font-family:var(--mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--grey)}
+.parsed .phd .dir{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:4px 9px;border-radius:6px}
+.dir.in{color:#7CD08F;background:rgba(124,208,143,0.12)}
+.dir.out{color:var(--orange-soft);background:rgba(228,113,43,0.14)}
+.parsed .amt{padding:16px 15px 6px;font-family:var(--serif);font-weight:600;font-size:38px;line-height:1;letter-spacing:-0.01em}
+.parsed .amt small{font-size:16px;color:var(--grey);font-family:var(--mono);font-weight:400;margin-right:4px;vertical-align:middle}
+.parsed .prows{padding:8px 15px 16px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.parsed .pr .k{font-family:var(--mono);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--grey)}
+.parsed .pr .v{font-size:14px;margin-top:3px;font-weight:500}
+.parsed .catbar{grid-column:1/-1;display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-top:6px;border-top:1px dashed var(--line);margin-top:2px}
+.parsed .catbar .k{font-family:var(--mono);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--grey)}
+.tag-cat{display:inline-flex;align-items:center;gap:7px;background:rgba(228,113,43,0.14);color:var(--orange-soft);border:1px solid rgba(228,113,43,0.3);padding:5px 11px;border-radius:999px;font-size:13px;font-weight:600}
+.catbar select{width:auto;padding:6px 10px;font-size:12.5px}
+.learned{font-family:var(--mono);font-size:11px;color:var(--teal);letter-spacing:0.03em;display:none;align-items:center;gap:6px}
+.learned.show{display:inline-flex}
+
+/* myra demo */
+.svc-chips{display:flex;gap:8px;flex-wrap:wrap}
+.svc{font-size:13px;font-weight:500;padding:9px 13px;border:1px solid var(--line-strong);border-radius:10px;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:7px;user-select:none}
+.svc:hover{border-color:var(--bone-dim)}
+.svc.on{border-color:var(--orange);background:rgba(228,113,43,0.12);color:#fff}
+.svc .em{font-size:15px}
+.config{display:flex;flex-direction:column;gap:12px}
+.cfg-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.cfg-row .nm{font-size:13.5px;font-weight:500}
+.stepper{display:inline-flex;align-items:center;border:1px solid var(--line-strong);border-radius:9px;overflow:hidden}
+.stepper button{width:34px;height:34px;background:var(--ink);color:var(--bone);border:0;cursor:pointer;font-size:17px;font-family:var(--mono)}
+.stepper button:hover{background:var(--ink-3)}
+.stepper .qty{min-width:34px;text-align:center;font-family:var(--mono);font-size:14px;font-weight:700}
+.mini-select{padding:8px 10px;font-size:13px;width:auto;min-width:120px}
+.quote{background:var(--ink);border:1px solid var(--line);border-radius:12px;padding:16px}
+.qline{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px dashed var(--line);font-size:14px}
+.qline:last-of-type{border-bottom:0}
+.qline .p{font-family:var(--mono);font-weight:700;white-space:nowrap}
+.qline .p.visit{color:var(--orange-soft);font-size:12px;font-weight:700;letter-spacing:0.04em}
+.qtot{display:flex;justify-content:space-between;align-items:baseline;margin-top:12px;padding-top:12px;border-top:1px solid var(--line-strong)}
+.qtot .lb{font-family:var(--mono);font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--grey)}
+.qtot .amt{font-family:var(--serif);font-weight:600;font-size:34px;line-height:1}
+.qtot .amt small{font-size:15px;color:var(--grey);font-family:var(--mono);margin-right:3px}
+.qempty{color:var(--grey);font-size:13.5px;text-align:center;padding:14px 0;font-family:var(--mono)}
+.qmeta{font-family:var(--mono);font-size:11px;color:var(--grey);margin-top:9px;letter-spacing:0.03em}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.demo-foot{display:flex;gap:10px;flex-wrap:wrap}
+.demo-foot .btn{flex:1;justify-content:center}
+.copied{font-family:var(--mono);font-size:11px;color:var(--teal);text-align:center;margin-top:2px;height:14px}
+.demo-open{font-family:var(--mono);font-size:11.5px;letter-spacing:.03em;color:var(--orange-soft);border-top:1px solid var(--line);padding-top:13px;margin-top:2px;display:flex;justify-content:space-between;align-items:center;gap:10px;transition:.15s}
+.demo-open:hover{color:var(--orange)}
+.demo-open .ar{font-size:13px}
+
+/* gallery */
+.film{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+@media(min-width:760px){.film{grid-template-columns:repeat(4,1fr)}}
+.clip{position:relative;border:1px solid var(--line);border-radius:12px;aspect-ratio:9/13;overflow:hidden;background:linear-gradient(160deg,var(--ink-2),var(--ink-3));display:flex;flex-direction:column;justify-content:space-between;padding:14px}
+.clip .idx{font-family:var(--mono);font-size:10px;letter-spacing:0.14em;color:var(--grey)}
+.clip .nm{font-family:var(--serif);font-size:20px;font-weight:600;line-height:1.05}
+.clip .st{font-family:var(--mono);font-size:10.5px;letter-spacing:0.08em;text-transform:uppercase}
+.clip .play{position:absolute;top:12px;right:12px;width:30px;height:30px;border-radius:50%;border:1px solid var(--line-strong);display:grid;place-items:center;color:var(--bone-dim)}
+.clip.live{border-color:rgba(228,113,43,0.4)}
+.clip.live .st{color:var(--orange-soft)}
+.clip.live .play{border-color:var(--orange);color:var(--orange);background:rgba(228,113,43,0.12)}
+.clip.next .st{color:var(--grey)}
+.film-note{margin-top:16px;font-family:var(--mono);font-size:11.5px;color:var(--grey);letter-spacing:0.03em}
+
+/* offers */
+.offers{display:grid;grid-template-columns:1fr;gap:16px}
+@media(min-width:640px){.offers{grid-template-columns:1fr 1fr}}
+@media(min-width:980px){.offers{grid-template-columns:repeat(4,1fr)}}
+.offer{border:1px solid var(--line);border-radius:14px;padding:20px;background:var(--ink-2);display:flex;flex-direction:column;gap:12px;position:relative;overflow:hidden}
+.offer.feat{border-color:rgba(228,113,43,0.45);background:linear-gradient(180deg,rgba(228,113,43,0.08),var(--ink-2))}
+.offer .oi{font-family:var(--mono);font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--grey)}
+.offer h3{font-family:var(--serif);font-weight:600;font-size:22px}
+.offer .price{font-family:var(--mono);font-weight:700;font-size:15px;color:var(--orange-soft)}
+.offer .price .big{font-family:var(--serif);font-size:30px;color:var(--bone);display:block;margin-bottom:2px}
+.offer p{font-size:13.5px;color:var(--bone-dim);flex:1}
+.offer .feat-tag{position:absolute;top:14px;right:-30px;background:var(--orange);color:#1a1206;font-family:var(--mono);font-size:10px;letter-spacing:0.12em;padding:3px 34px;transform:rotate(45deg);text-transform:uppercase}
+
+/* proof */
+.proof-grid{display:grid;grid-template-columns:1fr;gap:20px}
+@media(min-width:820px){.proof-grid{grid-template-columns:1.1fr .9fr}}
+.quote-block{border-left:2px solid var(--orange);padding:6px 0 6px 22px}
+.quote-block .qm{font-family:var(--serif);font-size:clamp(20px,3vw,27px);line-height:1.3;font-weight:500;font-style:italic}
+.quote-block .qa{font-family:var(--mono);font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:var(--grey);margin-top:16px}
+.pending{font-family:var(--mono);font-size:11px;color:var(--teal);border:1px dashed var(--line-strong);border-radius:8px;padding:8px 11px;margin-top:16px;display:inline-block;letter-spacing:0.03em}
+.stat-row{display:flex;gap:26px;flex-wrap:wrap;margin-top:6px}
+.stat .v{font-family:var(--serif);font-weight:600;font-size:34px;line-height:1;color:var(--orange)}
+.stat .k{font-family:var(--mono);font-size:10.5px;letter-spacing:0.12em;text-transform:uppercase;color:var(--grey);margin-top:5px}
+
+/* CTA */
+.cta{background:linear-gradient(160deg,var(--ink-2),var(--ink-3));border:1px solid var(--line-strong);border-radius:20px;padding:38px;display:grid;grid-template-columns:1fr;gap:28px;align-items:center}
+@media(min-width:820px){.cta{grid-template-columns:1.4fr .6fr}}
+.cta h2{font-family:var(--serif);font-weight:500;font-size:clamp(26px,4vw,38px);line-height:1.05;letter-spacing:-0.01em}
+.cta p{color:var(--bone-dim);margin-top:12px;max-width:44ch}
+.cta .cta-row{margin-top:22px;display:flex;gap:12px;flex-wrap:wrap}
+.qr-card{background:var(--bone);border-radius:14px;padding:16px;display:flex;flex-direction:column;align-items:center;gap:10px;color:#1a1206}
+.qr-card #qr{width:150px;height:150px;display:grid;place-items:center}
+.qr-card #qr img,.qr-card #qr canvas{border-radius:6px}
+.qr-card .qc{font-family:var(--mono);font-size:10.5px;letter-spacing:0.1em;text-transform:uppercase;color:#5a4a38;text-align:center}
+
+/* footer */
+footer{border-top:1px solid var(--line);padding:34px 0 60px}
+.foot{display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;align-items:center}
+.foot .l{font-family:var(--sans);font-weight:700;letter-spacing:0.16em;text-transform:uppercase;font-size:14px}
+.foot .m{font-family:var(--mono);font-size:11px;letter-spacing:0.1em;color:var(--grey);text-transform:uppercase}
+
+.reveal{opacity:1}
+.js .reveal{opacity:0;transform:translateY(18px);transition:.6s cubic-bezier(.2,.7,.2,1)}
+.reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.js .reveal{opacity:1;transform:none;transition:none}}
+::selection{background:var(--orange);color:#1a1206}
+</style>
+</head>
+<body>
+<!-- LaunchGear logo mask (rocket-in-cog) -->
+<svg width="0" height="0" style="position:absolute;width:0;height:0" aria-hidden="true"><defs>
+<mask id="lgFinal" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100">
+<path d="M42.5,18.9 L46.9,10.1 L53.1,10.1 L57.5,18.9 L62.2,20.4 L70.9,15.9 L76.0,19.6 L74.3,29.2 L77.3,33.3 L87.0,34.7 L88.9,40.7 L81.9,47.5 L81.9,52.5 L88.9,59.3 L87.0,65.3 L77.3,66.7 L74.3,70.8 L76.0,80.4 L70.9,84.1 L62.2,79.6 L57.5,81.1 L53.1,89.9 L46.9,89.9 L42.5,81.1 L37.8,79.6 L29.1,84.1 L24.0,80.4 L25.7,70.8 L22.7,66.7 L13.0,65.3 L11.1,59.3 L18.1,52.5 L18.1,47.5 L11.1,40.7 L13.0,34.7 L22.7,33.3 L25.7,29.2 L24.0,19.6 L29.1,15.9 L37.8,20.4 Z" fill="#fff" stroke="#fff" stroke-width="4.5" stroke-linejoin="round"/>
+<path d="M50,18 L56,34 L56,46 L62,54 L62,58 L55,54.5 L55,57 L45,57 L45,54.5 L38,58 L38,54 L44,46 L44,34 Z" fill="#000" stroke="#000" stroke-width="1.5" stroke-linejoin="round"/>
+<circle cx="50" cy="71" r="10" fill="#000"/><circle cx="33" cy="76" r="11" fill="#000"/><circle cx="67" cy="76" r="11" fill="#000"/>
+<path d="M6,71 L94,71 L94,100 L6,100 Z" fill="#000"/>
+</mask></defs></svg>
+
+<div class="top">
+  <div class="wrap">
+    <div class="brand"><svg class="bmk" viewBox="8 6 84 66" aria-hidden="true"><rect width="100" height="100" fill="#E4712B" mask="url(#lgFinal)"></rect></svg>LaunchGear</div>
+    <div class="tag">Built by <b>Bonnie</b> · Nairobi</div>
+    <a class="btn btn-o btn-sm wa" href="https://wa.me/254754413351" target="_blank" rel="noopener">WhatsApp me</a>
+  </div>
+</div>
+
+<!-- 01 HERO -->
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="kicker"><span class="n">Software studio</span> &nbsp;/&nbsp; Nairobi</div>
+      <h1>I build software that does your <span class="u">busywork</span>.</h1>
+      <p class="sub">Small apps for Kenyan businesses — quotes, bookings, payments, the books. Live in a week.</p>
+      <div class="cta-row">
+        <a class="btn btn-o" href="#try">See it work ↓</a>
+        <a class="btn btn-ghost" href="https://wa.me/254754413351" target="_blank" rel="noopener">WhatsApp me</a>
+      </div>
+    </div>
+    <div class="phone-wrap" aria-hidden="true">
+      <div class="phone">
+        <div class="screen">
+          <div class="s-bar"><span>8:52</span><span class="s-dots"><i></i><i></i><i></i></span></div>
+          <div class="s-appbar">
+            <span class="s-logo"><span style="color:var(--orange)">◆</span> Your tool</span>
+            <span class="s-live"><b></b>live</span>
+          </div>
+          <div class="s-metric">
+            <div class="s-k">This week</div>
+            <div class="s-v">KSh 128,400</div>
+            <div class="s-sub">▲ 12% · 34 jobs handled</div>
+          </div>
+          <div class="s-row"><span class="s-dot o"></span><span>Quote sent · WhatsApp</span><span class="s-amt">3,800</span></div>
+          <div class="s-row"><span class="s-dot t"></span><span>M-Pesa received</span><span class="s-amt">5,000</span></div>
+          <div class="s-row"><span class="s-dot g"></span><span>Booking confirmed</span><span class="s-amt">—</span></div>
+          <div class="s-btn">Send on WhatsApp</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<hr class="rule" />
+
+<!-- 02 TRY IT LIVE -->
+<section id="try">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-idx">02</div>
+      <div>
+        <div class="sec-title">Try it live.</div>
+        <div class="sec-sub">The real tools.</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <!-- PARSER DEMO -->
+      <div class="demo reveal">
+        <div class="demo-top">
+          <div class="t"><span class="ic">⇄</span> The books, on autopilot</div>
+          <div class="chip-live"><b></b>Live demo</div>
+        </div>
+        <div class="demo-body">
+          <label class="fld">
+            <span class="cap">Paste / forward a message</span>
+            <textarea id="sms" spellcheck="false" placeholder="Paste an M-Pesa or KCB SMS here…"></textarea>
+          </label>
+          <div>
+            <span class="cap" style="font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--grey);display:block;margin-bottom:8px">Or tap a sample</span>
+            <div class="samples" id="samples"></div>
+          </div>
+          <button class="btn btn-o" id="sortBtn" style="justify-content:center">Sort it →</button>
+          <div class="parsed" id="parsed">
+            <div class="phd"><span class="src" id="pSrc">M-PESA</span><span class="dir out" id="pDir">OUT</span></div>
+            <div class="amt" id="pAmt"><small>KSh</small>0.00</div>
+            <div class="prows">
+              <div class="pr"><div class="k" id="pPartyK">Paid to</div><div class="v" id="pParty">—</div></div>
+              <div class="pr"><div class="k">Date</div><div class="v" id="pDate">—</div></div>
+              <div class="pr"><div class="k">Balance</div><div class="v" id="pBal">—</div></div>
+              <div class="pr"><div class="k">Ref</div><div class="v mono" id="pRef">—</div></div>
+              <div class="catbar">
+                <span class="k">Filed under</span>
+                <span class="tag-cat" id="pCatTag">Uncategorised</span>
+                <select id="pCatSel" aria-label="Change category">
+                  <option>Income · Customer payment</option>
+                  <option>Groceries / Stock</option>
+                  <option>Utilities · Electricity</option>
+                  <option>Utilities · Water</option>
+                  <option>Rent</option>
+                  <option>Airtime &amp; Data</option>
+                  <option>Fuel / Transport</option>
+                  <option>Cash withdrawal</option>
+                  <option>Supplier payment</option>
+                  <option>Salaries / Wages</option>
+                  <option>Uncategorised</option>
+                </select>
+                <span class="learned" id="learned"><b>✓</b> Learned — next time auto-filed</span>
+              </div>
+            </div>
+          </div>
+          <a class="demo-open" href="https://app.vyybandasky.online" target="_blank" rel="noopener"><span>Open the full app · app.vyybandasky.online</span><span class="ar">↗</span></a>
+        </div>
+      </div>
+
+      <!-- MYRA QUOTE DEMO -->
+      <div class="demo reveal">
+        <div class="demo-top">
+          <div class="t"><span class="ic">✦</span> Self-service quotes</div>
+          <div class="chip-live"><b></b>Live demo · Myra</div>
+        </div>
+        <div class="demo-body">
+          <div>
+            <span class="cap" style="font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--grey);display:block;margin-bottom:8px">Pick what you need cleaned</span>
+            <div class="svc-chips" id="svcChips"></div>
+          </div>
+          <div class="config" id="config"></div>
+          <div class="quote">
+            <div id="qlines"><div class="qempty">Pick a service to see your price build.</div></div>
+            <div class="qtot" id="qtotWrap" style="display:none">
+              <span class="lb">Estimated total</span>
+              <span class="amt" id="qtot"><small>KSh</small>0</span>
+            </div>
+            <div class="qmeta" id="qmeta">Fixed price · transport charged separately · pay after the job.</div>
+          </div>
+          <div class="two">
+            <label class="fld"><span class="cap">Area</span>
+              <select id="qArea" class="mini-select" style="width:100%">
+                <option>Nairobi</option><option>Ruiru</option><option>Thika</option><option>Juja</option><option>Kiambu</option><option>Other</option>
+              </select>
+            </label>
+            <label class="fld"><span class="cap">Your name</span><input id="qName" placeholder="e.g. Faith" /></label>
+          </div>
+          <div class="demo-foot">
+            <a class="btn btn-o" id="qWa" href="#" target="_blank" rel="noopener">Send on WhatsApp</a>
+            <button class="btn btn-ghost" id="qCopy">Copy quote</button>
+          </div>
+          <div class="copied" id="copied"></div>
+          <a class="demo-open" href="https://myra.vyybandasky.online" target="_blank" rel="noopener"><span>Open the live Myra tool · myra.vyybandasky.online</span><span class="ar">↗</span></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="rule" />
+
+<!-- 03 LIVING GALLERY -->
+<section>
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-idx">03</div>
+      <div>
+        <div class="sec-title">Watch it work.</div>
+        <div class="sec-sub">A living strip of real builds in use.</div>
+      </div>
+    </div>
+    <div class="film reveal">
+      <div class="clip live">
+        <div class="play">▶</div>
+        <div class="idx">CLIP 01</div>
+        <div>
+          <div class="nm">Myra</div>
+          <div class="st">Live · quote tool above ↑</div>
+        </div>
+      </div>
+      <div class="clip next">
+        <div class="play">▶</div>
+        <div class="idx">CLIP 02</div>
+        <div>
+          <div class="nm">365+ Ventures</div>
+          <div class="st">In build</div>
+        </div>
+      </div>
+      <div class="clip next">
+        <div class="play">▶</div>
+        <div class="idx">CLIP 03</div>
+        <div>
+          <div class="nm">VOS</div>
+          <div class="st">Parser live ↑ · dashboard next</div>
+        </div>
+      </div>
+      <div class="clip next">
+        <div class="play">＋</div>
+        <div class="idx">CLIP 04</div>
+        <div>
+          <div class="nm">Your build</div>
+          <div class="st">Reserved</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="rule" />
+
+<!-- 04 OFFERS -->
+<section>
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-idx">04</div>
+      <div>
+        <div class="sec-title">What I can build for you.</div>
+        <div class="sec-sub">From a simple tool to custom software — start anywhere.</div>
+      </div>
+    </div>
+    <div class="offers reveal">
+      <div class="offer">
+        <div class="oi">Taster</div>
+        <h3>A simple tool or script</h3>
+        <div class="price"><span class="big">Free–3K</span>KSh</div>
+        <p>A small script or mini-tool that fixes one task.</p>
+      </div>
+      <div class="offer feat">
+        <div class="feat-tag">Most pick</div>
+        <div class="oi">Core tool</div>
+        <h3>A core tool</h3>
+        <div class="price"><span class="big">from 8K</span>KSh · in a week</div>
+        <p>Quote, booking or records — the one thing that eats your day.</p>
+      </div>
+      <div class="offer">
+        <div class="oi">Custom</div>
+        <h3>Custom software</h3>
+        <div class="price"><span class="big">from 30K</span>KSh</div>
+        <p>Built around exactly how your business works.</p>
+      </div>
+      <div class="offer">
+        <div class="oi">Care plan</div>
+        <h3>Kept running</h3>
+        <div class="price"><span class="big">500–2K</span>KSh / month</div>
+        <p>Hosting, tweaks and support so it keeps working.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="rule" />
+
+<!-- 05 PROOF -->
+<section>
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-idx">05</div>
+      <div>
+        <div class="sec-title">Proof.</div>
+        <div class="sec-sub">Myra — a Nairobi cleaning business.</div>
+      </div>
+    </div>
+    <div class="proof-grid reveal">
+      <div class="card">
+        <div class="quote-block">
+          <div class="qm" id="testimonial">“The calculator answers ‘how much?’ for me now. I just confirm the job and go clean.”</div>
+          <div class="qa">— Mercy · Myra Cleaning Services</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="kicker" style="margin-bottom:16px"><span class="n">MYRA</span> &nbsp;/&nbsp; before → after</div>
+        <div class="stat-row">
+          <div class="stat"><div class="v">30s</div><div class="k">to a price</div></div>
+          <div class="stat"><div class="v">0</div><div class="k">back-and-forth</div></div>
+          <div class="stat"><div class="v">100%</div><div class="k">leads itemised</div></div>
+        </div>
+        <p style="color:var(--bone-dim);margin-top:20px;font-size:14px">Customers tap what they need; the price builds live and the job lands already priced.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="rule" />
+
+<!-- 06 CTA -->
+<section>
+  <div class="wrap reveal">
+    <div class="cta">
+      <div>
+        <div class="kicker" style="margin-bottom:14px"><span class="n">06</span> &nbsp;/&nbsp; Start here</div>
+        <h2>What eats your day?<br />Tell me — I'll build the tool that ends it.</h2>
+        <p>One message and I'll tell you what I'd build — and what it costs.</p>
+        <div class="cta-row">
+          <a class="btn btn-o" href="https://wa.me/254754413351" target="_blank" rel="noopener">WhatsApp me → 0754 413 351</a>
+          <a class="btn btn-ghost" href="#try">Play with the demos</a>
+        </div>
+      </div>
+      <div class="qr-card">
+        <div id="qr"></div>
+        <div class="qc">Scan · chat on WhatsApp</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot">
+    <div class="l"><svg class="bmk" viewBox="8 6 84 66" aria-hidden="true" style="display:inline-block;vertical-align:middle;margin-right:4px"><rect width="100" height="100" fill="#E4712B" mask="url(#lgFinal)"></rect></svg>LaunchGear</div>
+    <div class="m">Built by Bonnie · Nairobi · software studio</div>
+    <div class="m">wa.me/254754413351</div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+/* ---------------- reveal on scroll (bulletproof) ---------------- */
+const reveals=[...document.querySelectorAll('.reveal')];
+const revealAll=()=>reveals.forEach(el=>el.classList.add('in'));
+if('IntersectionObserver' in window){
+  const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:0.08});
+  reveals.forEach(el=>io.observe(el));
+  setTimeout(revealAll,2000);                       // failsafe: never leave content hidden
+  window.addEventListener('load',()=>setTimeout(revealAll,600));
+}else{ revealAll(); }
+
+/* ---------------- QR ---------------- */
+try{ new QRCode(document.getElementById('qr'),{text:'https://wa.me/254754413351',width:150,height:150,colorDark:'#1C1E22',colorLight:'#EDE7DF',correctLevel:QRCode.CorrectLevel.M}); }catch(e){ document.getElementById('qr').textContent='wa.me/254754413351'; }
+
+/* ================================================================
+   DEMO 1 — M-Pesa / KCB message parser
+   ================================================================ */
+const SAMPLES = [
+  {label:'M-Pesa · received', text:"TFE5G7H8I9 Confirmed. You have received Ksh1,500.00 from JOHN DOE 254712345678 on 5/8/26 at 4:15 PM. New M-PESA balance is Ksh12,340.00. Buy goods and services with M-PESA."},
+  {label:'M-Pesa · Naivas', text:"TFE5G7H8L3 Confirmed. Ksh450.00 paid to NAIVAS SUPERMARKET. on 5/8/26 at 1:20 PM. New M-PESA balance is Ksh8,390.00. Transaction cost, Ksh0.00."},
+  {label:'M-Pesa · KPLC', text:"TFE5G7H8K2 Confirmed. Ksh2,500.00 paid to KPLC PREPAID for account 123456 on 5/8/26 at 6:00 PM. New M-PESA balance is Ksh8,840.00. Transaction cost, Ksh0.00."},
+  {label:'M-Pesa · sent', text:"TFE5G7H8J1 Confirmed. Ksh1,000.00 sent to JANE WANJIKU 254798765432 on 5/8/26 at 5:00 PM. New M-PESA balance is Ksh11,340.00. Transaction cost, Ksh13.00."},
+  {label:'M-Pesa · withdraw', text:"TFE5G7H8M4 Confirmed. on 5/8/26 at 7:30 PM Withdraw Ksh3,000.00 from 456789 - QUICKCASH AGENT. New M-PESA balance is Ksh5,390.00. Transaction cost, Ksh29.00."},
+  {label:'KCB · received', text:"KCB Confirmed. You have received Ksh5,000.00 from MARY ATIENO 254701122334 on 05/08/2026. Your KCB M-PESA account balance is Ksh20,000.00. Ref QWE12345."}
+];
+
+const learnedMap = {}; // party -> category (in-memory only)
+
+function money(s){ return s.replace(/,/g,''); }
+function fmt(n){ return Number(n).toLocaleString('en-KE',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+function categorise(party, dir, raw){
+  const p = (party||'').toUpperCase();
+  if(learnedMap[p]) return learnedMap[p];
+  const r = raw.toUpperCase();
+  if(/AIRTIME|BUNDLE/.test(r)) return 'Airtime & Data';
+  if(/WITHDRAW|AGENT/.test(r)) return 'Cash withdrawal';
+  if(/KPLC|KENYA POWER|PREPAID|TOKEN|STIMA/.test(p)) return 'Utilities · Electricity';
+  if(/WATER|NAIROBI WATER/.test(p)) return 'Utilities · Water';
+  if(/SUPERMARKET|NAIVAS|QUICKMART|CARREFOUR|MART|GROCER|SOKO|WHOLESALE/.test(p)) return 'Groceries / Stock';
+  if(/RENT|LANDLORD|APARTMENT|ESTATE/.test(p)) return 'Rent';
+  if(/TOTAL|SHELL|RUBIS|PETROL|FUEL|OLA ENERGY|GULF/.test(p)) return 'Fuel / Transport';
+  if(/LTD|LIMITED|SUPPLIES|DISTRIBUTOR|ENTERPRISE|HARDWARE|TRADERS/.test(p)) return 'Supplier payment';
+  if(dir==='IN') return 'Income · Customer payment';
+  return 'Uncategorised';
+}
+
+function parseSMS(raw){
+  const t = raw.replace(/\s+/g,' ').trim();
+  if(!t) return null;
+  const src = /KCB/i.test(t) ? 'KCB' : 'M-PESA';
+  let dir='OUT', amount=null, party='', partyLabel='Paid to';
+
+  let m;
+  if((m = t.match(/received\s+Ksh([\d,]+\.\d{2})\s+from\s+(.+?)(?:\s+2547\d{8}|\s+07\d{8})?\s+on\b/i))){
+    dir='IN'; amount=m[1]; party=m[2].trim(); partyLabel='Received from';
+  } else if((m = t.match(/Ksh([\d,]+\.\d{2})\s+sent\s+to\s+(.+?)(?:\s+2547\d{8}|\s+07\d{8})?\s+on\b/i))){
+    dir='OUT'; amount=m[1]; party=m[2].trim(); partyLabel='Sent to';
+  } else if((m = t.match(/Withdraw\s+Ksh([\d,]+\.\d{2})\s+from\s+(.+?)\.?\s+New\b/i))){
+    dir='OUT'; amount=m[1]; party=m[2].trim(); partyLabel='Withdrawn at';
+  } else if((m = t.match(/Ksh([\d,]+\.\d{2})\s+paid\s+to\s+(.+?)(?:\s+for account\s+\w+)?\.?\s+on\b/i))){
+    dir='OUT'; amount=m[1]; party=m[2].replace(/\.$/,'').trim(); partyLabel='Paid to';
+  } else if((m = t.match(/bought\s+Ksh([\d,]+\.\d{2})\s+of\s+airtime/i))){
+    dir='OUT'; amount=m[1]; party='Airtime'; partyLabel='Bought';
+  } else if((m = t.match(/Ksh([\d,]+\.\d{2})/i))){
+    amount=m[1]; party='—';
+  }
+  if(!amount) return null;
+
+  const bal  = (t.match(/balance\s+is\s+Ksh([\d,]+\.\d{2})/i)||[])[1] || null;
+  const cost = (t.match(/Transaction cost,?\s+Ksh([\d,]+\.\d{2})/i)||[])[1] || null;
+  const date = (t.match(/on\s+(\d{1,2}\/\d{1,2}\/\d{2,4})/i)||[])[1] || null;
+  const time = (t.match(/at\s+(\d{1,2}:\d{2}\s?[AP]M)/i)||[])[1] || '';
+  const ref  = (t.match(/^([A-Z0-9]{10})\b/)||[])[1] || (t.match(/Ref\.?\s+([A-Z0-9]+)/i)||[])[1] || (src==='KCB'?'KCB-TXN':'—');
+
+  return {src,dir,amount,party,partyLabel,bal,cost,date,time,ref,raw:t};
+}
+
+const $=(id)=>document.getElementById(id);
+const sms=$('sms'), parsed=$('parsed');
+
+function showParsed(d){
+  if(!d){ parsed.classList.remove('show'); return; }
+  $('pSrc').textContent = d.src;
+  const dirEl=$('pDir'); dirEl.textContent=d.dir; dirEl.className='dir '+(d.dir==='IN'?'in':'out');
+  $('pAmt').innerHTML = '<small>KSh</small>'+fmt(money(d.amount));
+  $('pPartyK').textContent = d.partyLabel;
+  $('pParty').textContent = d.party||'—';
+  $('pDate').textContent = d.date ? (d.date+(d.time?(' · '+d.time):'')) : '—';
+  $('pBal').textContent = d.bal ? ('KSh '+fmt(money(d.bal))) : '—';
+  $('pRef').textContent = d.ref||'—';
+  const cat = categorise(d.party, d.dir, d.raw);
+  $('pCatTag').textContent = cat;
+  $('pCatSel').value = [...$('pCatSel').options].some(o=>o.value===cat)?cat:'Uncategorised';
+  $('pCatSel').dataset.party = (d.party||'').toUpperCase();
+  $('learned').classList.toggle('show', !!learnedMap[(d.party||'').toUpperCase()]);
+  parsed.classList.add('show');
+}
+
+$('sortBtn').addEventListener('click',()=>{
+  const d=parseSMS(sms.value);
+  if(!d){ sms.style.borderColor='var(--orange)'; sms.value=sms.value||''; $('parsed').classList.remove('show');
+    if(!sms.value){ sms.placeholder='Tap a sample below to see it work ↓'; } return; }
+  sms.style.borderColor='';
+  showParsed(d);
+});
+
+$('pCatSel').addEventListener('change',(e)=>{
+  const cat=e.target.value, party=e.target.dataset.party;
+  $('pCatTag').textContent=cat;
+  if(party && cat!=='Uncategorised'){ learnedMap[party]=cat; $('learned').classList.add('show'); }
+});
+
+const sampWrap=$('samples');
+SAMPLES.forEach(s=>{
+  const b=document.createElement('button'); b.className='samp'; b.textContent=s.label;
+  b.addEventListener('click',()=>{ sms.value=s.text; sms.style.borderColor=''; showParsed(parseSMS(s.text)); });
+  sampWrap.appendChild(b);
+});
+// preload a sample AND show its parse so the panel reads as alive on load
+sms.value = SAMPLES[1].text;
+showParsed(parseSMS(SAMPLES[1].text));
+
+/* ================================================================
+   DEMO 2 — Myra quote calculator (real prices from PRICES.md)
+   ================================================================ */
+const MYRA_WA='254754413351'; // demo hands off to LaunchGear's line — never Mercy's, so she isn't spammed by non-customers
+const P={
+  sofaPerSeat:500,
+  mattress:{'3×6':1000,'4×6':1200,'5×6':1500,'6×6':1800,'6×7 & above':null},
+  carpet:{'3×5':500,'4×6':700,'5×7':1000,'6×9':1300,'8×10':1800,'9×12':2200,'10×14':2800,'Larger':null},
+  house:{'Studio':2500,'1 Bedroom':3500,'2 Bedroom':5000,'3 Bedroom':6500,'4 Bedroom':8000},
+  houseExtra:1500,
+  addons:{'Kitchen deep clean':1500,'Bathroom / Toilet':800,'Fridge':800,'Oven':800,'Microwave':400,'Windows (inside)':150,'Balcony':500},
+  MIN:1500
+};
+const SERVICES=[
+  {key:'sofa', label:'Sofa', em:'🛋'},
+  {key:'mattress', label:'Mattress', em:'🛏'},
+  {key:'carpet', label:'Carpet', em:'🧶'},
+  {key:'house', label:'Whole-house', em:'🏠'},
+  {key:'addons', label:'Add-ons', em:'✚'},
+  {key:'commercial', label:'Office / Post-construction', em:'🏢'}
+];
+const state={sofa:0, mattressSize:'', mattressQty:1, carpetSize:'', carpetQty:1, houseBr:'', houseExtra:0, addons:{}, commercial:false};
+
+const chipWrap=$('svcChips'), cfg=$('config');
+SERVICES.forEach(s=>{
+  const c=document.createElement('div'); c.className='svc'; c.dataset.k=s.key;
+  c.innerHTML='<span class="em">'+s.em+'</span>'+s.label;
+  c.addEventListener('click',()=>{ c.classList.toggle('on'); renderConfig(); recalc(); });
+  chipWrap.appendChild(c);
+});
+function isOn(k){ return chipWrap.querySelector('.svc[data-k="'+k+'"]').classList.contains('on'); }
+
+function stepper(get,set){
+  const w=document.createElement('div'); w.className='stepper';
+  const minus=document.createElement('button'); minus.textContent='–';
+  const q=document.createElement('span'); q.className='qty'; q.textContent=get();
+  const plus=document.createElement('button'); plus.textContent='+';
+  minus.onclick=()=>{ set(Math.max(0,get()-1)); q.textContent=get(); recalc(); };
+  plus.onclick=()=>{ set(get()+1); q.textContent=get(); recalc(); };
+  w.append(minus,q,plus); return w;
+}
+function selectEl(opts,cur,on){
+  const s=document.createElement('select'); s.className='mini-select';
+  const ph=document.createElement('option'); ph.value=''; ph.textContent='Select size'; s.appendChild(ph);
+  opts.forEach(o=>{ const op=document.createElement('option'); op.value=o; op.textContent=o+ (typeof arguments[3]==='function'?'':''); s.appendChild(op); });
+  s.value=cur; s.onchange=()=>{ on(s.value); recalc(); }; return s;
+}
+function row(name,control){
+  const r=document.createElement('div'); r.className='cfg-row';
+  const n=document.createElement('div'); n.className='nm'; n.textContent=name;
+  r.append(n,control); return r;
+}
+function renderConfig(){
+  cfg.innerHTML='';
+  if(isOn('sofa')){ if(state.sofa<2)state.sofa=3; cfg.appendChild(row('Sofa — seats', stepper(()=>state.sofa,v=>state.sofa=Math.max(0,v)))); }
+  else state.sofa=0;
+  if(isOn('mattress')){ cfg.appendChild(row('Mattress — size', selectEl(Object.keys(P.mattress),state.mattressSize,v=>state.mattressSize=v)));
+    cfg.appendChild(row('Mattress — quantity', stepper(()=>state.mattressQty,v=>state.mattressQty=Math.max(1,v)))); }
+  else { state.mattressSize=''; }
+  if(isOn('carpet')){ cfg.appendChild(row('Carpet — size', selectEl(Object.keys(P.carpet),state.carpetSize,v=>state.carpetSize=v)));
+    cfg.appendChild(row('Carpet — quantity', stepper(()=>state.carpetQty,v=>state.carpetQty=Math.max(1,v)))); }
+  else { state.carpetSize=''; }
+  if(isOn('house')){ cfg.appendChild(row('Whole-house — bedrooms', selectEl(Object.keys(P.house),state.houseBr,v=>state.houseBr=v)));
+    cfg.appendChild(row('Extra bedrooms (beyond 4)', stepper(()=>state.houseExtra,v=>state.houseExtra=Math.max(0,v)))); }
+  else { state.houseBr=''; state.houseExtra=0; }
+  if(isOn('addons')){
+    const wrap=document.createElement('div'); wrap.style.display='flex'; wrap.style.flexDirection='column'; wrap.style.gap='8px';
+    Object.keys(P.addons).forEach(a=>{ if(state.addons[a]==null)state.addons[a]=0;
+      wrap.appendChild(row(a+' · '+P.addons[a], stepper(()=>state.addons[a],v=>state.addons[a]=Math.max(0,v)))); });
+    cfg.appendChild(wrap);
+  } else { state.addons={}; }
+  state.commercial=isOn('commercial');
+}
+
+function recalc(){
+  const items=[]; let subtotal=0, visit=false;
+  if(isOn('sofa') && state.sofa>0){ const p=state.sofa*P.sofaPerSeat; items.push(['Sofa — '+state.sofa+' seats',p]); subtotal+=p; }
+  if(isOn('mattress') && state.mattressSize){ const u=P.mattress[state.mattressSize];
+    if(u==null){ visit=true; items.push(['Mattress — '+state.mattressSize+' ×'+state.mattressQty,'visit']); }
+    else { const p=u*state.mattressQty; items.push(['Mattress — '+state.mattressSize+(state.mattressQty>1?' ×'+state.mattressQty:''),p]); subtotal+=p; } }
+  if(isOn('carpet') && state.carpetSize){ const u=P.carpet[state.carpetSize];
+    if(u==null){ visit=true; items.push(['Carpet — '+state.carpetSize+' ×'+state.carpetQty,'visit']); }
+    else { const p=u*state.carpetQty; items.push(['Carpet — '+state.carpetSize+(state.carpetQty>1?' ×'+state.carpetQty:''),p]); subtotal+=p; } }
+  if(isOn('house') && state.houseBr){ let p=P.house[state.houseBr]+state.houseExtra*P.houseExtra;
+    items.push(['Whole-house — '+state.houseBr+(state.houseExtra?(' +'+state.houseExtra+'BR'):''),p]); subtotal+=p; }
+  if(isOn('addons')){ Object.keys(state.addons).forEach(a=>{ const q=state.addons[a]; if(q>0){ const p=P.addons[a]*q; items.push([a+(q>1?' ×'+q:''),p]); subtotal+=p; } }); }
+  if(isOn('commercial')){ visit=true; items.push(['Office / post-construction','visit']); }
+
+  const lines=$('qlines'), totWrap=$('qtotWrap'), meta=$('qmeta');
+  if(items.length===0){ lines.innerHTML='<div class="qempty">Pick a service to see your price build.</div>'; totWrap.style.display='none'; meta.textContent='Fixed price · transport charged separately · pay after the job.'; updateWa(items,null,visit); return; }
+  lines.innerHTML='';
+  items.forEach(([n,p])=>{ const d=document.createElement('div'); d.className='qline';
+    d.innerHTML='<span>'+n+'</span>'+(p==='visit'?'<span class="p visit">ON A VISIT</span>':'<span class="p">KSh '+p.toLocaleString('en-KE')+'</span>'); lines.appendChild(d); });
+  if(visit && subtotal===0){ totWrap.style.display='none'; meta.textContent='Big / commercial job — we confirm the exact price on a quick site visit.'; }
+  else { const total=Math.max(subtotal,P.MIN); totWrap.style.display='flex';
+    $('qtot').innerHTML='<small>'+(visit?'from KSh':'KSh')+'</small>'+total.toLocaleString('en-KE');
+    meta.innerHTML=(subtotal<P.MIN?'Minimum job KSh 1,500 · ':'')+'Transport charged separately'+(visit?' · some items confirmed on a visit':'')+' · pay after the job.'; }
+  updateWa(items,visit?null:Math.max(subtotal,P.MIN),visit);
+}
+
+function quoteText(items,total,visit){
+  let s='Hi Myra Cleaning 👋 I\'d like to book this quote:%0A%0A';
+  items.forEach(([n,p])=>{ s+='• '+encodeURIComponent(n)+': '+(p==='visit'?'on a visit':'KSh '+p.toLocaleString('en-KE'))+'%0A'; });
+  s+='——————————————%0A';
+  s+= total!=null ? (visit?'Estimated (from): KSh '+total.toLocaleString('en-KE'):'Estimated total: KSh '+total.toLocaleString('en-KE'))+'%0A' : 'Best confirmed on a quick site visit%0A';
+  s+='Transport: charged separately by area%0A';
+  s+='Area: '+encodeURIComponent($('qArea').value);
+  const nm=$('qName').value.trim(); if(nm) s+='%0AName: '+encodeURIComponent(nm);
+  s+='%0A%0A(demo quote · Myra tool built by LaunchGear)';
+  return s;
+}
+function updateWa(items,total,visit){
+  const link = items.length? ('https://wa.me/'+MYRA_WA+'?text='+quoteText(items,total,visit)) : 'https://wa.me/'+MYRA_WA;
+  $('qWa').href=link; $('qWa').dataset.plain = decodeURIComponent(quoteText(items,total,visit).replace(/%0A/g,'\n'));
+}
+$('qArea').addEventListener('change',recalc);
+$('qName').addEventListener('input',recalc);
+$('qCopy').addEventListener('click',()=>{
+  const txt=$('qWa').dataset.plain||'';
+  navigator.clipboard?.writeText(txt).then(()=>{ $('copied').textContent='Quote copied ✓'; setTimeout(()=>$('copied').textContent='',1800); })
+   .catch(()=>{ $('copied').textContent='Press ⌘/Ctrl+C'; });
+});
+
+// start with sofa on for an inviting first view
+chipWrap.querySelector('.svc[data-k="sofa"]').classList.add('on');
+renderConfig(); recalc();
+</script>
+</body>
+</html>
