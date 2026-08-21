@@ -59,6 +59,8 @@ export type QuoteState = {
 
   setStep: (step: Step) => void;
   toggleService: (service: string) => void;
+  /** Another line of the same service - 2 heavy curtains AND 2 sheers. */
+  addItem: (service: string) => void;
   updateItem: (uid: string, patch: Partial<DraftItem>) => void;
   removeItem: (uid: string) => void;
   setAddonQty: (key: string, qty: number) => void;
@@ -104,6 +106,9 @@ export const useQuote = create<QuoteState>()(
           }
           return { items: [...s.items, { uid: uid(), service, qty: 1 }] };
         }),
+
+      addItem: (service) =>
+        set((s) => ({ items: [...s.items, { uid: uid(), service, qty: 1 }] })),
 
       updateItem: (id, patch) =>
         set((s) => ({

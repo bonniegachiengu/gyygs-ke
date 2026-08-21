@@ -152,6 +152,27 @@ function visitOnly(item: DraftItem, svc: Service): EstimateLine[] {
   return [{ label, amount: base * (item.qty ?? 1), visit: true }];
 }
 
+/**
+ * Has the customer actually chosen enough for this line to be priced?
+ *
+ * A freshly added line has no size or tier yet. Such a line contributes nothing
+ * to the estimate, and must NOT be sent to the server either — the engine
+ * rejects a size_tier item with no size as a domain error, which would turn an
+ * empty second row into a 400 at the moment of handoff.
+ */
+export function isConfigured(item: DraftItem, cat: Catalogue): boolean {
+  const svc = cat.services.find((s) => s.key === item.service);
+  if (!svc) return false;
+  switch (svc.strategy) {
+    case "tier":
+      return Boolean(item.tier);
+    case "size_tier":
+      return Boolean(item.size);
+    default:
+      return true;
+  }
+}
+
 export function priceItem(item: DraftItem, cat: Catalogue): EstimateLine[] {
   const svc = cat.services.find((s) => s.key === item.service);
   if (!svc) return [];

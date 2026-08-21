@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ActionBar, Button, Card, Heading, Notice, Screen } from "../components/ui";
 import { api } from "../lib/api/client";
 import { formatPreferred, ksh } from "../lib/format";
-import { estimate } from "../lib/pricing/estimate";
+import { estimate, isConfigured } from "../lib/pricing/estimate";
 import type { Catalogue } from "../lib/useCatalogue";
 import { buildFallbackText, copyToClipboard, waUrl, webWaUrl } from "../lib/whatsapp";
 import { toDraftAddons, toDraftItems, useQuote } from "../store/quote";
@@ -19,7 +19,13 @@ const FALLBACK_AFTER_MS = 2500;
  */
 export function Send({ catalogue }: { catalogue: Catalogue }) {
   const state = useQuote();
-  const items = useMemo(() => toDraftItems(state.items), [state.items]);
+  // Drop any line the customer added but never chose an option for. It prices
+  // as nothing anyway, and the server rejects a size_tier item with no size as a
+  // domain error — which would surface as a 400 at the worst possible moment.
+  const items = useMemo(
+    () => toDraftItems(state.items).filter((i) => isConfigured(i, catalogue)),
+    [state.items, catalogue],
+  );
   const addons = useMemo(() => toDraftAddons(state.addons), [state.addons]);
   const set = useQuote((s) => s.set);
   const setStep = useQuote((s) => s.setStep);
