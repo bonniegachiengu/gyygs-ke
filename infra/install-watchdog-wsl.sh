@@ -29,7 +29,10 @@ Description=Run the Myra site watchdog every 5 minutes
 OnBootSec=2min
 OnUnitActiveSec=5min
 AccuracySec=30s
-Persistent=true
+# NO Persistent=true. It is a calendar-timer option; on a monotonic-only timer
+# systemd computes the next elapse as infinity, so the timer fires once at boot,
+# reports "active", and never runs again. Trigger reads "n/a" and nothing warns
+# you. VOS III's tunnel watchdog omits it and reschedules correctly.
 
 [Install]
 WantedBy=timers.target
