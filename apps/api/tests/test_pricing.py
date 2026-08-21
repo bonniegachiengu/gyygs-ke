@@ -476,3 +476,54 @@ def test_vat_applies_on_top_when_registered() -> None:
     assert c.subtotal == 3800
     assert c.vat == 608  # 3,800 x 16%
     assert c.total == 4408
+
+
+# ── F2 · Curtains, per piece ──────────────────────────────────────────────
+
+
+@pytest.mark.parametrize(
+    ("size", "price"),
+    [("sheers", 300), ("standard", 400), ("large", 600), ("very_large", 1000)],
+)
+def test_curtain_types(size: str, price: int) -> None:
+    c = totals(quote(items=[QuoteItem(service="curtains", size=size)]))
+    assert c.subtotal == price
+    assert c.total == price
+    assert c.visit_first is False, "every curtain type has a hard price"
+
+
+def test_curtains_are_priced_per_piece() -> None:
+    """PRICES.md F2: per panel, not per window. Four standard panels is 1,600."""
+    c = totals(quote(items=[QuoteItem(service="curtains", size="standard", qty=4)]))
+    assert c.subtotal == 1600
+    assert c.lines[0].label == "Curtains — Standard ×4"
+
+
+def test_curtains_mix_with_the_rest_of_a_basket() -> None:
+    c = totals(
+        quote(
+            items=[
+                QuoteItem(service="curtains", size="sheers", qty=2),
+                QuoteItem(service="curtains", size="very_large", qty=1),
+                QuoteItem(service="sofa", seats=3),
+            ]
+        )
+    )
+    assert c.subtotal == 600 + 1000 + 1500
+    assert c.visit_first is False
+
+
+def test_curtain_tiers_carry_no_ft_suffix() -> None:
+    """Guards the UI: carpet and mattress chips read "5x7 ft", curtains must not
+    read "Sheers ft". The suffix is catalogue data, not a frontend assumption."""
+    by_key = {s.key: s for s in CAT.services}
+    assert by_key["curtains"].tier_unit is None
+    assert by_key["carpet"].tier_unit == "ft"
+    assert by_key["mattress"].tier_unit == "ft"
+
+
+def test_curtains_match_the_price_list() -> None:
+    """Transcribed straight from PRICES.md F2."""
+    expected = {"sheers": 300, "standard": 400, "large": 600, "very_large": 1000}
+    curtains = next(s for s in CAT.services if s.key == "curtains")
+    assert {t.key: t.price for t in curtains.tiers or []} == expected

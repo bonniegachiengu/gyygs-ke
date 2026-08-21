@@ -118,7 +118,8 @@ function ItemConfig({ item, catalogue }: { item: DraftItemWithId; catalogue: Cat
                 selected={item.size === tier.key}
                 onClick={() => update(item.uid, { size: tier.key })}
               >
-                {tier.label} ft · {ksh(tier.price)}
+                {tier.label}
+                {svc.tier_unit ? ` ${svc.tier_unit}` : ""} · {ksh(tier.price)}
               </Chip>
             ))}
             {svc.above && (

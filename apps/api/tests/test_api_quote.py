@@ -41,10 +41,11 @@ def test_pricing_returns_the_catalogue(client: TestClient) -> None:
         # Full price on the first clean, repeat rate from the second.
         "recurring_discount_from_job": 2,
     }
-    # All seven cards QUOTE_CALCULATOR_SPEC §5 Step 1 requires.
+    # The cards QUOTE_CALCULATOR_SPEC §5 Step 1 requires, plus curtains (PRICES.md F2).
     assert {s["key"] for s in cat["services"]} == {
         "sofa",
         "carpet",
+        "curtains",
         "mattress",
         "house",
         "commercial",

@@ -384,6 +384,8 @@ export interface components {
              * @enum {string}
              */
             strategy: "per_unit" | "tier" | "size_tier" | "flat" | "visit";
+            /** Tier Unit */
+            tier_unit?: string | null;
             /** Tiers */
             tiers?: components["schemas"]["Tier"][] | null;
             /** Unit */

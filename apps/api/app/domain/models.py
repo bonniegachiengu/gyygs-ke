@@ -88,6 +88,10 @@ class Service(BaseModel):
     extra: ExtraDef | None = None  # house: extra_bedroom beyond 4BR
     above: AboveDef | None = None  # mattress: 6x7_plus
     larger: Literal["visit"] | None = None  # carpet: larger sizes are quoted on a visit
+    # Suffix the UI puts after a tier label: "5x7 ft" for carpet, nothing for
+    # curtains. Data-driven so a new size_tier service cannot silently inherit
+    # carpet's "ft" and render "Sheers ft".
+    tier_unit: str | None = None
     modifiers: list[Modifier] | None = None
 
     # per_unit

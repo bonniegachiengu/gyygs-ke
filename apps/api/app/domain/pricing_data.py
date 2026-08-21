@@ -23,7 +23,7 @@ from app.domain.models import (
 )
 
 #: Bump whenever PRICES.md changes. Surfaces in GET /api/pricing.
-PRICING_VERSION = "2026-08-12"
+PRICING_VERSION = "2026-08-21"
 CURRENCY = "KSh"
 
 # ── A · House deep cleaning, by bedrooms ──────────────────────────────────
@@ -83,10 +83,29 @@ CARPET = Service(
         Tier(key="9x12", label="9×12", price=2200),
         Tier(key="10x14", label="10×14", price=2800),
     ],
+    tier_unit="ft",
     larger="visit",
     # "Thick / shaggy carpets: + KSh 300 - 500" — a range, so it also makes the
     # quote visit-first (PRICES.md, Calculator handling rules).
     modifiers=[Modifier(key="thick_shaggy", label="Thick / shaggy", add_range=[300, 500])],
+)
+
+# ── F2 · Curtains, by type, per piece ─────────────────────────────────────
+# Same shape as carpet/mattress (pick a tier, then a quantity) but the tiers are
+# weights rather than ft sizes, hence no tier_unit. "Per piece" means per panel:
+# a window with two panels is two pieces.
+CURTAINS = Service(
+    key="curtains",
+    label="Curtains",
+    strategy="size_tier",
+    icon="🪟",
+    from_label=300,
+    tiers=[
+        Tier(key="sheers", label="Sheers", price=300),
+        Tier(key="standard", label="Standard", price=400),
+        Tier(key="large", label="Large / heavy", price=600),
+        Tier(key="very_large", label="Very large / heavy", price=1000),
+    ],
 )
 
 # ── G · Mattress, by ft size ──────────────────────────────────────────────
@@ -102,6 +121,7 @@ MATTRESS = Service(
         Tier(key="5x6", label="5×6", price=1500),
         Tier(key="6x6", label="6×6", price=1800),
     ],
+    tier_unit="ft",
     above=AboveDef(key="6x7_plus", label="6×7 & above", price=2000, from_=True),
 )
 
@@ -134,6 +154,7 @@ SOMETHING_ELSE = Service(
 SERVICES: list[Service] = [
     SOFA,
     CARPET,
+    CURTAINS,
     MATTRESS,
     HOUSE,
     COMMERCIAL,
