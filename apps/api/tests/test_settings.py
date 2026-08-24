@@ -43,7 +43,7 @@ def test_every_env_example_key_is_a_settings_field() -> None:
 def test_settings_constructs_from_env_example() -> None:
     s = Settings(_env_file=ENV_EXAMPLE)
 
-    assert s.whatsapp_number == "254716869648"
+    assert s.whatsapp_number == "254754413351"  # the TEST line; prod supplies its own via env
     assert s.public_site_host == "myrah.vyybandasky.online"
     assert s.lead_store == "memory"
 

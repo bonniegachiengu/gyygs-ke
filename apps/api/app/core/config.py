@@ -30,7 +30,7 @@ class Settings(BaseSettings):
     public_site_host: str = "myrah.vyybandasky.online"
 
     # ── WhatsApp handoff ──
-    whatsapp_number: str = "254716869648"
+    whatsapp_number: str = "254754413351"
 
     # ── Pricing rules (mirror of PRICES.md — see CLAUDE.md before changing) ──
     # 0 = no floor. Mercy's call, 16 Aug 2026: "don't cap the price". The flyer's

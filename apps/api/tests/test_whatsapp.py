@@ -138,8 +138,8 @@ def test_business_details_and_etims_note() -> None:
 
 
 def test_url_is_percent_encoded_for_the_right_number() -> None:
-    url = build_url(_worked_example(), "254716869648")
-    assert url.startswith("https://wa.me/254716869648?text=")
+    url = build_url(_worked_example(), "254754413351")
+    assert url.startswith("https://wa.me/254754413351?text=")
     assert "\n" not in url
     assert "%0A" in url
     # '+' for spaces is rendered literally by some Android WhatsApp builds.

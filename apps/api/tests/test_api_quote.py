@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from app.core.config import get_settings
 import json
 import re
 from urllib.parse import unquote
@@ -115,7 +116,7 @@ def test_worked_example_end_to_end(client: TestClient) -> None:
     )
     assert re.fullmatch(r"MY-\d{6}-\d{3,}", q["quote_ref"])
     assert q["created_at"].endswith("Z")
-    assert q["whatsapp_url"].startswith("https://wa.me/254716869648?text=")
+    assert q["whatsapp_url"].startswith(f"https://wa.me/{get_settings().whatsapp_number}?text=")
 
     text = unquote(q["whatsapp_url"].split("?text=", 1)[1])
     assert "Estimated total: KSh 3,800" in text
@@ -199,8 +200,8 @@ def test_invalid_phone_is_422(client: TestClient, phone: str) -> None:
 @pytest.mark.parametrize(
     ("given", "stored"),
     [
-        ("0716869648", "254716869648"),
-        ("+254716869648", "254716869648"),
+        ("0722000000", "254722000000"),
+        ("+254722000000", "254722000000"),
         ("0110 123 456", "254110123456"),
     ],
 )
