@@ -54,6 +54,16 @@ class Settings(BaseSettings):
     # API's entire durable footprint is one directory.
     lead_db_path: str = "./data/leads.db"
 
+    # ── Operator surface (Phase A) ──
+    # A shared PIN to start, exactly as MYRAH_WHATSAPP_AND_CMS.md §3d says:
+    # "start with a shared PIN; proper auth later". Empty means the admin
+    # routes refuse with 503 rather than defaulting to something guessable.
+    admin_pin: str = ""
+    # 30% to hold a slot -- MYRAH_OPERATIONS_DESIGN.md §11 decision 1.
+    # Config, not a literal, so Mercy can change it without a code change.
+    deposit_pct: int = 30
+
+
     # ── Quote reference counter ──
     quote_seq_path: str = "./data/quote_seq.json"
 

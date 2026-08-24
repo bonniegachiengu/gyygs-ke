@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f3d2e">
+<title>Myrah — board</title>
+<!--
+  Mercy's operator board. Phone-first, per MYRAH_WHATSAPP_AND_CMS.md §3c:
+  "one glance = the whole business".
+
+  Deliberately one self-contained file, no build step. This is Phase A: the
+  thing that has to exist is a board Mercy opens every day, not a toolchain.
+  It talks to /api/admin/* on the same origin, so there is no API base URL to
+  get wrong -- the same reasoning main.py gives for the calculator.
+
+  The PIN is held in sessionStorage, not localStorage: a shared phone should
+  not stay signed in forever. Proper auth replaces this (§3d).
+-->
+<style>
+  :root{
+    --ink:#12241d; --muted:#5b6f66; --line:#dfe7e3; --bg:#f6f8f7;
+    --green:#0f3d2e; --amber:#b7791f; --red:#a3282d; --card:#fff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+       background:var(--bg);color:var(--ink);-webkit-text-size-adjust:100%}
+  header{position:sticky;top:0;z-index:5;background:var(--green);color:#fff;
+         padding:14px 16px calc(14px + env(safe-area-inset-top)) 16px}
+  header h1{margin:0;font-size:17px;letter-spacing:.02em}
+  header .sub{opacity:.75;font-size:12.5px;margin-top:2px}
+  .tabs{display:flex;gap:6px;overflow-x:auto;padding:10px 12px;background:#fff;
+        border-bottom:1px solid var(--line);position:sticky;top:64px;z-index:4}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex:0 0 auto;border:1px solid var(--line);background:#fff;color:var(--muted);
+       border-radius:999px;padding:8px 14px;font-size:13.5px;font-weight:600;
+       min-height:40px;cursor:pointer}
+  .tab[aria-selected="true"]{background:var(--green);border-color:var(--green);color:#fff}
+  .tab .n{opacity:.7;font-weight:500}
+  main{padding:12px 12px 40px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;
+        padding:14px;margin-bottom:10px}
+  .row{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+  .name{font-weight:700}
+  .meta{color:var(--muted);font-size:13px;margin-top:2px}
+  .amt{font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap}
+  .pill{display:inline-block;font-size:11.5px;font-weight:700;padding:3px 8px;
+        border-radius:999px;margin-top:8px}
+  .pill.need{background:#fdf3e2;color:var(--amber)}
+  .pill.ok{background:#e8f3ee;color:var(--green)}
+  .empty{color:var(--muted);text-align:center;padding:34px 10px;font-size:14.5px}
+  button.act{width:100%;min-height:48px;border-radius:12px;border:0;font-size:15px;
+             font-weight:700;margin-top:10px;cursor:pointer}
+  .primary{background:var(--green);color:#fff}
+  .ghost{background:#fff;border:1px solid var(--line)!important;color:var(--ink)}
+  dialog{border:0;border-radius:16px;padding:0;width:min(94vw,460px)}
+  dialog::backdrop{background:rgba(0,0,0,.42)}
+  .sheet{padding:16px}
+  .sheet h2{margin:0 0 2px;font-size:17px}
+  label{display:block;font-size:12.5px;color:var(--muted);margin:12px 0 4px;font-weight:600}
+  input,select{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;
+               font-size:16px;background:#fff}
+  .msg{margin-top:12px;padding:11px 12px;border-radius:10px;font-size:14px;display:none}
+  .msg.err{display:block;background:#fdecec;color:var(--red)}
+  .msg.good{display:block;background:#e8f3ee;color:var(--green)}
+  .ledger{margin-top:10px;border-top:1px solid var(--line);padding-top:8px;font-size:13px}
+  .ledger div{display:flex;justify-content:space-between;padding:3px 0;color:var(--muted)}
+</style>
+</head>
+<body>
+<header>
+  <h1>Myrah — board</h1>
+  <div class="sub" id="sub">loading…</div>
+</header>
+
+<div class="tabs" id="tabs" role="tablist"></div>
+<main id="list"></main>
+
+<dialog id="sheet"><div class="sheet" id="sheetBody"></div></dialog>
+
+<script>
+const API = "/api/admin";
+const money = c => "KSh " + (c/100).toLocaleString("en-KE",{maximumFractionDigits:0});
+const COLS = ["new","quoted","booked","today","done","unpaid"];
+const LABEL = {new:"New",quoted:"Quoted",booked:"Booked",today:"Today",done:"Done",unpaid:"Unpaid"};
+let state = { board:null, col:"today", pin:sessionStorage.getItem("myrah_pin")||"" };
+
+function hdrs(){ return {"Content-Type":"application/json","X-Admin-PIN":state.pin}; }
+
+async function api(path, opts={}){
+  const r = await fetch(API+path, {headers:hdrs(), ...opts});
+  if (r.status === 401){ askPin(true); throw new Error("bad pin"); }
+  if (r.status === 503){ throw new Error("admin surface not configured"); }
+  return r;
+}
+
+function askPin(again){
+  const s = document.getElementById("sheet");
+  document.getElementById("sheetBody").innerHTML = `
+    <h2>Enter PIN</h2>
+    <div class="meta">${again?"That PIN was not accepted.":"Kept for this session only."}</div>
+    <label for="pin">PIN</label>
+    <input id="pin" type="password" inputmode="numeric" autocomplete="off">
+    <button class="act primary" id="pinGo">Open the board</button>`;
+  s.showModal();
+  const go = () => { state.pin = document.getElementById("pin").value.trim();
+    sessionStorage.setItem("myrah_pin", state.pin); s.close(); load(); };
+  document.getElementById("pinGo").onclick = go;
+  document.getElementById("pin").onkeydown = e => { if(e.key==="Enter") go(); };
+}
+
+async function load(){
+  if(!state.pin) return askPin(false);
+  try{
+    const r = await api("/board");
+    state.board = await r.json();
+  }catch(e){ document.getElementById("sub").textContent = e.message; return; }
+
+  const b = state.board, total = COLS.reduce((n,c)=>n+b.columns[c].length,0);
+  const owed = COLS.flatMap(c=>b.columns[c]).filter(j=>j.column==="unpaid")
+                   .reduce((n,j)=>n+j.balance_cents,0);
+  document.getElementById("sub").textContent =
+    `${total} job${total===1?"":"s"} · ${b.deposit_pct}% deposit` + (owed? ` · ${money(owed)} owing`:"");
+
+  document.getElementById("tabs").innerHTML = COLS.map(c=>
+    `<button class="tab" role="tab" aria-selected="${c===state.col}" data-c="${c}">
+       ${LABEL[c]} <span class="n">${b.columns[c].length}</span></button>`).join("");
+  document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{state.col=t.dataset.c;render();});
+  render();
+}
+
+function render(){
+  const jobs = state.board.columns[state.col];
+  document.querySelectorAll(".tab").forEach(t=>t.setAttribute("aria-selected", t.dataset.c===state.col));
+  const el = document.getElementById("list");
+  if(!jobs.length){ el.innerHTML = `<div class="empty">Nothing in ${LABEL[state.col]}.</div>`; return; }
+  el.innerHTML = jobs.map(j=>{
+    const need = j.deposit_required_cents - j.deposit_paid_cents;
+    const pill = j.visit_first ? `<span class="pill need">visit first</span>`
+      : need>0 ? `<span class="pill need">deposit ${money(need)} to book</span>`
+      : `<span class="pill ok">deposit paid</span>`;
+    return `<div class="card" data-ref="${j.ref}">
+      <div class="row"><span class="name">${j.client_name}</span><span class="amt">${money(j.total_cents)}</span></div>
+      <div class="meta">${j.area||"—"} · ${j.items||"—"}</div>
+      <div class="meta">${j.scheduled_at || j.preferred || "not scheduled"} · ${j.ref}</div>
+      ${pill}${j.balance_cents>0&&j.paid_cents>0?`<span class="pill need">${money(j.balance_cents)} owing</span>`:""}
+    </div>`;
+  }).join("");
+  el.querySelectorAll(".card").forEach(c=>c.onclick=()=>openJob(c.dataset.ref));
+}
+
+async function openJob(ref){
+  const j = await (await api("/jobs/"+ref)).json();
+  const s = document.getElementById("sheet");
+  const need = j.deposit_required_cents - j.deposit_paid_cents;
+  const ledger = j.payments.length ? `<div class="ledger">${j.payments.map(p=>
+      `<div><span>${p.kind}${p.mpesa_ref?" · "+p.mpesa_ref:""}</span><span>${money(p.amount_cents)}</span></div>`).join("")}</div>` : "";
+
+  let actions = "";
+  if (j.status === "quoted")
+    actions = need>0
+      ? `<div class="msg err" style="display:block">Needs ${money(need)} deposit before it can be booked.</div>
+         <button class="act primary" id="pay">Record deposit</button>`
+      : `<button class="act primary" id="book">Book it</button>`;
+  else if (j.status === "booked")
+    actions = `<button class="act primary" id="done">Mark completed</button>`;
+  else if (j.status === "completed")
+    actions = `<button class="act primary" id="pay">Record payment (${money(j.balance_cents)} owing)</button>`;
+  else if (j.status === "paid")
+    actions = `<button class="act ghost" id="rcpt">View receipt</button>`;
+
+  document.getElementById("sheetBody").innerHTML = `
+    <h2>${j.client_name}</h2>
+    <div class="meta">${j.ref} · ${j.area||"—"} · ${j.status}</div>
+    <div class="row" style="margin-top:10px"><span>Total</span><span class="amt">${money(j.total_cents)}</span></div>
+    <div class="row"><span class="meta">Paid</span><span class="meta">${money(j.paid_cents)}</span></div>
+    ${ledger}
+    <div id="slot"></div>${actions}
+    <button class="act ghost" id="close">Close</button>`;
+  if(!s.open) s.showModal();
+  document.getElementById("close").onclick = ()=>{s.close();load();};
+
+  const btn = id => document.getElementById(id);
+  if(btn("book")) btn("book").onclick = ()=>bookForm(j);
+  if(btn("pay"))  btn("pay").onclick  = ()=>payForm(j);
+  if(btn("done")) btn("done").onclick = async ()=>{
+    await api("/jobs/"+j.ref+"/complete",{method:"POST"}); openJob(j.ref); };
+  if(btn("rcpt")) btn("rcpt").onclick = async ()=>{
+    const r = await (await api("/jobs/"+j.ref+"/receipt")).json();
+    document.getElementById("slot").innerHTML =
+      `<div class="msg good" style="display:block">${r.business.name}<br>Receipt ${r.receipt_ref}<br>
+       Paid ${money(r.paid_cents)} · eTIMS ${r.business.etims}</div>`; };
+}
+
+function bookForm(j){
+  document.getElementById("slot").innerHTML = `
+    <label for="d">Day</label><input id="d" type="date">
+    <label for="w">Window</label>
+    <select id="w"><option value="morning">Morning</option><option value="afternoon">Afternoon</option></select>
+    <button class="act primary" id="go">Confirm booking</button><div class="msg" id="m"></div>`;
+  document.getElementById("go").onclick = async ()=>{
+    const r = await (await api("/jobs/"+j.ref+"/book",{method:"POST",body:JSON.stringify({
+      scheduled_at:document.getElementById("d").value, window:document.getElementById("w").value })})).json();
+    const m = document.getElementById("m");
+    if(r.ok){ m.className="msg good"; m.textContent="Booked."; setTimeout(()=>openJob(j.ref),700); }
+    else { m.className="msg err"; m.textContent = r.reason; }
+  };
+}
+
+function payForm(j){
+  const need = j.deposit_required_cents - j.deposit_paid_cents;
+  const kind = j.status === "quoted" ? "deposit" : "balance";
+  const pre  = kind === "deposit" ? need : j.balance_cents;
+  document.getElementById("slot").innerHTML = `
+    <label for="a">Amount (KSh)</label><input id="a" type="number" inputmode="numeric" value="${Math.round(pre/100)}">
+    <label for="r">M-Pesa code (optional)</label><input id="r" autocomplete="off" placeholder="e.g. TFE5G7H8L3">
+    <button class="act primary" id="go">Record ${kind}</button><div class="msg" id="m"></div>`;
+  document.getElementById("go").onclick = async ()=>{
+    const r = await (await api("/jobs/"+j.ref+"/payments",{method:"POST",body:JSON.stringify({
+      amount_cents: Math.round(Number(document.getElementById("a").value)*100),
+      kind, mpesa_ref: document.getElementById("r").value.trim() || null })})).json();
+    const m = document.getElementById("m");
+    if(r.ok){ m.className="msg good"; m.textContent="Recorded."; setTimeout(()=>openJob(j.ref),700); }
+    else { m.className="msg err"; m.textContent = r.reason; }
+  };
+}
+
+load();
+</script>
+</body>
+</html>

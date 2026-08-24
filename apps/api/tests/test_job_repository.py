@@ -61,14 +61,34 @@ class TestMigrationPreservesHistory:
         assert {j.ref for j in jobs} == {l.ref for l in seeded}
 
     def test_totals_are_unchanged_to_the_cent(self, db):
+        """The leads table is in whole SHILLINGS; the Job spine is in CENTS.
+
+        The value must be identical in real money -- only the unit changes, at
+        the one repository boundary where the two systems meet.
+        """
         seeded = seed_leads(db, 4)
         jobs = SqliteJobRepository(db).list()
-        assert sum(j.total_cents for j in jobs) == sum(l.total for l in seeded)
+        K = 100
+        assert sum(j.total_cents for j in jobs) == sum(l.total for l in seeded) * K
         for j in jobs:
             src = next(l for l in seeded if l.ref == j.ref)
             assert (j.subtotal_cents, j.discount_cents, j.total_cents) == (
-                src.subtotal, src.discount, src.total
+                src.subtotal * K, src.discount * K, src.total * K
             )
+
+    def test_a_real_worked_example_asks_for_the_right_deposit(self, db):
+        """Regression for the unit bug found end-to-end on staging: a KSh 3,800
+        job asked for a 'KSh 11 deposit' because shillings were read as cents."""
+        repo = SqliteJobRepository(db)
+        SqliteLeadRepository(db).append(Lead(
+            ref="MY-260824-777", timestamp=_now(), name="Worked Example",
+            phone=None, items="Sofa 3 seats; Mattress 5x6; Fridge",
+            subtotal=3800, discount=0, total=3800, area="ruiru",
+            preferred="", visit_first=False, sent_to_wa=False,
+        ))
+        job = SqliteJobRepository(db).get("MY-260824-777")
+        assert job.total_cents == 380_000, "KSh 3,800"
+        assert job.deposit_required_cents(30) == 114_000, "KSh 1,140, not KSh 11"
 
     def test_migrated_leads_land_on_quoted_calculator(self, db):
         """A lead from the calculator that nobody has acted on IS a quoted job."""

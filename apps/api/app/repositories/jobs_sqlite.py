@@ -159,15 +159,31 @@ class SqliteJobRepository:
             for r in rows
         ]
 
+    # ── THE UNIT BOUNDARY ────────────────────────────────────────────────────
+    # The pricing engine and the `leads` table work in WHOLE SHILLINGS: a
+    # 3-seat sofa is 1500, and PRICES.md is written the same way. The Job spine
+    # works in integer MINOR UNITS (cents), per the brief's non-negotiable that
+    # no float goes near an amount and per 365PLUS_BRIEF §1.3.
+    #
+    # Both are defensible; what is not defensible is letting them meet
+    # implicitly. Caught end-to-end on staging: a KSh 3,800 job asked for a
+    # "KSh 11 deposit" because 3800 shillings was read as 3800 cents.
+    #
+    # The conversion happens HERE, at the one boundary where the two systems
+    # touch, and nowhere else. Payments are written by this app in cents
+    # already, so they are never converted.
+    _SHILLINGS_TO_CENTS = 100
+
     def _to_job(self, r: sqlite3.Row) -> Job:
+        k = self._SHILLINGS_TO_CENTS
         return Job(
             ref=r["ref"],
             client_id=r["client_id"] or "",
             client_name=r["name"],
             items=r["items"] or "",
-            subtotal_cents=r["subtotal"],
-            discount_cents=r["discount"],
-            total_cents=r["total"],
+            subtotal_cents=r["subtotal"] * k,
+            discount_cents=r["discount"] * k,
+            total_cents=r["total"] * k,
             visit_first=bool(r["visit_first"]),
             status=JobStatus(r["status"]),
             source=JobSource(r["source"]),
