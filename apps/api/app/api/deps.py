@@ -19,12 +19,20 @@ SettingsDep = Annotated[Settings, Depends(get_settings)]
 
 
 @lru_cache
-def _repository(lead_store: str, sheet_id: str, credentials: str) -> LeadRepository:
+def _repository(
+    lead_store: str, sheet_id: str, credentials: str, lead_db_path: str
+) -> LeadRepository:
     if lead_store == "sheets":
         # Imported lazily so M0/M1 need no Google dependency installed at all.
         from app.repositories.sheets import SheetsLeadRepository
 
         return SheetsLeadRepository(sheet_id=sheet_id, credentials_path=credentials)
+    if lead_store == "sqlite":
+        # Also lazy, for symmetry — and so a bad path fails when the store is
+        # actually selected rather than at import time for every deployment.
+        from app.repositories.sqlite import SqliteLeadRepository
+
+        return SqliteLeadRepository(db_path=lead_db_path)
     return MemoryLeadRepository()
 
 
@@ -32,7 +40,12 @@ def get_repository(settings: SettingsDep) -> LeadRepository:
     # Chosen by the explicit LEAD_STORE setting, never inferred from whether
     # SHEET_ID happens to be filled in — a half-configured .env must fail loudly
     # rather than silently dropping every lead on the floor.
-    return _repository(settings.lead_store, settings.sheet_id, settings.google_service_account_json)
+    return _repository(
+        settings.lead_store,
+        settings.sheet_id,
+        settings.google_service_account_json,
+        settings.lead_db_path,
+    )
 
 
 @lru_cache

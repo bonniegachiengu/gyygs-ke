@@ -55,3 +55,7 @@ Thumbs.db
 # NOTE: packages/contracts/openapi.json and apps/web/src/lib/api/schema.d.ts are
 # GENERATED but deliberately COMMITTED — a fresh clone must typecheck with no
 # Python installed, and CI diffs them to catch contract drift. Do not ignore them.
+
+# ── native (no-Docker) deployment ──
+# Local virtualenv for the native Windows stack. Machine-specific, never committed.
+.venv-native/
