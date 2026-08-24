@@ -71,6 +71,7 @@
 <header>
   <h1>Myrah — board</h1>
   <div class="sub" id="sub">loading…</div>
+  <button class="act" id="newq" style="margin-top:10px;background:#fff;color:var(--green);min-height:42px">+ Raise a quote</button>
 </header>
 
 <div class="tabs" id="tabs" role="tablist"></div>
@@ -222,6 +223,55 @@ function payForm(j){
     const m = document.getElementById("m");
     if(r.ok){ m.className="msg good"; m.textContent="Recorded."; setTimeout(()=>openJob(j.ref),700); }
     else { m.className="msg err"; m.textContent = r.reason; }
+  };
+}
+
+document.getElementById("newq").onclick = quoteForm;
+
+async function quoteForm(){
+  // The SAME chips the customer sees -- served from the same catalogue object,
+  // so the board can never drift onto a stale price list.
+  const cat = await (await api("/catalogue")).json();
+  const s = document.getElementById("sheet");
+  document.getElementById("sheetBody").innerHTML = `
+    <h2>Raise a quote</h2>
+    <div class="meta">Same prices the customer would see.</div>
+    <label for="nm">Customer name</label><input id="nm" placeholder="From the chat">
+    <label for="ar">Area</label>
+    <select id="ar">${cat.areas.map(a=>`<option value="${a.key}">${a.label}</option>`).join("")}</select>
+    <label>What needs cleaning?</label>
+    <div id="chips">${cat.services.map(sv=>`
+      <label style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)">
+        <input type="checkbox" data-k="${sv.key}" style="width:22px;height:22px;flex:0 0 auto">
+        <span style="flex:1">${sv.label}</span>
+        <input type="number" data-q="${sv.key}" value="1" min="1" style="width:64px;padding:6px" disabled>
+      </label>`).join("")}</div>
+    <button class="act primary" id="go">Price it</button>
+    <div class="msg" id="m"></div>
+    <button class="act ghost" id="close">Close</button>`;
+  if(!s.open) s.showModal();
+  document.getElementById("close").onclick = ()=>{s.close();load();};
+  document.querySelectorAll("[data-k]").forEach(cb=>cb.onchange=()=>{
+    document.querySelector(`[data-q="${cb.dataset.k}"]`).disabled = !cb.checked; });
+
+  document.getElementById("go").onclick = async ()=>{
+    const items=[...document.querySelectorAll("[data-k]")].filter(c=>c.checked).map(c=>{
+      const q=Number(document.querySelector(`[data-q="${c.dataset.k}"]`).value)||1;
+      // `seats` for per-unit services, `qty` otherwise -- the engine reads both.
+      return {service:c.dataset.k, seats:q, qty:q};
+    });
+    const m=document.getElementById("m");
+    if(!items.length){ m.className="msg err"; m.textContent="Pick at least one service."; return; }
+    const r = await (await api("/quotes",{method:"POST",body:JSON.stringify({
+      items, addons:[], area:document.getElementById("ar").value,
+      preferred:{day:new Date().toISOString().slice(0,10),window:"morning"},
+      contact:{name:document.getElementById("nm").value||"Walk-in"}, recurring:false })})).json();
+    if(r.ok){
+      m.className="msg good";
+      m.innerHTML = `${r.quote_ref} - ${money(r.job.total_cents)}<br>
+        <a href="${r.whatsapp_url}" target="_blank" rel="noopener">Send it on WhatsApp</a>`;
+      setTimeout(()=>{ s.close(); load(); }, 2600);
+    } else { m.className="msg err"; m.textContent = r.reason || "Could not price that."; }
   };
 }
 
