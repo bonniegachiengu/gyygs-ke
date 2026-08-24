@@ -35,27 +35,49 @@ param(
 $ErrorActionPreference = 'Stop'   # deliberately NOT SilentlyContinue
 
 function Child-Pids {
-    @(Get-CimInstance Win32_Process -Filter "Name='$ChildProcess.exe'" -ErrorAction SilentlyContinue |
+    # ONLY this service's own children.
+    #
+    # Matching every process of the name is wrong on this machine: there are
+    # several python.exe (production API, staging API, Sustena API) and two
+    # cloudflared.exe. The first run of this script reported a false FAIL
+    # because unrelated pythons "survived" a restart they were never part of --
+    # a check that cries wolf gets ignored, which is worse than no check.
+    #
+    # nssm is the service's process; the real worker is its child.
+    $svc = Get-CimInstance Win32_Service -Filter "Name='$ServiceName'" -ErrorAction SilentlyContinue
+    if (-not $svc -or -not $svc.ProcessId) { return @() }
+    @(Get-CimInstance Win32_Process -Filter "ParentProcessId=$($svc.ProcessId)" -ErrorAction SilentlyContinue |
+        Where-Object { $_.Name -eq "$ChildProcess.exe" } |
         ForEach-Object { $_.ProcessId }) | Sort-Object
 }
 
 function Fail($msg) { Write-Host "FAIL: $msg" -ForegroundColor Red; exit 1 }
 
-# ── 0. elevation, checked UP FRONT rather than discovered by a swallowed error
-$elevated = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()
-            ).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-if (-not $elevated) {
-    Write-Host "NOT ELEVATED." -ForegroundColor Yellow
-    Write-Host "These services grant start/stop to SYSTEM and Administrators only."
-    Write-Host "Either run this in an Administrator PowerShell, or apply the one-time"
-    Write-Host "grant in infra/grant-service-control.ps1 so this account can do it."
-    Fail "cannot control '$ServiceName' without elevation -- refusing to report a restart I cannot perform"
-}
-
+# ── 0. Can this session actually control the service?
+#
+# Deliberately NOT an "am I Administrator?" test. Once
+# infra/grant-service-control.ps1 has run, an ordinary unelevated session CAN
+# start and stop these services, and demanding elevation refuses a restart it
+# is perfectly able to perform -- which is exactly what this script did the
+# first time it was used after the grant landed.
+#
+# The honest question is "can I control it?", and the only truthful way to ask
+# is to try. What must never happen is the failure being SWALLOWED, so the
+# attempt runs with -ErrorAction Stop and the real message is surfaced.
 $before = Child-Pids
 Write-Host "before : $ChildProcess PIDs = $($before -join ',')"
 
-Stop-Service $ServiceName -Force
+try {
+    Stop-Service $ServiceName -Force -ErrorAction Stop
+}
+catch {
+    Write-Host "CANNOT CONTROL '$ServiceName':" -ForegroundColor Yellow
+    Write-Host "  $($_.Exception.Message)"
+    Write-Host "These services grant start/stop to SYSTEM and Administrators."
+    Write-Host "Either run this in an Administrator PowerShell, or apply the"
+    Write-Host "one-time grant in infra/grant-service-control.ps1."
+    Fail "refusing to report a restart I could not perform"
+}
 $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
 while ((Get-Service $ServiceName).Status -ne 'Stopped' -and (Get-Date) -lt $deadline) {
     Start-Sleep -Milliseconds 500
@@ -76,8 +98,8 @@ Write-Host "after  : $ChildProcess PIDs = $($after -join ',')"
 
 $survivors = $before | Where-Object { $after -contains $_ }
 if ($survivors) {
-    Fail ("PID(s) {0} survived the restart -- the process did NOT cycle and is still " +
-          "running its OLD in-memory config. Do not treat this as deployed." -f ($survivors -join ','))
+    Fail ("PID(s) $($survivors -join ',') survived the restart -- the process did NOT " +
+          "cycle and is still running its OLD in-memory config. Do not treat this as deployed.")
 }
 if (-not $after) { Fail "no $ChildProcess process after start" }
 
