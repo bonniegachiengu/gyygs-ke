@@ -44,9 +44,15 @@ class Settings(BaseSettings):
     recurring_discount_from_job: int = 2
 
     # ── Lead store ──
-    lead_store: Literal["memory", "sheets"] = "memory"
+    # "sqlite" is the durable store for the native (no-Docker) deployment: one
+    # local file, no extra service to supervise. "memory" loses every lead on
+    # restart and is only appropriate for tests and throwaway runs.
+    lead_store: Literal["memory", "sheets", "sqlite"] = "memory"
     sheet_id: str = ""
     google_service_account_json: str = ""
+    # Only read when lead_store == "sqlite". Sits beside quote_seq_path so the
+    # API's entire durable footprint is one directory.
+    lead_db_path: str = "./data/leads.db"
 
     # ── Quote reference counter ──
     quote_seq_path: str = "./data/quote_seq.json"
