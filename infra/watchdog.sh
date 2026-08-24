@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Myra site watchdog — runs in WSL, driven by a systemd --user timer.
+# Myrah site watchdog — runs in WSL, driven by a systemd --user timer.
 #
 # Lives in WSL rather than a Windows scheduled task because Task Scheduler
 # launching powershell.exe flashes a console window every run: -WindowStyle
@@ -70,7 +70,7 @@ if ! engine_ok; then
     "$CMD" /c start "" "$DOCKER_DESKTOP_WIN" >/dev/null 2>&1       || log "cmd start returned non-zero"
   else
     log "Docker Desktop not found at $DOCKER_DESKTOP"
-    notify "Myra is DOWN" "Docker Desktop is missing. Manual fix needed."
+    notify "Myrah is DOWN" "Docker Desktop is missing. Manual fix needed."
     exit 1
   fi
 fi
@@ -83,7 +83,7 @@ for i in $(seq 1 36); do
 done
 if [ "$engine_up" -eq 0 ]; then
   log "engine did not come up within 180s"
-  notify "Myra is DOWN" "Docker engine did not start within 3 minutes. Needs a look."
+  notify "Myrah is DOWN" "Docker engine did not start within 3 minutes. Needs a look."
   exit 1
 fi
 
@@ -98,12 +98,12 @@ done
 for i in $(seq 1 24); do
   if site_ok; then
     log "site healthy again after ~$((i * 5))s"
-    notify "Myra recovered" "myra.vyybandasky.online was down and the watchdog brought it back."
+    notify "Myrah recovered" "myra.vyybandasky.online was down and the watchdog brought it back."
     exit 0
   fi
   sleep 5
 done
 
 log "site still unhealthy after recovery attempt"
-notify "Myra is DOWN" "The watchdog restarted everything and myra.vyybandasky.online is still unreachable."
+notify "Myrah is DOWN" "The watchdog restarted everything and myra.vyybandasky.online is still unreachable."
 exit 1

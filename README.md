@@ -1,4 +1,4 @@
-# Myra Quote Calculator — v0 of gyygs.ke
+# Myrah Quote Calculator — v0 of gyygs.ke
 
 A phone-first web app where a customer self-quotes cleaning services and hands off to WhatsApp
 with the job already scoped and priced. Built as the first brick of the **gyygs.ke** platform:
@@ -37,7 +37,7 @@ npm run dev                                            # http://localhost:5173
 ```
 
 > **Port 8010, not 8000.** On Bonnie's machine WSL forwards `localhost:8000` to the VOS III
-> backend, which runs live M-Pesa capture. Myra uses 8010 everywhere — local dev, the container,
+> backend, which runs live M-Pesa capture. Myrah uses 8010 everywhere — local dev, the container,
 > and the nginx upstream — so the two projects can run side by side.
 
 Vite proxies `/api/*` to `127.0.0.1:8010`, and nginx does the same in production — so the

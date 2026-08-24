@@ -2,7 +2,7 @@
   "name": "gyygs",
   "version": "0.1.0",
   "private": true,
-  "description": "Myra Cleaning quote calculator — v0 of the gyygs.ke platform",
+  "description": "Myrah Cleaning quote calculator — v0 of the gyygs.ke platform",
   "workspaces": [
     "apps/web"
   ],

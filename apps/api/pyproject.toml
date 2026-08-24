@@ -1,7 +1,7 @@
 [project]
 name = "myra-api"
 version = "0.1.0"
-description = "Myra quote calculator API — pricing engine and quote contract"
+description = "Myrah quote calculator API — pricing engine and quote contract"
 requires-python = ">=3.11"
 dependencies = [
     "fastapi>=0.141.0",

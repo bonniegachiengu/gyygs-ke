@@ -351,11 +351,11 @@ footer{border-top:1px solid var(--line);padding:34px 0 60px}
         </div>
       </div>
 
-      <!-- MYRA QUOTE DEMO -->
+      <!-- MYRAH QUOTE DEMO -->
       <div class="demo reveal">
         <div class="demo-top">
           <div class="t"><span class="ic">✦</span> Self-service quotes</div>
-          <div class="chip-live"><b></b>Live demo · Myra</div>
+          <div class="chip-live"><b></b>Live demo · Myrah</div>
         </div>
         <div class="demo-body">
           <div>
@@ -384,7 +384,7 @@ footer{border-top:1px solid var(--line);padding:34px 0 60px}
             <button class="btn btn-ghost" id="qCopy">Copy quote</button>
           </div>
           <div class="copied" id="copied"></div>
-          <a class="demo-open" href="https://myra.vyybandasky.online" target="_blank" rel="noopener"><span>Open the live Myra tool · myra.vyybandasky.online</span><span class="ar">↗</span></a>
+          <a class="demo-open" href="https://myra.vyybandasky.online" target="_blank" rel="noopener"><span>Open the live Myrah tool · myra.vyybandasky.online</span><span class="ar">↗</span></a>
         </div>
       </div>
     </div>
@@ -408,7 +408,7 @@ footer{border-top:1px solid var(--line);padding:34px 0 60px}
         <div class="play">▶</div>
         <div class="idx">CLIP 01</div>
         <div>
-          <div class="nm">Myra</div>
+          <div class="nm">Myrah</div>
           <div class="st">Live · quote tool above ↑</div>
         </div>
       </div>
@@ -491,18 +491,18 @@ footer{border-top:1px solid var(--line);padding:34px 0 60px}
       <div class="sec-idx">05</div>
       <div>
         <div class="sec-title">Proof.</div>
-        <div class="sec-sub">Myra — a Nairobi cleaning business.</div>
+        <div class="sec-sub">Myrah — a Nairobi cleaning business.</div>
       </div>
     </div>
     <div class="proof-grid reveal">
       <div class="card">
         <div class="quote-block">
           <div class="qm" id="testimonial">“The calculator answers ‘how much?’ for me now. I just confirm the job and go clean.”</div>
-          <div class="qa">— Mercy · Myra Cleaning Services</div>
+          <div class="qa">— Mercy · Myrah Cleaning Services</div>
         </div>
       </div>
       <div class="card">
-        <div class="kicker" style="margin-bottom:16px"><span class="n">MYRA</span> &nbsp;/&nbsp; before → after</div>
+        <div class="kicker" style="margin-bottom:16px"><span class="n">MYRAH</span> &nbsp;/&nbsp; before → after</div>
         <div class="stat-row">
           <div class="stat"><div class="v">30s</div><div class="k">to a price</div></div>
           <div class="stat"><div class="v">0</div><div class="k">back-and-forth</div></div>
@@ -670,7 +670,7 @@ sms.value = SAMPLES[1].text;
 showParsed(parseSMS(SAMPLES[1].text));
 
 /* ================================================================
-   DEMO 2 — Myra quote calculator (real prices from PRICES.md)
+   DEMO 2 — Myrah quote calculator (real prices from PRICES.md)
    ================================================================ */
 const MYRA_WA='254754413351'; // demo hands off to LaunchGear's line — never Mercy's, so she isn't spammed by non-customers
 const P={
@@ -770,14 +770,14 @@ function recalc(){
 }
 
 function quoteText(items,total,visit){
-  let s='Hi Myra Cleaning 👋 I\'d like to book this quote:%0A%0A';
+  let s='Hi Myrah Cleaning 👋 I\'d like to book this quote:%0A%0A';
   items.forEach(([n,p])=>{ s+='• '+encodeURIComponent(n)+': '+(p==='visit'?'on a visit':'KSh '+p.toLocaleString('en-KE'))+'%0A'; });
   s+='——————————————%0A';
   s+= total!=null ? (visit?'Estimated (from): KSh '+total.toLocaleString('en-KE'):'Estimated total: KSh '+total.toLocaleString('en-KE'))+'%0A' : 'Best confirmed on a quick site visit%0A';
   s+='Transport: charged separately by area%0A';
   s+='Area: '+encodeURIComponent($('qArea').value);
   const nm=$('qName').value.trim(); if(nm) s+='%0AName: '+encodeURIComponent(nm);
-  s+='%0A%0A(demo quote · Myra tool built by LaunchGear)';
+  s+='%0A%0A(demo quote · Myrah tool built by LaunchGear)';
   return s;
 }
 function updateWa(items,total,visit){

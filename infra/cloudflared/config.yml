@@ -22,7 +22,7 @@ loglevel: info
 #
 # Every rule must sit above the catch-all — cloudflared matches in order.
 ingress:
-  # ── Myra — quote calculator (nginx fronts the API internally on /api) ──
+  # ── Myrah — quote calculator (nginx fronts the API internally on /api) ──
   - hostname: myra.vyybandasky.online
     service: http://web:3000
   - hostname: myracleaning.vyybandasky.online      # alias -> same service
