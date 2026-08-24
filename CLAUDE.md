@@ -61,6 +61,8 @@ milestone done; report progress so `WBD_SPEC_TRACKER.md` stays current.
 
 ## Docs (source of truth — live in `…\Projects\Gigs\`, read-only from here)
 
+- `DEPLOY.md` — **read before any promote to production.** The two
+  environments, the promote checklist, and why `Restart-Service` can lie.
 - `ARCHITECTURE.md` — tech contract  · `QUOTE_CALCULATOR_SPEC.md` — UX
 - `PRICES.md` — prices               · `RECEIPTS_AND_INVOICING.md` — M2.5
 - `DISPATCH_BRIEF.md` — milestones   · `WBD_SPEC_TRACKER.md` — status

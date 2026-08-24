@@ -34,12 +34,12 @@ $services = @(
      Dir='C:\Users\DELL\dev\sustena\apps\api';
      Desc='Sustena backend (serves sustena.vyybandasky.online via the vyyb-os tunnel)' },
 
-  @{ Name='Myra-API';           Exe='C:\Users\DELL\dev\gyygs.ke\.venv-native\Scripts\python.exe';
+  @{ Name='Myrah-API';           Exe='C:\Users\DELL\dev\gyygs.ke\.venv-native\Scripts\python.exe';
      Args='-m uvicorn app.main:app --host 127.0.0.1 --port 8010 --proxy-headers --forwarded-allow-ips=*';
      Dir='C:\Users\DELL\dev\gyygs.ke';
      Desc='Myrah quote API (SQLite lead store)' },
 
-  @{ Name='Myra-Nginx';         Exe='C:\nginx\nginx.exe';
+  @{ Name='Myrah-Nginx';         Exe='C:\nginx\nginx.exe';
      Args='-p C:\nginx -c C:\Users\DELL\dev\gyygs.ke\infra\nginx-windows.conf';
      Dir='C:\nginx';
      Desc='nginx — Myrah SPA :3000 and LaunchGear :8080' },
@@ -49,7 +49,7 @@ $services = @(
      Dir='C:\Users\DELL\.cloudflared';
      Desc='Cloudflare tunnel vyyb-os — sustena.* and app.*' },
 
-  @{ Name='Cloudflared-Myra';   Exe='C:\Users\DELL\.cloudflared\cloudflared.exe';
+  @{ Name='Cloudflared-Myrah';   Exe='C:\Users\DELL\.cloudflared\cloudflared.exe';
      Args='--config C:\Users\DELL\.cloudflared\config-myra.yml tunnel run';
      Dir='C:\Users\DELL\.cloudflared';
      Desc='Cloudflare tunnel myra — myra.*, myracleaning.*, lg.*, launchgear.*' }
@@ -102,7 +102,7 @@ foreach ($t in 'MyraNativeStackHeal', 'MyraNativeStack') {
 
 Start-Sleep -Seconds 12
 Log '--- service states ---'
-Get-Service Sustena-API, Myra-API, Myra-Nginx, Cloudflared-VyybOS, Cloudflared-Myra |
+Get-Service Sustena-API, Myrah-API, Myrah-Nginx, Cloudflared-VyybOS, Cloudflared-Myrah |
     ForEach-Object { Log ('  {0,-20} {1,-8} {2}' -f $_.Name, $_.Status, $_.StartType) }
 
 Log '--- hostname check ---'
