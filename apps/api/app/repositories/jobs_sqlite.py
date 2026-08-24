@@ -41,6 +41,11 @@ _JOB_COLUMNS = {
     "paid_at": "TEXT",
     "receipt_ref": "TEXT NOT NULL DEFAULT ''",
     "updated_at": "TEXT",
+    # Free text on the job: gate code, dog, "start upstairs" (§3b).
+    "notes": "TEXT NOT NULL DEFAULT ''",
+    # The raw basket, so a re-price can start from what was actually ordered
+    # rather than from a human re-reading the label.
+    "items_json": "TEXT NOT NULL DEFAULT ''",
 }
 
 _CLIENTS = """
@@ -74,6 +79,21 @@ CREATE UNIQUE INDEX IF NOT EXISTS ix_payments_mpesa_ref
 CREATE INDEX IF NOT EXISTS ix_payments_job ON payments(job_ref);
 """
 
+# Append-only, exactly like payments. A re-price never overwrites history: the
+# question "why is it more than you said?" has to have an answer (§3b).
+_CHANGES = """
+CREATE TABLE IF NOT EXISTS job_changes (
+    id              TEXT PRIMARY KEY,
+    job_ref         TEXT NOT NULL,
+    kind            TEXT NOT NULL,
+    detail          TEXT NOT NULL DEFAULT '',
+    old_total_cents INTEGER NOT NULL,
+    new_total_cents INTEGER NOT NULL,
+    at              TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS ix_changes_job ON job_changes(job_ref);
+"""
+
 
 def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -90,6 +110,7 @@ class SqliteJobRepository:
         self._conn.execute("PRAGMA synchronous=FULL")
         self._conn.executescript(_CLIENTS)
         self._conn.executescript(_PAYMENTS)
+        self._conn.executescript(_CHANGES)
         self._migrate_leads_to_jobs()
         self._conn.commit()
 
@@ -194,6 +215,7 @@ class SqliteJobRepository:
             completed_at=datetime.fromisoformat(r["completed_at"]) if r["completed_at"] else None,
             paid_at=datetime.fromisoformat(r["paid_at"]) if r["paid_at"] else None,
             receipt_ref=r["receipt_ref"] or "",
+            notes=(r["notes"] if "notes" in r.keys() else "") or "",
             created_at=datetime.fromisoformat(r["timestamp"]),
             updated_at=datetime.fromisoformat(r["updated_at"] or r["timestamp"]),
             payments=self._payments_for(r["ref"]),
@@ -254,3 +276,54 @@ class SqliteJobRepository:
                  p.mpesa_ref, p.recorded_by, p.recorded_at.isoformat(), p.note),
             )
             self._conn.commit()
+
+    # ── editing (§3b) ───────────────────────────────────────────────────────
+
+    def set_notes(self, ref: str, notes: str) -> None:
+        with self._lock:
+            self._conn.execute(
+                "UPDATE leads SET notes = ?, updated_at = ? WHERE ref = ?",
+                (notes, _now_iso(), ref),
+            )
+            self._conn.commit()
+
+    def reprice(self, ref: str, *, items_label: str, items_json: str,
+                subtotal: int, discount: int, total: int, visit_first: bool) -> None:
+        """Overwrite the job's priced scope.
+
+        The FIGURES are overwritten because they are a current-state view; the
+        HISTORY is preserved separately in job_changes. Stored in whole
+        shillings to match the leads table -- the cents conversion stays at the
+        single read boundary in _to_job.
+        """
+        with self._lock:
+            self._conn.execute(
+                "UPDATE leads SET items = ?, items_json = ?, subtotal = ?, discount = ?, "
+                "total = ?, visit_first = ?, updated_at = ? WHERE ref = ?",
+                (items_label, items_json, subtotal, discount, total,
+                 int(visit_first), _now_iso(), ref),
+            )
+            self._conn.commit()
+
+    def add_change(self, *, job_ref: str, change_id: str, kind: str, detail: str,
+                   old_total_cents: int, new_total_cents: int, at) -> None:
+        with self._lock:
+            self._conn.execute(
+                "INSERT INTO job_changes (id, job_ref, kind, detail, old_total_cents,"
+                " new_total_cents, at) VALUES (?,?,?,?,?,?,?)",
+                (change_id, job_ref, kind, detail, old_total_cents,
+                 new_total_cents, at.isoformat()),
+            )
+            self._conn.commit()
+
+    def changes_for(self, ref: str) -> list[dict]:
+        with self._lock:
+            rows = self._conn.execute(
+                "SELECT * FROM job_changes WHERE job_ref = ? ORDER BY at ASC", (ref,)
+            ).fetchall()
+        return [dict(r) for r in rows]
+
+    def items_json_for(self, ref: str) -> str:
+        with self._lock:
+            r = self._conn.execute("SELECT items_json FROM leads WHERE ref = ?", (ref,)).fetchone()
+        return (r["items_json"] if r else "") or ""

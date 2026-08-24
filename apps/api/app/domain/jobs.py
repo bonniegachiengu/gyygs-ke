@@ -127,6 +127,9 @@ class Job(BaseModel):
     completed_at: datetime | None = None
     paid_at: datetime | None = None
     receipt_ref: str = ""
+    # Instructions Mercy or a cleaner needs on the day: gate code, dog,
+    # "start upstairs" (MYRAH_OPERATIONS_DESIGN.md §3b).
+    notes: str = ""
     created_at: datetime
     updated_at: datetime
     payments: list[Payment] = Field(default_factory=list)

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
-from app.api.routes import admin, admin_quote, health, pricing, quote
+from app.api.routes import admin, admin_edit, admin_quote, health, pricing, quote
 
 api_router = APIRouter(prefix="/api")
 api_router.include_router(health.router)
@@ -17,5 +17,6 @@ admin_router = admin.router
 # The operator quote lane. Its own module because it depends on the pricing
 # engine, which the rest of the admin surface deliberately does not.
 admin_quote_router = admin_quote.router
+admin_edit_router = admin_edit.router
 
-__all__ = ["api_router", "admin_router", "admin_quote_router"]
+__all__ = ["api_router", "admin_router", "admin_quote_router", "admin_edit_router"]

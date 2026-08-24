@@ -75,6 +75,7 @@ class JobOut(BaseModel):
     deposit_paid_cents: int
     deposit_satisfied: bool
     receipt_ref: str
+    notes: str
     payments: list[dict]
 
     @classmethod
@@ -90,6 +91,7 @@ class JobOut(BaseModel):
             deposit_paid_cents=job.deposit_paid_cents,
             deposit_satisfied=job.deposit_satisfied(pct),
             receipt_ref=job.receipt_ref,
+            notes=job.notes,
             payments=[
                 {"id": p.id, "amount_cents": p.amount_cents, "kind": p.kind.value,
                  "method": p.method.value, "mpesa_ref": p.mpesa_ref,

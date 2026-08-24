@@ -10,7 +10,8 @@ from __future__ import annotations
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import admin_quote_router, admin_router, api_router
+from app.api.routes import (admin_edit_router, admin_quote_router,
+                            admin_router, api_router)
 from app.core.config import Settings, get_settings
 from app.core.errors import DomainError, domain_error_handler
 
@@ -44,6 +45,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(api_router)
     app.include_router(admin_router)
     app.include_router(admin_quote_router)
+    app.include_router(admin_edit_router)
 
     return app
 
