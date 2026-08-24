@@ -15,7 +15,7 @@ export function Landing() {
           Get your cleaning price in 30 seconds
         </h1>
         <p className="mt-3 text-white/80">
-          Fixed prices. No haggling. You only pay after the job.
+          Fixed prices. No haggling. A small deposit holds your slot.
         </p>
         <Button full className="mt-6" onClick={() => setStep("services")}>
           Start my quote

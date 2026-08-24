@@ -68,7 +68,9 @@ export function QuoteSummary({ catalogue }: { catalogue: Catalogue }) {
         </div>
 
         <p className="mt-3 text-sm text-ink/55">
-          Fixed price · transport charged separately · pay after the job
+          {est.visitFirst
+            ? "Priced on a quick visit · transport charged separately"
+            : `Fixed price · transport charged separately · ${catalogue.rules.deposit_pct}% to book, balance after the clean`}
         </p>
 
         {/* Unconditional: this screen is where the price lands, so it is where

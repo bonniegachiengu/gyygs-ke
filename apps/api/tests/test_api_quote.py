@@ -41,6 +41,9 @@ def test_pricing_returns_the_catalogue(client: TestClient) -> None:
         "recurring_requires_visit": False,
         # Full price on the first clean, repeat rate from the second.
         "recurring_discount_from_job": 2,
+        # The storefront renders this rather than a hardcoded figure, so the
+        # advertised deposit and the one the gate enforces cannot drift apart.
+        "deposit_pct": 30,
     }
     # The cards QUOTE_CALCULATOR_SPEC §5 Step 1 requires, plus curtains (PRICES.md F2).
     assert {s["key"] for s in cat["services"]} == {

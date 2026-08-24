@@ -135,6 +135,11 @@ class Area(BaseModel):
 
 class Rules(BaseModel):
     recurring_discount_pct: int
+    # What the customer pays to hold a slot. Exposed to the frontend so the
+    # storefront states the SAME number the deposit gate enforces
+    # (jobs.deposit_required_cents). Hardcoding it in the UI is how copy drifts
+    # away from behaviour -- the ads quoting a stale price was exactly that.
+    deposit_pct: int = 30
     transport: Literal["separate"] = "separate"
     # False: premises type decides the site-visit branch, so a residential repeat
     # customer still gets a real total. See CLAUDE.md.
