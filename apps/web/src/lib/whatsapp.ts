@@ -30,7 +30,7 @@ export function buildFallbackText({
   name: string;
   siteHost: string;
 }): string {
-  const out: string[] = ["Hi Myra Cleaning 👋 I'd like to book this quote:", ""];
+  const out: string[] = ["Hi Myrah Cleaning 👋 I'd like to book this quote:", ""];
 
   for (const line of estimate.lines) out.push(`• ${line.label}: ${money(line.amount)}`);
   out.push(RULE);
