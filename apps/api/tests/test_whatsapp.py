@@ -21,7 +21,7 @@ def _worked_example(**kw) -> str:
         total=3800,
         quote_ref="MY-260812-014",
         area_label="Ruiru",
-        site_host="myra.vyybandasky.online",
+        site_host="myrah.vyybandasky.online",
         visit_first=False,
         preferred=Preferred(day=date(2026, 8, 15), window="morning"),  # a Saturday
         contact_name="Faith",
@@ -31,7 +31,7 @@ def _worked_example(**kw) -> str:
 
 def test_worked_example_matches_the_spec_template() -> None:
     assert _worked_example() == (
-        "Hi Myra Cleaning \U0001f44b I'd like to book this quote:\n"
+        "Hi Myrah Cleaning \U0001f44b I'd like to book this quote:\n"
         "\n"
         "• Sofa — 3 seats: KSh 1,500\n"
         "• Mattress — 5×6: KSh 1,500\n"
@@ -42,7 +42,7 @@ def test_worked_example_matches_the_spec_template() -> None:
         "Area: Ruiru  ·  Preferred: Sat, morning\n"
         "Name: Faith\n"
         "\n"
-        "(Quote #MY-260812-014 · from myra.vyybandasky.online)"
+        "(Quote #MY-260812-014 · from myrah.vyybandasky.online)"
     )
 
 
@@ -56,7 +56,7 @@ def test_area_line_uses_two_spaces_around_the_middot() -> None:
 
 
 def test_footer_uses_single_spaces_around_the_middot() -> None:
-    assert _worked_example().endswith("(Quote #MY-260812-014 · from myra.vyybandasky.online)")
+    assert _worked_example().endswith("(Quote #MY-260812-014 · from myrah.vyybandasky.online)")
 
 
 def test_preferred_clause_is_omitted_when_absent() -> None:

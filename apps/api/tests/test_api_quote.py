@@ -119,7 +119,7 @@ def test_worked_example_end_to_end(client: TestClient) -> None:
 
     text = unquote(q["whatsapp_url"].split("?text=", 1)[1])
     assert "Estimated total: KSh 3,800" in text
-    assert f"(Quote #{q['quote_ref']} · from myra.vyybandasky.online)" in text
+    assert f"(Quote #{q['quote_ref']} · from myrah.vyybandasky.online)" in text
 
     # VAT is off by default, so the wire format matches the §5 example exactly.
     assert q["vat"] is None

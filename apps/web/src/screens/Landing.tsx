@@ -9,7 +9,7 @@ export function Landing() {
     <Screen>
       <div className="-mx-4 -mt-4 rounded-b-3xl bg-navy px-6 pt-12 pb-10 text-white">
         <p className="text-sm font-semibold tracking-widest text-white/70 uppercase">
-          Myra Cleaning Services
+          Myrah Cleaning Services
         </p>
         <h1 className="mt-3 text-3xl leading-tight font-bold">
           Get your cleaning price in 30 seconds

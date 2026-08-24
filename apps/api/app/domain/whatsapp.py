@@ -15,7 +15,7 @@ from urllib.parse import quote as urlquote
 
 from app.domain.models import Preferred, QuoteLine
 
-WA_GREETING: Final[str] = "Hi Myra Cleaning \U0001f44b I'd like to book this quote:"
+WA_GREETING: Final[str] = "Hi Myrah Cleaning \U0001f44b I'd like to book this quote:"
 WA_RULE: Final[str] = "—" * 14  # exactly 14 em dashes, per §7
 WA_TRANSPORT: Final[str] = "Transport: charged separately by area"
 

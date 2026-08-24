@@ -44,7 +44,7 @@ def test_settings_constructs_from_env_example() -> None:
     s = Settings(_env_file=ENV_EXAMPLE)
 
     assert s.whatsapp_number == "254716869648"
-    assert s.public_site_host == "myra.vyybandasky.online"
+    assert s.public_site_host == "myrah.vyybandasky.online"
     assert s.lead_store == "memory"
 
     # python-dotenv strips the trailing `# manual | oscu` comment from an unquoted value.
@@ -62,7 +62,7 @@ def test_settings_constructs_from_env_example() -> None:
 @pytest.mark.parametrize(
     ("raw", "expected"),
     [
-        ("https://myra.vyybandasky.online", ["https://myra.vyybandasky.online"]),
+        ("https://myrah.vyybandasky.online", ["https://myrah.vyybandasky.online"]),
         ("https://a.example, http://b.example", ["https://a.example", "http://b.example"]),
         ("", []),
     ],

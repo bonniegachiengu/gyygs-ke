@@ -317,7 +317,7 @@ def compute_quote(
     floored = max(net, cat.minimum_callout)
     minimum_applied = floored > net
 
-    # PRICES.md §J: flyer prices are final for a non-VAT business; if Myra ever
+    # PRICES.md §J: flyer prices are final for a non-VAT business; if Myrah ever
     # registers, 16% applies ON TOP.
     vat = (floored * vat_rate + 50) // 100 if vat_registered else 0
     total = floored + vat
