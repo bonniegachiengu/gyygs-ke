@@ -1,4 +1,4 @@
-"""Durable lead store on local SQLite — the store Myra actually runs on.
+"""Durable lead store on local SQLite — the store Myrah actually runs on.
 
 Why SQLite and not Sheets or Postgres: the host is moving off Docker to native
 Windows services (no-Docker direction), so the lead log must survive a restart
