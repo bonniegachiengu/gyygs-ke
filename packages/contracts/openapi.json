@@ -1001,8 +1001,8 @@
     }
   },
   "info": {
-    "description": "Server-authoritative pricing for Myra Cleaning Services. Prices originate in PRICES.md and are mirrored in app/domain/pricing_data.py.",
-    "title": "Myra Quote Calculator API",
+    "description": "Server-authoritative pricing for Myrah Cleaning Services. Prices originate in PRICES.md and are mirrored in app/domain/pricing_data.py.",
+    "title": "Myrah Quote Calculator API",
     "version": "0.1.0"
   },
   "openapi": "3.1.0",

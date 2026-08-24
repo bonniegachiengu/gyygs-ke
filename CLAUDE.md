@@ -1,4 +1,4 @@
-# Myra — Quote Calculator (v0 of gyygs.ke)
+# Myrah — Quote Calculator (v0 of gyygs.ke)
 
 Phone-first cleaning quote tool. A customer self-quotes, then hands off to WhatsApp with the
 job already scoped and priced. API-first, evolvable — **NOT a throwaway**.

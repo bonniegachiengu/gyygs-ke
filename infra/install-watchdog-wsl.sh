@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Installs the Myra watchdog as a systemd --user timer inside WSL.
+# Installs the Myrah watchdog as a systemd --user timer inside WSL.
 # Idempotent — safe to re-run. Unit files are machine-local (~/.config), matching
 # how VOS III's services are managed on this box.
 set -euo pipefail
@@ -13,7 +13,7 @@ mkdir -p "$UNIT_DIR"
 
 cat > "$UNIT_DIR/myra-watchdog.service" <<UNIT
 [Unit]
-Description=Myra site watchdog (checks myra.vyybandasky.online end to end)
+Description=Myrah site watchdog (checks myra.vyybandasky.online end to end)
 After=network-online.target
 
 [Service]
@@ -23,7 +23,7 @@ UNIT
 
 cat > "$UNIT_DIR/myra-watchdog.timer" <<UNIT
 [Unit]
-Description=Run the Myra site watchdog every 5 minutes
+Description=Run the Myrah site watchdog every 5 minutes
 
 [Timer]
 OnBootSec=2min
