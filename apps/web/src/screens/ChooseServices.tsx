@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 
-import { ActionBar, Button, Heading, Notice, Screen, SelectCard } from "../components/ui";
+import { ServiceCard } from "../components/ServiceCard";
+import { ActionBar, Button, Heading, Notice, Screen } from "../components/ui";
 import { ksh } from "../lib/format";
 import type { Catalogue } from "../lib/useCatalogue";
 import { needsSiteVisit, toChosenServices, useQuote, VISIT_SERVICES } from "../store/quote";
@@ -26,13 +27,14 @@ export function ChooseServices({ catalogue }: { catalogue: Catalogue }) {
 
       <div className="flex flex-col gap-2">
         {catalogue.services.map((svc) => (
-          <SelectCard
+          <ServiceCard
             key={svc.key}
+            serviceKey={svc.key}
             selected={chosen.has(svc.key)}
             icon={svc.icon}
             title={svc.label}
             hint={hint(svc.key, svc.from_label)}
-            onClick={() => toggleService(svc.key)}
+            onToggleSelect={() => toggleService(svc.key)}
           />
         ))}
       </div>
