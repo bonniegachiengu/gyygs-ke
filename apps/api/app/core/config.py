@@ -24,13 +24,13 @@ class Settings(BaseSettings):
     # ── App ──
     app_version: str = "0.1.0"
     # NOTE: this is deliberately `str`, not `list[str]`. pydantic-settings JSON-parses
-    # complex-typed env vars, and `CORS_ORIGINS=https://myra.vyybandasky.online` is not
+    # complex-typed env vars, and `CORS_ORIGINS=https://myrah.vyybandasky.online` is not
     # valid JSON — declaring it as a list raises SettingsError at import time.
     cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
-    public_site_host: str = "myra.vyybandasky.online"
+    public_site_host: str = "myrah.vyybandasky.online"
 
     # ── WhatsApp handoff ──
-    whatsapp_number: str = "254716869648"
+    whatsapp_number: str = "254754413351"
 
     # ── Pricing rules (mirror of PRICES.md — see CLAUDE.md before changing) ──
     # 0 = no floor. Mercy's call, 16 Aug 2026: "don't cap the price". The flyer's

@@ -48,7 +48,7 @@ export function Configure({ catalogue }: { catalogue: Catalogue }) {
 
   return (
     <Screen>
-      <Heading sub="Sizes and counts come straight from Myra's price list.">
+      <Heading sub="Sizes and counts come straight from Myrah's price list.">
         Tell us the details
       </Heading>
 

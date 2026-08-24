@@ -19,10 +19,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or get_settings()
 
     app = FastAPI(
-        title="Myra Quote Calculator API",
+        title="Myrah Quote Calculator API",
         version=settings.app_version,
         description=(
-            "Server-authoritative pricing for Myra Cleaning Services. "
+            "Server-authoritative pricing for Myrah Cleaning Services. "
             "Prices originate in PRICES.md and are mirrored in app/domain/pricing_data.py."
         ),
         openapi_url="/api/openapi.json",

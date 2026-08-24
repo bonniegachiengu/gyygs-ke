@@ -57,7 +57,7 @@ services:
   # LaunchGear — static marketing site (LAUNCHGEAR_DEPLOY.md §2).
   # Same compose file as api/web so it shares the default network and the tunnel
   # can reach it by service name. Deliberately NOT a depends_on of cloudflared:
-  # a LaunchGear problem must never hold up Myra — "adding a product never
+  # a LaunchGear problem must never hold up Myrah — "adding a product never
   # touches the others" (DOMAINS.md).
   launchgear:
     image: nginx:alpine

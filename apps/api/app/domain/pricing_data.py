@@ -204,7 +204,7 @@ def build_catalogue(
     recurring_discount_pct: int = 10,
     recurring_requires_visit: bool = False,
     recurring_discount_from_job: int = 2,
-    whatsapp_number: str = "254716869648",
+    whatsapp_number: str = "254754413351",
 ) -> PricingCatalogue:
     """Assemble the catalogue. The three rule values come from config so a
     business decision (Mercy's Friday calls) is a config change, not a deploy."""

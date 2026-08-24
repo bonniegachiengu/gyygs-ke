@@ -32,7 +32,7 @@ export default function App() {
       <div className="mx-auto max-w-md px-4 pt-4">
         {step !== "landing" && (
           <p className="mb-3 text-sm font-semibold tracking-widest text-navy/50 uppercase">
-            Myra Cleaning
+            Myrah Cleaning
           </p>
         )}
 

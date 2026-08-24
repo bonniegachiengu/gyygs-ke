@@ -5,8 +5,8 @@
 # Replaces what `docker compose up -d` used to do, plus the two cloudflared
 # connectors that used to live in Docker and WSL respectively.
 #
-#   :8010  Myra API      (uvicorn, venv, LEAD_STORE=sqlite)
-#   :3000  nginx         Myra SPA + /api proxy
+#   :8010  Myrah API      (uvicorn, venv, LEAD_STORE=sqlite)
+#   :3000  nginx         Myrah SPA + /api proxy
 #   :8080  nginx         LaunchGear static
 #          cloudflared   vyyb-os tunnel -> sustena.* + app.*
 #          cloudflared   myra tunnel    -> myra.* + myracleaning.* + lg.* + launchgear.*
@@ -24,7 +24,7 @@ New-Item -ItemType Directory -Force -Path $logs | Out-Null
 function Test-Port($p) { @(Get-NetTCPConnection -LocalPort $p -State Listen -ErrorAction SilentlyContinue).Count -gt 0 }
 function Log($m) { $line = ('[{0:yyyy-MM-dd HH:mm:ss}] {1}' -f (Get-Date), $m); Write-Host $line; Add-Content -Path "$logs\native-stack.log" -Value $line }
 
-# ── 1. Myra API ──
+# ── 1. Myrah API ──
 if (Test-Port 8010) { Log 'API   : already listening on 8010' }
 else {
   Start-Process -FilePath "$repo\.venv-native\Scripts\python.exe" `
