@@ -26,16 +26,25 @@ from pydantic import BaseModel
 from app.api.deps import CatalogueDep, SettingsDep
 from app.api.routes.admin import JobOut, _repo, _today, require_pin
 from app.domain.models import QuoteRequest
+from app.domain.operator_extras import OperatorExtras, apply_operator_extras
 from app.domain.pricing import compute_quote
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 
 
 class RepriceBody(BaseModel):
-    """The new basket, in exactly the shape the calculator submits."""
+    """The new basket, in exactly the shape the calculator submits.
+
+    `items` stays list[dict] rather than the typed QuoteItem so per-item
+    operator metadata -- note, flags, tags -- survives into storage. QuoteItem
+    is configured extra="ignore", so validating here would silently DROP them.
+    The engine still validates its own copy; these ride alongside, untouched.
+    """
     items: list[dict]
     addons: list[dict] = []
     reason: str = ""
+    # Operator-only, never reachable from the customer lane.
+    operator: OperatorExtras = OperatorExtras()
 
 
 class NotesBody(BaseModel):
@@ -69,27 +78,40 @@ def reprice(ref: str, body: RepriceBody, catalogue: CatalogueDep, settings: Sett
         "recurring": False,
     })
     priced = compute_quote(req, catalogue)
+    adj = apply_operator_extras(
+        lines=priced.lines, subtotal=priced.subtotal, total=priced.total,
+        extras=body.operator,
+    )
 
     old_total = job.total_cents
-    new_total = priced.total * 100          # engine works in whole shillings
+    new_total = adj.total * 100             # engine works in whole shillings
 
     # `items` already holds the raw basket as JSON -- that is how the calculator
     # writes it -- so a re-price rewrites the same field in the same shape. No
     # second column, and the board's reader keeps working unchanged.
+    basket = json.dumps({
+        "items": body.items,
+        "addons": body.addons,
+        "operator": body.operator.model_dump(),
+    })
     repo.reprice(
         ref,
-        items_label=json.dumps({"items": body.items, "addons": body.addons}),
-        items_json=json.dumps({"items": body.items, "addons": body.addons}),
-        subtotal=priced.subtotal,
+        items_label=basket,
+        items_json=basket,
+        subtotal=adj.subtotal,
         discount=priced.discount,
-        total=priced.total,
+        total=adj.total,
         visit_first=priced.visit_first,
     )
+    # Every operator deviation names itself in the log, beside the reason.
+    detail = body.reason or "scope changed"
+    if adj.notes:
+        detail = f"{detail} · " + " · ".join(adj.notes)
     repo.add_change(
         job_ref=ref,
         change_id=f"ch-{uuid.uuid4().hex[:12]}",
         kind="reprice",
-        detail=body.reason or "scope changed",
+        detail=detail,
         old_total_cents=old_total,
         new_total_cents=new_total,
         at=_now(),
@@ -120,6 +142,50 @@ def set_notes(ref: str, body: NotesBody, settings: SettingsDep):
                     old_total_cents=job.total_cents, new_total_cents=job.total_cents,
                     at=_now())
     return {"ok": True, "job": JobOut.of(repo.get(ref), settings.deposit_pct, _today())}
+
+
+@router.get("/jobs/{ref}/lines", dependencies=[Depends(require_pin)])
+def lines(ref: str, catalogue: CatalogueDep, settings: SettingsDep):
+    """The engine's current line-by-line pricing for this job's basket.
+
+    Read-only, and computed on demand rather than added to JobOut: the board
+    lists many jobs at once and pricing every one of them to render a list
+    nobody is reading would be wasteful. The edit form asks for exactly the one
+    job it is about to change.
+
+    This is what makes a price override honest -- Mercy sees the auto price and
+    the label the engine gave it, and adjusts THAT, rather than typing a total
+    over the top of a number she cannot see.
+    """
+    repo = _repo(settings)
+    job = repo.get(ref)
+    if not job:
+        raise HTTPException(404, f"no job {ref}")
+    try:
+        basket = json.loads(job.items or "{}")
+    except ValueError:
+        basket = {}
+    req = QuoteRequest.model_validate({
+        "items": basket.get("items", []),
+        "addons": basket.get("addons", []),
+        "area": job.area or "nairobi",
+        "preferred": {"day": _today(), "window": "morning"},
+        "contact": {"name": job.client_name},
+        "recurring": False,
+    })
+    priced = compute_quote(req, catalogue)
+    saved = (basket.get("operator") or {})
+    return {
+        "lines": [{"label": l.label, "amount": l.amount} for l in priced.lines],
+        "subtotal": priced.subtotal,
+        "total": priced.total,
+        # Whatever deviations are already on the job, so the form opens showing
+        # them rather than silently discarding them on the next save.
+        "operator": {
+            "custom_lines": saved.get("custom_lines", []),
+            "overrides": saved.get("overrides", []),
+        },
+    }
 
 
 @router.get("/jobs/{ref}/changes", dependencies=[Depends(require_pin)])

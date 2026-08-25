@@ -66,6 +66,7 @@
   .pill.ok{background:#eaf6e5;color:var(--green-deep)}
   .pill.owe{background:#fdeceb;color:var(--red)}
   .pill.note{background:#eef2f9;color:var(--navy)}
+  .pill.flag{background:#fff4e5;color:#8a5a00}
   .empty{color:var(--muted);text-align:center;padding:44px 14px;font-size:14.5px}
 
   button.act{width:100%;min-height:50px;border-radius:.75rem;border:0;font-size:15.5px;
@@ -123,6 +124,20 @@
   .vbadge{display:inline-block;margin:2px 0 6px;padding:4px 8px;border-radius:8px;
           background:#fff4e5;color:#8a5a00;font-size:12px}
   .act.sm{min-height:44px;font-size:13px;margin-top:8px}
+  .detbtn{min-height:44px;padding:0 4px;background:none;border:0;color:var(--muted);
+          font-size:12px;text-decoration:underline}
+  .det{border-top:1px dashed var(--line);margin-top:8px;padding-top:8px}
+  .det textarea{width:100%;min-height:60px;padding:8px;font:inherit;font-size:13px;
+                border:1px solid var(--line);border-radius:10px}
+  .det input{width:100%;min-height:44px;padding:8px;font:inherit;font-size:13px;
+             border:1px solid var(--line);border-radius:10px;margin-top:6px}
+  .prow{display:flex;align-items:center;gap:8px;min-height:48px}
+  .plab{flex:1;font-size:13px;color:var(--ink);min-width:0}
+  .pauto{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .pauto.struck{text-decoration:line-through}
+  .povr{width:92px;min-height:44px;padding:6px 8px;text-align:right;font:inherit;
+        font-size:13px;border:1px solid var(--line);border-radius:10px}
+  input.plab{min-height:44px;padding:6px 8px;border:1px solid var(--line);border-radius:10px}
 </style>
 </head>
 <body>
@@ -204,6 +219,27 @@ function whenLine(raw){
   return w?`${label} · ${w}`:label;
 }
 
+/* Per-item flags, gathered for the card. "pet hair" on one sofa changes what
+   she packs in the van, so it has to survive to the glance-level view rather
+   than living three taps deep inside the edit form. */
+const FLAG_LABEL={urgent:"urgent",fragile:"fragile",pet_hair:"pet hair",extra_dirty:"extra dirty"};
+function jobFlags(job){
+  try{
+    const b=JSON.parse(job.items||"{}"),seen=new Set();
+    (b.items||[]).forEach(i=>(i.flags||[]).forEach(f=>seen.add(f)));
+    return [...seen];
+  }catch{ return []; }
+}
+function itemNotes(job){
+  try{
+    const b=JSON.parse(job.items||"{}");
+    return (b.items||[]).filter(i=>(i.note||"").trim()).map(i=>{
+      const n=(S.cat?.services||[]).find(s=>s.key===i.service);
+      return {label:n?n.label:i.service, note:i.note};
+    });
+  }catch{ return []; }
+}
+
 /* Human-readable service line. Mercy must never see the raw basket. */
 function serviceLine(job){
   if(job.items && !job.items.trim().startsWith("{")) return job.items;
@@ -246,6 +282,8 @@ function serviceLine(job){
       const meta=(S.cat?.addons||[]).find(x=>x.key===a.key);
       bits.push(`+ ${meta?meta.label:a.key}${(a.qty||1)>1?` ×${a.qty}`:""}`);
     });
+    // Work the price list has no entry for is still work Mercy has to do.
+    ((b.operator||{}).custom_lines||[]).forEach(c=>bits.push(`+ ${c.label}`));
     return bits.join(" · ")||"—";
   }catch{ return job.items||"—"; }
 }
@@ -292,6 +330,7 @@ function render(){
     else if(j.deposit_paid_cents>0) pills.push(`<span class="pill ok">deposit paid</span>`);
     if(j.balance_cents>0&&j.paid_cents>0) pills.push(`<span class="pill owe">${money(j.balance_cents)} owing</span>`);
     if(j.notes) pills.push(`<span class="pill note">has instructions</span>`);
+    jobFlags(j).forEach(f=>pills.push(`<span class="pill flag">${FLAG_LABEL[f]||f}</span>`));
     return `<div class="card" data-ref="${j.ref}">
       <div class="top"><span class="who">${j.client_name}</span><span class="amt">${money(j.total_cents)}</span></div>
       <div class="svc">${serviceLine(j)}</div>
@@ -324,6 +363,7 @@ async function openJob(ref){
       ${j.balance_cents?`<div><span>Owing</span><span>${money(j.balance_cents)}</span></div>`:""}
     </div>
     ${j.notes?`<div class="log"><b>Instructions:</b> ${j.notes}</div>`:""}
+    ${itemNotes(j).map(n=>`<div class="log"><b>${n.label}:</b> ${n.note}</div>`).join("")}
     ${log.changes.length?`<div class="log">${log.changes.map(c=>
       `<div>${c.kind==="reprice"?`${money(c.old_total_cents)} → ${money(c.new_total_cents)}`:"instructions"} · ${c.detail} · ${c.at.slice(0,16).replace("T"," ")}</div>`).join("")}</div>`:""}
     <div id="slot"></div>
@@ -384,6 +424,7 @@ function linesFromJob(j) {
       uid: uid(), service: i.service, tier: i.tier, size: i.size, seats: i.seats,
       qty: i.qty ?? 1, extra_bedrooms: i.extra_bedrooms || 0,
       modifiers: i.modifiers || [], extras: i.extras || [],
+      note: i.note || "", flags: i.flags || [], tags: i.tags || [],
     }));
     (b.addons || []).forEach(a => { ADDONS[a.key] = a.qty ?? 1; });
   } catch {}
@@ -432,7 +473,33 @@ function lineHTML(l, sv, i, n) {
   const hdr = n > 1
     ? `<div class="lineh"><span>${sv.label} ${i + 1}</span><button type="button" class="rm" data-rm="${l.uid}">Remove</button></div>`
     : "";
-  return `<div class="line">${hdr}${body}</div>`;
+  return `<div class="line">${hdr}${body}${detailHTML(l)}</div>`;
+}
+
+/* Operator-only per-item detail. A customer has no use for "extra dirty" or
+   "handle the silk gently"; Mercy needs it on the day, per item, not buried in
+   one job-level note. Collapsed by default -- most lines never need it, and an
+   always-open panel per line would bury the price controls. */
+const FLAGS = [
+  { key: "urgent",      label: "urgent" },
+  { key: "fragile",     label: "fragile" },
+  { key: "pet_hair",    label: "pet hair" },
+  { key: "extra_dirty", label: "extra dirty" },
+];
+
+function detailHTML(l) {
+  const n = (l.flags || []).length + ((l.note || "").trim() ? 1 : 0) + (l.tags || []).length;
+  if (!l._open) {
+    return `<button type="button" class="detbtn" data-det="${l.uid}">
+      + detail${n ? ` · ${n}` : ""}</button>`;
+  }
+  return `<div class="det">
+    <div class="chips">${FLAGS.map(f =>
+      `<button type="button" class="tchip ${(l.flags || []).includes(f.key) ? "on" : ""}" data-flag="${l.uid}|${f.key}">${f.label}</button>`).join("")}</div>
+    <textarea data-note="${l.uid}" placeholder="Special instructions for this item…">${l.note || ""}</textarea>
+    <input data-tags="${l.uid}" placeholder="tags, comma separated" value="${(l.tags || []).join(", ")}">
+    <button type="button" class="detbtn" data-det="${l.uid}">– hide detail</button>
+  </div>`;
 }
 
 function addonsHTML() {
@@ -446,6 +513,69 @@ function addonsHTML() {
         ? counterRow(`${a.label} · ${price} each`, `addon:${a.key}`, "addon", q)
         : `<div class="row"><span>${a.label} · ${price}</span><button type="button" class="tchip ${q ? "on" : ""}" data-atog="${a.key}">${q ? "Added" : "Add"}</button></div>`;
     }).join("")}</div>`;
+}
+
+/* Prices — the operator-only deviation surface (§3b).
+
+   Shows each line the ENGINE produced with its own price, and lets Mercy adjust
+   THAT, rather than typing a total over a number she cannot see. Every change
+   here names itself in the job's change log.
+
+   The label is captured alongside the index and sent back with the override:
+   if the basket moved underneath it, the server refuses the whole re-price
+   rather than repricing a line nobody chose. */
+let PRICED = null, OVERRIDES = {}, CUSTOM = [];
+
+function pricesHTML() {
+  if (!PRICED) return "";
+  const rows = PRICED.lines.map((l, i) => {
+    const ov = OVERRIDES[i];
+    const changed = ov != null && ov !== l.amount;
+    return `<div class="prow">
+      <span class="plab">${l.label}</span>
+      <span class="pauto ${changed ? "struck" : ""}">${shillings(l.amount)}</span>
+      <input class="povr" inputmode="numeric" data-ovr="${i}"
+             value="${ov != null ? ov : ""}" placeholder="${l.amount}">
+    </div>`;
+  }).join("");
+  const customRows = CUSTOM.map((c, i) => `<div class="prow">
+      <input class="plab" data-clab="${i}" value="${c.label}" placeholder="What is it?">
+      <input class="povr" inputmode="numeric" data-camt="${i}" value="${c.amount || ""}" placeholder="0">
+      <button type="button" class="rm" data-crm="${i}">Remove</button>
+    </div>`).join("");
+  return `<div class="grp"><div class="grph">Prices</div>
+    <div class="when">Auto price on the left. Type a different figure only if the job is not what the price list assumes.</div>
+    ${rows}
+    ${customRows}
+    <button type="button" class="act ghost sm" id="addcustom">+ Add something not on the price list</button>
+  </div>`;
+}
+
+function wirePrices(host, rerender) {
+  const q = s => host.querySelectorAll(s);
+  q("[data-ovr]").forEach(el => el.onblur = () => {
+    const i = Number(el.dataset.ovr), v = el.value.trim();
+    if (v === "") delete OVERRIDES[i]; else OVERRIDES[i] = Math.max(0, Number(v) || 0);
+    rerender();
+  });
+  q("[data-clab]").forEach(el => el.onblur = () => { CUSTOM[Number(el.dataset.clab)].label = el.value; });
+  q("[data-camt]").forEach(el => el.onblur = () => {
+    CUSTOM[Number(el.dataset.camt)].amount = Math.max(0, Number(el.value) || 0);
+  });
+  q("[data-crm]").forEach(b => b.onclick = () => { CUSTOM.splice(Number(b.dataset.crm), 1); rerender(); });
+  const add = host.querySelector("#addcustom");
+  if (add) add.onclick = () => { CUSTOM.push({ label: "", amount: 0 }); rerender(); };
+}
+
+function readOperator() {
+  return {
+    overrides: Object.entries(OVERRIDES)
+      .filter(([i, v]) => PRICED && PRICED.lines[i] && v !== PRICED.lines[i].amount)
+      .map(([i, v]) => ({ index: Number(i), label: PRICED.lines[i].label, amount: v,
+                          reason: document.getElementById("rs")?.value || "" })),
+    custom_lines: CUSTOM.filter(c => c.label.trim()).map(c => ({
+      label: c.label.trim(), amount: c.amount || 0 })),
+  };
 }
 
 function composerHTML() {
@@ -488,6 +618,25 @@ function wireComposer(host, rerender) {
     const on = (l.modifiers || []).includes(k);
     l.modifiers = on ? l.modifiers.filter(m => m !== k) : [...(l.modifiers || []), k];
     rerender();
+  });
+  q("[data-det]").forEach(b => b.onclick = () => {
+    const l = LINES.find(x => x.uid === b.dataset.det); if (l) { l._open = !l._open; rerender(); }
+  });
+  q("[data-flag]").forEach(b => b.onclick = () => {
+    const [u, k] = b.dataset.flag.split("|");
+    const l = LINES.find(x => x.uid === u); if (!l) return;
+    const on = (l.flags || []).includes(k);
+    l.flags = on ? l.flags.filter(f => f !== k) : [...(l.flags || []), k];
+    rerender();
+  });
+  // Typed text is read on BLUR, not on every keystroke: re-rendering mid-word
+  // would move the caret and lose focus on a phone keyboard.
+  q("[data-note]").forEach(el => el.onblur = () => {
+    const l = LINES.find(x => x.uid === el.dataset.note); if (l) l.note = el.value;
+  });
+  q("[data-tags]").forEach(el => el.onblur = () => {
+    const l = LINES.find(x => x.uid === el.dataset.tags);
+    if (l) l.tags = el.value.split(",").map(s => s.trim()).filter(Boolean);
   });
   q("[data-atog]").forEach(b => b.onclick = () => {
     const k = b.dataset.atog;
@@ -539,6 +688,11 @@ function readLines() {
       o.qty = l.qty ?? 1;
       if ((l.modifiers || []).length) o.modifiers = l.modifiers;
     }
+    // Operator detail rides alongside; the engine ignores these keys and the
+    // repository stores the raw dict, so they survive without a schema change.
+    if ((l.note || "").trim()) o.note = l.note.trim();
+    if ((l.flags || []).length) o.flags = l.flags;
+    if ((l.tags || []).length) o.tags = l.tags;
     return o;
   });
 }
@@ -586,13 +740,24 @@ async function editForm(j){
     <label>Instructions for the day</label>
     <textarea id="nt" placeholder="Gate code, dog, start upstairs…">${j.notes||""}</textarea>
     <button class="act ghost" id="saveNotes">Save instructions</button><div class="msg" id="mn"></div>
-    <label>Scope</label><div id="comp"></div>
+    <label>Scope</label><div id="comp"></div><div id="prices"></div>
     <label for="rs">What changed?</label><input id="rs" placeholder="e.g. after site visit">
     <button class="act navy" id="go">Re-price</button><div class="msg" id="m"></div>
     <button class="act ghost" id="back">Back</button>`;
-  const host=document.getElementById("comp");
-  const draw=()=>{host.innerHTML=composerHTML();wireComposer(host,draw);};
+  const host=document.getElementById("comp"), phost=document.getElementById("prices");
+  const draw=()=>{
+    host.innerHTML=composerHTML();wireComposer(host,draw);
+    phost.innerHTML=pricesHTML();wirePrices(phost,draw);
+  };
   draw();
+  // Line-by-line prices come from the engine, on demand, for this one job.
+  PRICED=null;OVERRIDES={};CUSTOM=[];
+  api(`/jobs/${j.ref}/lines`).then(r=>r.json()).then(d=>{
+    PRICED=d;
+    (d.operator?.custom_lines||[]).forEach(c=>CUSTOM.push({label:c.label,amount:c.amount}));
+    (d.operator?.overrides||[]).forEach(o=>{OVERRIDES[o.index]=o.amount;});
+    draw();
+  }).catch(()=>{});
   const B=id=>document.getElementById(id);
   B("back").onclick=()=>openJob(j.ref);
   B("saveNotes").onclick=async()=>{
@@ -606,7 +771,8 @@ async function editForm(j){
     const m=B("m"),items=readLines();
     if(!items.length){m.className="msg err";m.textContent="A job needs at least one service.";return;}
     const r=await api(`/jobs/${j.ref}/reprice`,{method:"POST",
-      body:JSON.stringify({items,addons:readAddons(),reason:B("rs").value||"scope changed"})});
+      body:JSON.stringify({items,addons:readAddons(),reason:B("rs").value||"scope changed",
+        operator:readOperator()})});
     if(!r.ok){m.className="msg err";m.textContent=await reason(r);return;}
     const d=await r.json();
     m.className="msg good";
