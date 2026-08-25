@@ -1,3 +1,4 @@
+import { StepNav } from "./components/StepNav";
 import { Button, Notice, ProgressBar } from "./components/ui";
 import { useCatalogue } from "./lib/useCatalogue";
 import { useStepHistory } from "./lib/useStepHistory";
@@ -30,11 +31,7 @@ export default function App() {
       {step !== "landing" && <ProgressBar value={progressFor(step)} />}
 
       <div className="mx-auto max-w-md px-4 pt-4">
-        {step !== "landing" && (
-          <p className="mb-3 text-sm font-semibold tracking-widest text-navy/50 uppercase">
-            Myrah Cleaning
-          </p>
-        )}
+        {step !== "landing" && <StepNav />}
 
         {loading && <p className="py-16 text-center text-ink/60">Loading prices…</p>}
 
