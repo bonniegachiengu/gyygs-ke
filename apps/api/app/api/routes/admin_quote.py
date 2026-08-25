@@ -18,7 +18,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Depends, HTTPException
 
-from app.api.deps import AllocatorDep, CatalogueDep, RepositoryDep, SettingsDep
+from app.api.deps import AllocatorDep, CatalogueDep, RepositoryDep, SettingsDep, TransportDep
 from app.api.routes.admin import JobOut, _repo, _today, require_pin
 from app.domain.models import QuoteRequest
 from app.domain.operator_extras import OperatorExtras
@@ -47,6 +47,7 @@ def operator_quote(
     repo: RepositoryDep,
     refs: AllocatorDep,
     settings: SettingsDep,
+    transport: TransportDep,
 ):
     """Price a basket Mercy has typed from a chat, and land it on the board.
 
@@ -64,6 +65,7 @@ def operator_quote(
         site_host=settings.public_site_host,
         vat_registered=settings.vat_registered,
         vat_rate=settings.vat_rate,
+        transport=transport.fee_for(body.area),
     )
 
     # create_quote wrote a Lead; re-read it through the job seam and stamp the

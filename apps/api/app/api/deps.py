@@ -93,6 +93,21 @@ def get_quote_limiter(settings: SettingsDep) -> SlidingWindowLimiter:
 
 
 @lru_cache
+def _transport_repo(db_path: str):
+    from app.repositories.transport_sqlite import SqliteTransportRepository
+    from app.domain.pricing_data import AREAS
+    repo = SqliteTransportRepository(db_path)
+    # Seed on first use, at 0. INSERT OR IGNORE, so a fee Mercy has already set
+    # survives every later deploy -- the seed is a floor, not a reset.
+    repo.seed(AREAS)
+    return repo
+
+
+def get_transport_repo(settings: SettingsDep):
+    return _transport_repo(settings.lead_db_path)
+
+
+@lru_cache
 def _pin_limiter(per_min: int, per_hour: int) -> SlidingWindowLimiter:
     return SlidingWindowLimiter(per_min, per_hour)
 
@@ -124,3 +139,4 @@ def rate_limit_quote(
 RepositoryDep = Annotated[LeadRepository, Depends(get_repository)]
 CatalogueDep = Annotated[PricingCatalogue, Depends(get_catalogue)]
 AllocatorDep = Annotated[QuoteRefAllocator, Depends(get_ref_allocator)]
+TransportDep = Annotated[object, Depends(get_transport_repo)]

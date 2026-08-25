@@ -33,6 +33,9 @@
   header{background:var(--navy);color:#fff;padding:16px 16px calc(14px + env(safe-area-inset-top))}
   .brand{display:flex;align-items:center;justify-content:space-between;gap:12px}
   .lockup{display:flex;align-items:center;gap:10px;min-width:0}
+  .hbtns{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+  .hbtns .act.sm{margin-top:0;padding:0 12px;background:rgba(255,255,255,.10);
+                 border:1px solid rgba(255,255,255,.24);color:#fff}
   .mark{width:38px;height:38px;flex:0 0 38px;display:block}
   .brand h1{margin:0;font-size:19px;font-weight:800;letter-spacing:-.01em}
   .brand h1 span{color:#9fd98c;font-weight:700}
@@ -166,7 +169,10 @@
         <div class="sub" id="sub">loading…</div>
       </div>
     </div>
-    <button class="newq" id="newq">+ Quote</button>
+    <div class="hbtns">
+      <button class="act ghost sm" id="zones">Transport</button>
+      <button class="newq" id="newq">+ Quote</button>
+    </div>
   </div>
 </header>
 
@@ -524,7 +530,7 @@ function addonsHTML() {
    The label is captured alongside the index and sent back with the override:
    if the basket moved underneath it, the server refuses the whole re-price
    rather than repricing a line nobody chose. */
-let PRICED = null, OVERRIDES = {}, CUSTOM = [];
+let PRICED = null, OVERRIDES = {}, CUSTOM = [], TRANSPORT = null;
 
 function pricesHTML() {
   if (!PRICED) return "";
@@ -538,6 +544,15 @@ function pricesHTML() {
              value="${ov != null ? ov : ""}" placeholder="${l.amount}">
     </div>`;
   }).join("");
+  // Travel is not an engine LINE (it rides beside the subtotal, like the
+  // call-out floor), so it needs its own control rather than a line index.
+  const zone = PRICED.transport_zone_fee || 0;
+  const shown = TRANSPORT === null ? (PRICED.transport || 0) : TRANSPORT;
+  const transportRow = `<div class="prow">
+      <span class="plab">Transport${PRICED.area ? " · " + PRICED.area : ""}</span>
+      <span class="pauto ${shown !== zone ? "struck" : ""}">${shillings(zone)}</span>
+      <input class="povr" inputmode="numeric" data-tovr value="${TRANSPORT === null ? "" : TRANSPORT}" placeholder="${zone}">
+    </div>`;
   const customRows = CUSTOM.map((c, i) => `<div class="prow">
       <input class="plab" data-clab="${i}" value="${c.label}" placeholder="What is it?">
       <input class="povr" inputmode="numeric" data-camt="${i}" value="${c.amount || ""}" placeholder="0">
@@ -546,6 +561,7 @@ function pricesHTML() {
   return `<div class="grp"><div class="grph">Prices</div>
     <div class="when">Auto price on the left. Type a different figure only if the job is not what the price list assumes.</div>
     ${rows}
+    ${transportRow}
     ${customRows}
     <button type="button" class="act ghost sm" id="addcustom">+ Add something not on the price list</button>
   </div>`;
@@ -556,6 +572,11 @@ function wirePrices(host, rerender) {
   q("[data-ovr]").forEach(el => el.onblur = () => {
     const i = Number(el.dataset.ovr), v = el.value.trim();
     if (v === "") delete OVERRIDES[i]; else OVERRIDES[i] = Math.max(0, Number(v) || 0);
+    rerender();
+  });
+  q("[data-tovr]").forEach(el => el.onblur = () => {
+    const v = el.value.trim();
+    TRANSPORT = v === "" ? null : Math.max(0, Number(v) || 0);
     rerender();
   });
   q("[data-clab]").forEach(el => el.onblur = () => { CUSTOM[Number(el.dataset.clab)].label = el.value; });
@@ -569,6 +590,8 @@ function wirePrices(host, rerender) {
 
 function readOperator() {
   return {
+    // null means "use the zone fee" -- only send an override if she typed one.
+    transport_override: TRANSPORT,
     overrides: Object.entries(OVERRIDES)
       .filter(([i, v]) => PRICED && PRICED.lines[i] && v !== PRICED.lines[i].amount)
       .map(([i, v]) => ({ index: Number(i), label: PRICED.lines[i].label, amount: v,
@@ -700,6 +723,38 @@ function readAddons() {
   return Object.entries(ADDONS).filter(([, q]) => q > 0).map(([key, qty]) => ({ key, qty }));
 }
 
+/* What Mercy charges to travel to each area (MYRAH_OPERATIONS_DESIGN §3d).
+
+   These are HERS. They ship at 0, which behaves exactly like the old
+   "transport confirmed on WhatsApp" world, so the mechanism could ship before
+   she had set a single number and nothing quietly started charging her clients
+   a figure nobody chose. */
+async function transportForm(){
+  const d=await (await api("/transport")).json();
+  document.getElementById("sheetBody").innerHTML=`
+    <h2>Transport by area</h2>
+    <div class="when">Added to every quote for that area, and the deposit is
+      worked out on the total including it — so a deposit covers your trip out.</div>
+    ${d.zones.map(z=>`<div class="prow">
+        <span class="plab">${z.label||z.area_key}${z.confirm?' <span class="when">· confirm cover</span>':''}</span>
+        <input class="povr" inputmode="numeric" data-fee="${z.area_key}" value="${z.fee||""}" placeholder="0">
+      </div>`).join("")}
+    <div class="msg" id="mz"></div>
+    <div class="when">Leave one at 0 and that area still quotes normally —
+      transport just stays "confirmed on WhatsApp" for it.</div>
+    <button class="act ghost" id="close">Close</button>`;
+  const s=document.getElementById("sheet"); if(!s.open) s.showModal();
+  const m=document.getElementById("mz");
+  document.querySelectorAll("[data-fee]").forEach(el=>el.onblur=async()=>{
+    const key=el.dataset.fee, fee=Math.max(0,Number(el.value)||0);
+    m.className="msg";m.textContent="Saving…";
+    const r=await api(`/transport/${key}`,{method:"PUT",body:JSON.stringify({fee})});
+    if(r.ok){m.className="msg good";m.textContent=`${key} transport saved.`;}
+    else {m.className="msg err";m.textContent=await reason(r);}
+  });
+  document.getElementById("close").onclick=()=>{s.close();load();};
+}
+
 async function quoteForm(){
   if(!S.cat) S.cat=await (await api("/catalogue")).json();
   document.getElementById("sheetBody").innerHTML=`
@@ -751,11 +806,12 @@ async function editForm(j){
   };
   draw();
   // Line-by-line prices come from the engine, on demand, for this one job.
-  PRICED=null;OVERRIDES={};CUSTOM=[];
+  PRICED=null;OVERRIDES={};CUSTOM=[];TRANSPORT=null;
   api(`/jobs/${j.ref}/lines`).then(r=>r.json()).then(d=>{
     PRICED=d;
     (d.operator?.custom_lines||[]).forEach(c=>CUSTOM.push({label:c.label,amount:c.amount}));
     (d.operator?.overrides||[]).forEach(o=>{OVERRIDES[o.index]=o.amount;});
+    if(d.operator?.transport_override!=null) TRANSPORT=d.operator.transport_override;
     draw();
   }).catch(()=>{});
   const B=id=>document.getElementById(id);
@@ -814,6 +870,7 @@ function payForm(j){
 }
 
 document.getElementById("newq").onclick=quoteForm;
+document.getElementById("zones").onclick=transportForm;
 load();
 </script>
 </body>

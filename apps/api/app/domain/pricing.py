@@ -37,10 +37,14 @@ from app.domain.models import (
 )
 from app.domain.pricing_data import CATALOGUE
 
-#: ARCHITECTURE §5, verbatim. Note the em dash.
-TRANSPORT_NOTE: Final[str] = (
-    "Transport charged separately based on your area — confirmed on WhatsApp."
-)
+#: Was ARCHITECTURE §5's "charged separately ... confirmed on WhatsApp".
+#: MYRAH_OPERATIONS_DESIGN.md §3d moved transport INTO the quote, priced by
+#: area, so that sentence became untrue and stopped being said.
+TRANSPORT_NOTE: Final[str] = "Transport for your area is included above."
+
+#: Shown when the zone has no fee set yet, or the area needs a coverage check.
+#: Honest about the gap rather than implying a KSh 0 trip.
+TRANSPORT_NOTE_UNSET: Final[str] = "Transport for your area is confirmed on WhatsApp."
 
 #: QUOTE_CALCULATOR_SPEC §6a — shown only on quotes that named a business.
 ETIMS_NOTE: Final[str] = "A KRA-compliant eTIMS tax invoice will be issued on payment."
@@ -64,6 +68,9 @@ class Computation:
     vat: int
     visit_first: bool
     minimum_applied: bool
+    #: Travel to the job, by area (MYRAH_OPERATIONS_DESIGN.md §3d). Its own row
+    #: under the subtotal, NOT an item line, so `sum(lines) == subtotal` holds.
+    transport: int = 0
 
     @property
     def minimum_adjustment(self) -> int:
@@ -73,7 +80,7 @@ class Computation:
         as an item line — so `sum(lines) == subtotal` stays true and the §5
         response shape is untouched.
         """
-        return self.total - self.vat - (self.subtotal - self.discount)
+        return self.total - self.vat - self.transport - (self.subtotal - self.discount)
 
 
 # ─────────────────────────────── helpers ────────────────────────────────
@@ -277,6 +284,7 @@ def compute_quote(
     vat_registered: bool = False,
     vat_rate: int = 16,
     repeat_customer: bool = False,
+    transport: int = 0,
 ) -> Computation:
     """`repeat_customer` — NOT `req.recurring` — is what earns the discount.
 
@@ -319,8 +327,18 @@ def compute_quote(
 
     # PRICES.md §J: flyer prices are final for a non-VAT business; if Myrah ever
     # registers, 16% applies ON TOP.
-    vat = (floored * vat_rate + 50) // 100 if vat_registered else 0
-    total = floored + vat
+    # Transport lands AFTER the discount and AFTER the floor, deliberately.
+    #
+    # The repeat discount is a thank-you on Myrah's LABOUR; letting it erode the
+    # travel fee would quietly discount her fuel, which she pays either way. The
+    # call-out floor likewise measures the size of the CLEANING job, not how far
+    # she drove to reach it. VAT, if she ever registers, applies to the whole
+    # charge including travel, so transport goes in before VAT is taken.
+    transport = max(0, int(transport))
+    charged = floored + transport
+
+    vat = (charged * vat_rate + 50) // 100 if vat_registered else 0
+    total = charged + vat
 
     visit_first = any(r.visit for r in results) or (
         req.recurring and cat.rules.recurring_requires_visit
@@ -334,4 +352,5 @@ def compute_quote(
         vat=vat,
         visit_first=visit_first,
         minimum_applied=minimum_applied,
+        transport=transport,
     )

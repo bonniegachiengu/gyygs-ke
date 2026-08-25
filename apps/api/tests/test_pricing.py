@@ -409,18 +409,49 @@ def test_light_decluttering_is_a_hard_price() -> None:
 # ───────────────────────────── transport and areas ─────────────────────────────
 
 
-def test_transport_is_never_added_and_never_a_line() -> None:
-    c = totals(
-        quote(
-            items=[QuoteItem(service="sofa", seats=3)],
-            addons=[QuoteAddon(key="fridge")],
-        )
+def test_transport_is_its_own_row_never_an_item_line() -> None:
+    """MYRAH_OPERATIONS_DESIGN.md §3d moved transport INTO the quote.
+
+    It is still not an ITEM line: `sum(lines) == subtotal` is load-bearing (the
+    §5 response shape and the operator override both index into `lines`), so
+    travel rides alongside like the call-out floor does, not inside.
+    """
+    basket = dict(
+        items=[QuoteItem(service="sofa", seats=3)],
+        addons=[QuoteAddon(key="fridge")],
     )
+    c = totals(quote(**basket), transport=300)
     assert sum(line.amount for line in c.lines) == c.subtotal
     assert not any("transport" in line.label.lower() for line in c.lines)
-    assert TRANSPORT_NOTE == (
-        "Transport charged separately based on your area — confirmed on WhatsApp."
-    )
+    assert c.transport == 300
+
+
+def test_transport_raises_the_total_by_exactly_the_fee() -> None:
+    basket = dict(items=[QuoteItem(service="sofa", seats=3)])
+    without = totals(quote(**basket))
+    with_fee = totals(quote(**basket), transport=450)
+    assert with_fee.total == without.total + 450
+
+
+def test_the_repeat_discount_never_erodes_transport() -> None:
+    """The discount is a thank-you on Myrah's LABOUR. Discounting her fuel would
+    quietly cut a cost she pays either way."""
+    basket = dict(items=[QuoteItem(service="sofa", seats=6)])
+    plain = totals(quote(**basket), transport=500, repeat_customer=True)
+    no_transport = totals(quote(**basket), repeat_customer=True)
+    assert plain.total - no_transport.total == 500, "the fee was discounted"
+
+
+def test_zero_transport_behaves_exactly_like_before() -> None:
+    """An unset zone must be indistinguishable from the old no-transport world,
+    so the mechanism can ship before Mercy has set a single number."""
+    basket = dict(items=[QuoteItem(service="sofa", seats=3)])
+    assert totals(quote(**basket), transport=0).total == totals(quote(**basket)).total
+
+
+def test_the_note_no_longer_claims_transport_is_separate() -> None:
+    assert "separate" not in TRANSPORT_NOTE.lower()
+    assert "included" in TRANSPORT_NOTE.lower()
 
 
 def test_area_other_does_not_make_the_quote_visit_first() -> None:

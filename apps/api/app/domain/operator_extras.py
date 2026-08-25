@@ -53,10 +53,16 @@ class LineOverride(BaseModel):
 class OperatorExtras(BaseModel):
     custom_lines: list[CustomLine] = Field(default_factory=list)
     overrides: list[LineOverride] = Field(default_factory=list)
+    #: Travel on THIS job, overriding the zone fee. A client three streets past
+    #: the zone edge, or one Mercy is already passing anyway. None = use the
+    #: zone. Transport is not a `lines` entry (it rides beside the subtotal like
+    #: the call-out floor), so the line-index override above cannot reach it.
+    transport_override: int | None = Field(None, ge=0, le=1_000_000)
 
     @property
     def empty(self) -> bool:
-        return not self.custom_lines and not self.overrides
+        return (not self.custom_lines and not self.overrides
+                and self.transport_override is None)
 
 
 @dataclass(frozen=True)

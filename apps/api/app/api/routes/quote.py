@@ -9,7 +9,8 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from app.api.deps import AllocatorDep, CatalogueDep, RepositoryDep, SettingsDep, rate_limit_quote
+from app.api.deps import (AllocatorDep, CatalogueDep, RepositoryDep, SettingsDep,
+                          TransportDep, rate_limit_quote)
 from app.domain.models import QuoteRequest, QuoteResponse
 from app.services.quote_service import create_quote
 
@@ -28,6 +29,7 @@ def post_quote(
     repo: RepositoryDep,
     refs: AllocatorDep,
     settings: SettingsDep,
+    transport: TransportDep,
 ) -> QuoteResponse:
     return create_quote(
         req,
@@ -38,6 +40,7 @@ def post_quote(
         site_host=settings.public_site_host,
         vat_registered=settings.vat_registered,
         vat_rate=settings.vat_rate,
+        transport=transport.fee_for(req.area),
     )
 
 

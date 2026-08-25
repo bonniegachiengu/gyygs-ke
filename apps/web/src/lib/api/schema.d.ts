@@ -125,6 +125,12 @@ export interface components {
             /** Label */
             label: string;
             /**
+             * Transport
+             * @description What Mercy charges to travel here. 0 = not set yet.
+             * @default 0
+             */
+            transport: number;
+            /**
              * Visit
              * @default false
              */

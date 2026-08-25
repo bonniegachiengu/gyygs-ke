@@ -17,7 +17,8 @@ from app.domain.models import Preferred, QuoteLine
 
 WA_GREETING: Final[str] = "Hi Myrah Cleaning \U0001f44b I'd like to book this quote:"
 WA_RULE: Final[str] = "—" * 14  # exactly 14 em dashes, per §7
-WA_TRANSPORT: Final[str] = "Transport: charged separately by area"
+#: Only used when the zone has no fee set yet -- see MYRAH_OPERATIONS_DESIGN §3d.
+WA_TRANSPORT: Final[str] = "Transport: confirmed on WhatsApp"
 
 #: Locale-independent on purpose — strftime("%a") follows the server locale.
 DOW: Final[tuple[str, ...]] = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
@@ -64,6 +65,7 @@ def build_message(
     minimum_callout: int = 0,
     vat: int = 0,
     vat_rate: int = 16,
+    transport: int = 0,
     area_needs_coverage_check: bool = False,
     recurring: bool = False,
     recurring_discount_pct: int = 0,
@@ -85,6 +87,10 @@ def build_message(
         out.append(f"Recurring discount ({discount_pct}%): -{_money(discount)}")
     if minimum_adjustment > 0:
         out.append(f"Minimum call-out applied: {_money(minimum_callout)}")
+    # Above the total, with the other adjustments: the customer should see what
+    # makes up the number before they see the number.
+    if transport > 0:
+        out.append(f"Transport ({area_label}): {_money(transport)}")
     if vat > 0:
         out.append(f"VAT ({vat_rate}%): {_money(vat)}")
 
@@ -95,7 +101,8 @@ def build_message(
     else:
         out.append(f"Estimated total: {_money(total)}")
 
-    out.append(WA_TRANSPORT)
+    if transport <= 0:
+        out.append(WA_TRANSPORT)
 
     # Two spaces either side of the middle dot, per §7. The estate is appended to
     # the area rather than given its own line — Mercy reads this as one location.

@@ -38,7 +38,7 @@ def test_worked_example_matches_the_spec_template() -> None:
         "• Add-on — Fridge: KSh 800\n"
         "——————————————\n"
         "Estimated total: KSh 3,800\n"
-        "Transport: charged separately by area\n"
+        "Transport: confirmed on WhatsApp\n"
         "Area: Ruiru  ·  Preferred: Sat, morning\n"
         "Name: Faith\n"
         "\n"
@@ -145,3 +145,30 @@ def test_url_is_percent_encoded_for_the_right_number() -> None:
     # '+' for spaces is rendered literally by some Android WhatsApp builds.
     assert "+" not in url.split("?text=", 1)[1]
     assert unquote(url.split("?text=", 1)[1]) == _worked_example()
+
+
+# ── transport in the quote (MYRAH_OPERATIONS_DESIGN.md §3d) ────────────────
+
+def test_a_set_fee_appears_as_its_own_line_above_the_total() -> None:
+    """The customer should see what makes up the number before the number."""
+    msg = build_message(
+        lines=[QuoteLine(label="Sofa — 3 seats", amount=1500)],
+        total=1800, quote_ref="MY-260825-001", area_label="Ruiru", estate="",
+        site_host="myrah.vyybandasky.online", visit_first=False, preferred=None,
+        contact_name="Faith", transport=300,
+    )
+    assert "Transport (Ruiru): KSh 300" in msg
+    assert msg.index("Transport (Ruiru)") < msg.index("Estimated total")
+    # and the old "confirmed on WhatsApp" fallback is NOT also present
+    assert "confirmed on WhatsApp" not in msg
+
+
+def test_an_unset_fee_still_says_it_will_be_confirmed() -> None:
+    """Silence would read as 'transport is free'."""
+    msg = build_message(
+        lines=[QuoteLine(label="Sofa — 3 seats", amount=1500)],
+        total=1500, quote_ref="MY-260825-002", area_label="Ruiru", estate="",
+        site_host="myrah.vyybandasky.online", visit_first=False, preferred=None,
+        contact_name="Faith", transport=0,
+    )
+    assert "Transport: confirmed on WhatsApp" in msg
