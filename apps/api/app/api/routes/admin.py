@@ -13,13 +13,16 @@ right one here: a refusal is an expected business outcome Mercy needs to READ --
 
 from __future__ import annotations
 
+import hmac
 import uuid
+from typing import Annotated
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, Header, HTTPException
+from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel, Field
 
-from app.api.deps import CatalogueDep, SettingsDep
+from app.api.deps import CatalogueDep, SettingsDep, get_pin_limiter
+from app.core.ratelimit import SlidingWindowLimiter, client_ip
 from app.domain.jobs import Job, JobSource, JobStatus, Payment, PaymentKind, PaymentMethod
 from app.services import job_service
 from app.services.job_service import board_column
@@ -32,11 +35,34 @@ router = APIRouter(prefix="/api/admin", tags=["admin"])
 # "start with a shared PIN; proper auth later". Said plainly rather than
 # pretended otherwise -- this is one operator on one phone today.
 
-def require_pin(settings: SettingsDep, x_admin_pin: str = Header(default="")) -> None:
+# A shared PIN on a PUBLIC url is only as good as the number of guesses an
+# attacker gets. This board carries customer names, phone numbers and payment
+# records, so failed attempts are throttled per-IP -- 5 a minute, 20 an hour.
+#
+# Only FAILURES are counted. Mercy working normally never touches the limiter,
+# and because the key is her IP, someone else's guessing cannot lock her out.
+# A correct PIN is still accepted while throttled: the throttle exists to make
+# guessing impractical, not to punish the operator who mistyped it twice.
+def require_pin(
+    request: Request,
+    settings: SettingsDep,
+    limiter: Annotated[SlidingWindowLimiter, Depends(get_pin_limiter)],
+    x_admin_pin: str = Header(default=""),
+) -> None:
     expected = settings.admin_pin
     if not expected:
         raise HTTPException(503, "admin surface is not configured (ADMIN_PIN unset)")
-    if x_admin_pin != expected:
+    # compare_digest, not ==: a plain comparison returns as soon as it finds a
+    # differing byte, which leaks the PIN one character at a time to anyone
+    # willing to measure. Cheap to avoid, so avoid it.
+    if not hmac.compare_digest(x_admin_pin, expected):
+        allowed, retry_after = limiter.check(client_ip(request))
+        if not allowed:
+            raise HTTPException(
+                429,
+                "too many PIN attempts — wait a moment and try again",
+                headers={"Retry-After": str(retry_after)},
+            )
         raise HTTPException(401, "bad or missing PIN")
 
 

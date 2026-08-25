@@ -38,6 +38,10 @@ class Settings(BaseSettings):
     # config change if she ever wants one, but nothing imposes one by default.
     minimum_callout: int = 0
     recurring_discount_pct: int = 10
+    # Failed ADMIN PIN attempts per IP. The board is on a public URL behind
+    # one shared PIN, so the number of guesses is the whole security model.
+    admin_pin_attempts_per_min: int = 5
+    admin_pin_attempts_per_hour: int = 20
     recurring_requires_visit: bool = False
     # 2 = full price on the first clean, discount from the second. 1 would give it
     # away on a self-declared checkbox with nothing earned.

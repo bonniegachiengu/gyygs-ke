@@ -92,6 +92,22 @@ def get_quote_limiter(settings: SettingsDep) -> SlidingWindowLimiter:
     return _limiter(settings.rate_limit_quote_per_min, settings.rate_limit_quote_per_hour)
 
 
+@lru_cache
+def _pin_limiter(per_min: int, per_hour: int) -> SlidingWindowLimiter:
+    return SlidingWindowLimiter(per_min, per_hour)
+
+
+def get_pin_limiter(settings: SettingsDep) -> SlidingWindowLimiter:
+    """Deliberately a separate bucket from the quote limiter: a customer
+    pricing sofas must never eat into the operator's PIN budget, or vice versa.
+
+    A dependency rather than module state so a test can be handed a fresh one --
+    conftest.py already holds that line for the quote limiter."""
+    return _pin_limiter(
+        settings.admin_pin_attempts_per_min, settings.admin_pin_attempts_per_hour
+    )
+
+
 def rate_limit_quote(
     request: Request,
     limiter: Annotated[SlidingWindowLimiter, Depends(get_quote_limiter)],
