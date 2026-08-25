@@ -37,6 +37,12 @@ type SiteVisit = components["schemas"]["SiteVisitDetails"];
 
 export type QuoteState = {
   step: Step;
+  /**
+   * Every step reached in this session. Drives the forward arrow: it offers
+   * itself only for a screen the customer has already been through, so it can
+   * never skip someone past a step they have not answered.
+   */
+  visited: Step[];
   items: DraftItemWithId[];
   addons: Record<string, number>;
 
@@ -73,6 +79,7 @@ const uid = () => `i${++seq}${Date.now().toString(36)}`;
 
 const BLANK = {
   step: "landing" as Step,
+  visited: ["landing"] as Step[],
   items: [] as DraftItemWithId[],
   addons: {} as Record<string, number>,
   area: null,
@@ -96,7 +103,11 @@ export const useQuote = create<QuoteState>()(
     (set) => ({
       ...BLANK,
 
-      setStep: (step) => set({ step }),
+      setStep: (step) =>
+        set((s) => ({
+          step,
+          visited: s.visited.includes(step) ? s.visited : [...s.visited, step],
+        })),
 
       toggleService: (service) =>
         set((s) => {
@@ -131,6 +142,18 @@ export const useQuote = create<QuoteState>()(
     {
       name: "myra.quote.v1",
       storage: createJSONStorage(() => sessionStorage),
+      // A basket persisted BEFORE `visited` existed rehydrates without it, and
+      // `undefined.includes(...)` would throw on the customer's very next tap.
+      // Backfilling from the step they were on keeps a mid-flow session alive
+      // across this deploy rather than resetting their basket.
+      merge: (persisted, current) => {
+        const saved = (persisted ?? {}) as Partial<QuoteState>;
+        return {
+          ...current,
+          ...saved,
+          visited: saved.visited ?? [saved.step ?? "landing"],
+        };
+      },
       // The server response and in-flight flags are per-attempt, not per-basket.
       partialize: ({ server: _s, submitting: _b, sent: _t, ...rest }) => rest,
     },
