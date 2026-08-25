@@ -47,6 +47,10 @@ pnpm-debug.log*
 yarn-error.log*
 *.local
 
+# ── Rust / compiled output (none today; here so a future crate cannot
+#    push a build dir to the remote by accident) ──
+target/
+
 # ── OS / editors ──
 .DS_Store
 Thumbs.db
