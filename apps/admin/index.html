@@ -32,6 +32,8 @@
 
   header{background:var(--navy);color:#fff;padding:16px 16px calc(14px + env(safe-area-inset-top))}
   .brand{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .lockup{display:flex;align-items:center;gap:10px;min-width:0}
+  .mark{width:38px;height:38px;flex:0 0 38px;display:block}
   .brand h1{margin:0;font-size:19px;font-weight:800;letter-spacing:-.01em}
   .brand h1 span{color:#9fd98c;font-weight:700}
   .sub{opacity:.8;font-size:13px;margin-top:4px}
@@ -99,9 +101,28 @@
 <body>
 <header>
   <div class="brand">
-    <div>
-      <h1>Myrah <span>· jobs</span></h1>
-      <div class="sub" id="sub">loading…</div>
+    <div class="lockup">
+      <!-- The same mark as the Facebook profile picture: navy field, white M,
+           green four-point sparkle. Kept navy-on-navy with a faint ring rather
+           than inverted to white, so the board carries the REAL mark and not a
+           second version of it. Inline SVG: one file, no extra request, and it
+           stays sharp on a phone at any density. -->
+      <svg class="mark" viewBox="0 0 40 40" aria-hidden="true">
+        <rect x=".75" y=".75" width="38.5" height="38.5" rx="10"
+              fill="#14315F" stroke="rgba(255,255,255,.28)" stroke-width="1.5"/>
+        <text x="15.5" y="28" text-anchor="middle" fill="#fff"
+              font-family="ui-sans-serif,system-ui,'Segoe UI',Roboto,sans-serif"
+              font-size="22" font-weight="900">M</text>
+        <!-- Sits in the negative space above the M's right shoulder. The first
+             pass overlapped that arm -- the same mistake the profile picture
+             made before its sparkle was moved clear. -->
+        <path d="M32.5 6 L33.6 9.4 L37 10.5 L33.6 11.6 L32.5 15
+                 L31.4 11.6 L28 10.5 L31.4 9.4 Z" fill="#3F9D24"/>
+      </svg>
+      <div>
+        <h1>Myrah <span>· jobs</span></h1>
+        <div class="sub" id="sub">loading…</div>
+      </div>
     </div>
     <button class="newq" id="newq">+ Quote</button>
   </div>
@@ -131,6 +152,31 @@ async function reason(r){
   catch{return `request failed (${r.status})`;}
 }
 
+/* "2026-08-25 morning" is a timestamp; "Today · morning" is a plan. Mercy is
+   reading this one-handed in a hallway, so it says the second kind. Anything
+   this cannot parse is passed through untouched rather than guessed at. */
+const DAYS=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const MONS=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+function whenLine(raw){
+  if(!raw) return "not scheduled";
+  const m=String(raw).match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\w+))?/);
+  if(!m) return raw;
+  const [_,y,mo,d,win]=m;
+  // Built from parts, not Date.parse -- "2026-08-25" parses as UTC midnight and
+  // can render as the previous day in a west-of-UTC tz. Nairobi is UTC+3 so it
+  // would not bite here, but a date that is wrong anywhere is wrong.
+  const dt=new Date(+y,+mo-1,+d), today=new Date();
+  const midnight=x=>new Date(x.getFullYear(),x.getMonth(),x.getDate());
+  const days=Math.round((midnight(dt)-midnight(today))/86400000);
+  let label;
+  if(days===0) label="Today";
+  else if(days===1) label="Tomorrow";
+  else if(days===-1) label="Yesterday";
+  else label=`${DAYS[dt.getDay()]} ${+d} ${MONS[+mo-1]}`;
+  const w=win&&/morning|afternoon|evening/i.test(win)?win.toLowerCase():"";
+  return w?`${label} · ${w}`:label;
+}
+
 /* Human-readable service line. Mercy must never see the raw basket. */
 function serviceLine(job){
   if(job.items && !job.items.trim().startsWith("{")) return job.items;
@@ -139,7 +185,10 @@ function serviceLine(job){
     const bits=(b.items||[]).map(i=>{
       const n=(S.cat?.services||[]).find(s=>s.key===i.service);
       const nm=n?n.label:i.service;
-      if(i.size) return `${nm} ${i.size}`;
+      if(i.size){
+        const tier=(n?.tiers||[]).find(x=>x.key===i.size);
+        return `${nm} ${tier?tier.label:i.size}`;
+      }
       if(i.seats>1) return `${nm} — ${i.seats} seats`;
       return nm;
     });
@@ -193,7 +242,7 @@ function render(){
     return `<div class="card" data-ref="${j.ref}">
       <div class="top"><span class="who">${j.client_name}</span><span class="amt">${money(j.total_cents)}</span></div>
       <div class="svc">${serviceLine(j)}</div>
-      <div class="when">${j.area?j.area[0].toUpperCase()+j.area.slice(1):"—"} · ${j.scheduled_at||j.preferred||"not scheduled"}</div>
+      <div class="when">${j.area?j.area[0].toUpperCase()+j.area.slice(1):"—"} · ${whenLine(j.scheduled_at||j.preferred)}</div>
       <div class="when"><span class="ref">${j.ref}</span></div>
       ${pills.length?`<div class="pills">${pills.join("")}</div>`:""}
     </div>`;}).join("");
@@ -310,7 +359,7 @@ async function editForm(j){
     <div class="when">${j.ref} · re-prices with the same engine</div>
     <label>Instructions for the day</label>
     <textarea id="nt" placeholder="Gate code, dog, start upstairs…">${j.notes||""}</textarea>
-    <button class="act ghost" id="saveNotes">Save instructions</button>
+    <button class="act ghost" id="saveNotes">Save instructions</button><div class="msg" id="mn"></div>
     <label>Scope</label>${chipRows(pre)}
     <label for="rs">What changed?</label><input id="rs" placeholder="e.g. after site visit">
     <button class="act navy" id="go">Re-price</button><div class="msg" id="m"></div>
@@ -319,8 +368,10 @@ async function editForm(j){
   const B=id=>document.getElementById(id);
   B("back").onclick=()=>openJob(j.ref);
   B("saveNotes").onclick=async()=>{
+    const m=B("mn");
+    m.className="msg";m.textContent="Saving…";
     const r=await api(`/jobs/${j.ref}/notes`,{method:"POST",body:JSON.stringify({notes:B("nt").value})});
-    const m=B("m"); if(r.ok){m.className="msg good";m.textContent="Instructions saved.";}
+    if(r.ok){m.className="msg good";m.textContent="Instructions saved.";}
     else {m.className="msg err";m.textContent=await reason(r);}
   };
   B("go").onclick=async()=>{
