@@ -204,6 +204,7 @@ def build_catalogue(
     recurring_discount_pct: int = 10,
     recurring_requires_visit: bool = False,
     recurring_discount_from_job: int = 2,
+    deposit_pct: int = 30,
     whatsapp_number: str = "254754413351",
 ) -> PricingCatalogue:
     """Assemble the catalogue. The three rule values come from config so a
@@ -218,6 +219,7 @@ def build_catalogue(
         areas=AREAS,
         rules=Rules(
             recurring_discount_pct=recurring_discount_pct,
+            deposit_pct=deposit_pct,
             transport="separate",
             recurring_requires_visit=recurring_requires_visit,
             recurring_discount_from_job=recurring_discount_from_job,

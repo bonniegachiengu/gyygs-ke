@@ -336,6 +336,7 @@ export interface components {
             recurring_discount_from_job?: number;
             /** Recurring Discount Pct */
             recurring_discount_pct: number;
+            deposit_pct: number;
             /**
              * Recurring Requires Visit
              * @default false

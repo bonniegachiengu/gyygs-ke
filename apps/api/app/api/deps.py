@@ -59,13 +59,15 @@ def get_ref_allocator(settings: SettingsDep) -> QuoteRefAllocator:
 
 @lru_cache
 def _catalogue(
-    minimum_callout: int, pct: int, requires_visit: bool, from_job: int, whatsapp: str
+    minimum_callout: int, pct: int, requires_visit: bool, from_job: int,
+    deposit_pct: int, whatsapp: str
 ) -> PricingCatalogue:
     return build_catalogue(
         minimum_callout=minimum_callout,
         recurring_discount_pct=pct,
         recurring_requires_visit=requires_visit,
         recurring_discount_from_job=from_job,
+        deposit_pct=deposit_pct,
         whatsapp_number=whatsapp,
     )
 
@@ -76,6 +78,7 @@ def get_catalogue(settings: SettingsDep) -> PricingCatalogue:
         settings.recurring_discount_pct,
         settings.recurring_requires_visit,
         settings.recurring_discount_from_job,
+        settings.deposit_pct,
         settings.whatsapp_number,
     )
 
@@ -87,6 +90,22 @@ def _limiter(per_min: int, per_hour: int) -> SlidingWindowLimiter:
 
 def get_quote_limiter(settings: SettingsDep) -> SlidingWindowLimiter:
     return _limiter(settings.rate_limit_quote_per_min, settings.rate_limit_quote_per_hour)
+
+
+@lru_cache
+def _pin_limiter(per_min: int, per_hour: int) -> SlidingWindowLimiter:
+    return SlidingWindowLimiter(per_min, per_hour)
+
+
+def get_pin_limiter(settings: SettingsDep) -> SlidingWindowLimiter:
+    """Deliberately a separate bucket from the quote limiter: a customer
+    pricing sofas must never eat into the operator's PIN budget, or vice versa.
+
+    A dependency rather than module state so a test can be handed a fresh one --
+    conftest.py already holds that line for the quote limiter."""
+    return _pin_limiter(
+        settings.admin_pin_attempts_per_min, settings.admin_pin_attempts_per_hour
+    )
 
 
 def rate_limit_quote(

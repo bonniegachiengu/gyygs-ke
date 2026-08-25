@@ -38,6 +38,10 @@ class Settings(BaseSettings):
     # config change if she ever wants one, but nothing imposes one by default.
     minimum_callout: int = 0
     recurring_discount_pct: int = 10
+    # Failed ADMIN PIN attempts per IP. The board is on a public URL behind
+    # one shared PIN, so the number of guesses is the whole security model.
+    admin_pin_attempts_per_min: int = 5
+    admin_pin_attempts_per_hour: int = 20
     recurring_requires_visit: bool = False
     # 2 = full price on the first clean, discount from the second. 1 would give it
     # away on a self-declared checkbox with nothing earned.
@@ -53,6 +57,16 @@ class Settings(BaseSettings):
     # Only read when lead_store == "sqlite". Sits beside quote_seq_path so the
     # API's entire durable footprint is one directory.
     lead_db_path: str = "./data/leads.db"
+
+    # ── Operator surface (Phase A) ──
+    # A shared PIN to start, exactly as MYRAH_WHATSAPP_AND_CMS.md §3d says:
+    # "start with a shared PIN; proper auth later". Empty means the admin
+    # routes refuse with 503 rather than defaulting to something guessable.
+    admin_pin: str = ""
+    # 30% to hold a slot -- MYRAH_OPERATIONS_DESIGN.md §11 decision 1.
+    # Config, not a literal, so Mercy can change it without a code change.
+    deposit_pct: int = 30
+
 
     # ── Quote reference counter ──
     quote_seq_path: str = "./data/quote_seq.json"

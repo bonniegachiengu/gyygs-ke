@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#14315f">
+<title>Myrah — jobs</title>
+<!--
+  Mercy's operator board. MYRAH_OPERATIONS_DESIGN.md §3c: "one glance = the
+  whole business".
+
+  BRAND: the same tokens as the customer calculator (apps/web/src/styles/
+  index.css) -- navy #14315F, green #3F9D24, mist #F4F6FA, 1rem card radius,
+  system font stack. The first version of this board used an unrelated dark
+  palette and read as a dev tool; this is Myrah's own language, so Mercy and her
+  customers are looking at the same business.
+
+  HUMAN-FIRST: cards show a plain-language service line, never the raw basket
+  JSON. Mercy reads "Sofa - 3 seats - Mattress 5x6 - + Fridge", not
+  {"items":[{"service":"sofa","seats":3}]}.
+-->
+<style>
+  :root{
+    --navy:#14315f; --navy-deep:#0f2549; --green:#3f9d24; --green-deep:#35841e;
+    --ink:#0f1b2d; --mist:#f4f6fa; --line:#dde3ee; --muted:#5c6b84;
+    --amber:#b7791f; --red:#b3261e; --radius:1rem;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--mist);color:var(--ink);
+       font:16px/1.45 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+       font-variant-numeric:tabular-nums;-webkit-text-size-adjust:100%}
+
+  header{background:var(--navy);color:#fff;padding:16px 16px calc(14px + env(safe-area-inset-top))}
+  .brand{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .lockup{display:flex;align-items:center;gap:10px;min-width:0}
+  .mark{width:38px;height:38px;flex:0 0 38px;display:block}
+  .brand h1{margin:0;font-size:19px;font-weight:800;letter-spacing:-.01em}
+  .brand h1 span{color:#9fd98c;font-weight:700}
+  .sub{opacity:.8;font-size:13px;margin-top:4px}
+  .newq{background:var(--green);color:#fff;border:0;border-radius:.75rem;
+        padding:11px 16px;font-size:14.5px;font-weight:700;min-height:44px;cursor:pointer}
+
+  .tabs{display:flex;gap:8px;overflow-x:auto;padding:12px;background:#fff;
+        border-bottom:1px solid var(--line);position:sticky;top:0;z-index:4}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex:0 0 auto;border:1px solid var(--line);background:#fff;color:var(--muted);
+       border-radius:999px;padding:9px 15px;font-size:13.5px;font-weight:600;
+       min-height:42px;cursor:pointer}
+  .tab[aria-selected="true"]{background:var(--navy);border-color:var(--navy);color:#fff}
+  .tab .n{opacity:.65;margin-left:2px}
+
+  main{padding:14px 12px 48px;max-width:640px;margin:0 auto}
+  .card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);
+        padding:15px;margin-bottom:11px;cursor:pointer;
+        box-shadow:0 1px 2px rgba(20,49,95,.04)}
+  .card:active{background:#fbfcfe}
+  .top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+  .who{font-weight:700;font-size:16.5px;color:var(--navy)}
+  .amt{font-weight:800;font-size:16.5px;white-space:nowrap;color:var(--navy)}
+  .svc{margin-top:5px;font-size:14.5px;color:var(--ink)}
+  .when{margin-top:5px;font-size:13px;color:var(--muted)}
+  .ref{font-size:11.5px;color:#93a0b5;letter-spacing:.03em}
+  .pills{margin-top:9px;display:flex;flex-wrap:wrap;gap:6px}
+  .pill{font-size:11.5px;font-weight:700;padding:4px 9px;border-radius:999px}
+  .pill.need{background:#fdf4e4;color:var(--amber)}
+  .pill.ok{background:#eaf6e5;color:var(--green-deep)}
+  .pill.owe{background:#fdeceb;color:var(--red)}
+  .pill.note{background:#eef2f9;color:var(--navy)}
+  .empty{color:var(--muted);text-align:center;padding:44px 14px;font-size:14.5px}
+
+  button.act{width:100%;min-height:50px;border-radius:.75rem;border:0;font-size:15.5px;
+             font-weight:700;margin-top:10px;cursor:pointer}
+  .primary{background:var(--green);color:#fff}
+  .navy{background:var(--navy);color:#fff}
+  .ghost{background:#fff;border:1px solid var(--line)!important;color:var(--navy)}
+
+  dialog{border:0;border-radius:var(--radius);padding:0;width:min(94vw,470px);
+         color:var(--ink);box-shadow:0 20px 50px rgba(15,37,73,.28)}
+  dialog::backdrop{background:rgba(15,37,73,.45)}
+  .sheet{padding:18px}
+  .sheet h2{margin:0;font-size:18.5px;color:var(--navy)}
+  label{display:block;font-size:12.5px;color:var(--muted);margin:14px 0 5px;font-weight:700;
+        text-transform:uppercase;letter-spacing:.04em}
+  input,select,textarea{width:100%;padding:12px;border:1px solid var(--line);
+        border-radius:.6rem;font-size:16px;background:#fff;font-family:inherit;color:var(--ink)}
+  textarea{min-height:80px;resize:vertical}
+  .msg{margin-top:12px;padding:12px;border-radius:.6rem;font-size:14px;display:none}
+  .msg.err{display:block;background:#fdeceb;color:var(--red)}
+  .msg.good{display:block;background:#eaf6e5;color:var(--green-deep)}
+  .totals{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+  .totals div{display:flex;justify-content:space-between;padding:4px 0;font-size:14.5px}
+  .totals .big{font-weight:800;font-size:17px;color:var(--navy)}
+  .log{margin-top:12px;font-size:12.5px;color:var(--muted)}
+  .log div{padding:4px 0;border-top:1px dashed var(--line)}
+  .chip{display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid var(--line)}
+  .chip input[type=checkbox]{width:22px;height:22px;flex:0 0 auto;accent-color:var(--green)}
+  .chip .nm{flex:1;font-size:15px}
+  .chip select,.chip input[type=number]{width:120px;padding:8px;font-size:14px}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <div class="lockup">
+      <!-- The same mark as the Facebook profile picture: navy field, white M,
+           green four-point sparkle. Kept navy-on-navy with a faint ring rather
+           than inverted to white, so the board carries the REAL mark and not a
+           second version of it. Inline SVG: one file, no extra request, and it
+           stays sharp on a phone at any density. -->
+      <svg class="mark" viewBox="0 0 40 40" aria-hidden="true">
+        <rect x=".75" y=".75" width="38.5" height="38.5" rx="10"
+              fill="#14315F" stroke="rgba(255,255,255,.28)" stroke-width="1.5"/>
+        <text x="15.5" y="28" text-anchor="middle" fill="#fff"
+              font-family="ui-sans-serif,system-ui,'Segoe UI',Roboto,sans-serif"
+              font-size="22" font-weight="900">M</text>
+        <!-- Sits in the negative space above the M's right shoulder. The first
+             pass overlapped that arm -- the same mistake the profile picture
+             made before its sparkle was moved clear. -->
+        <path d="M32.5 6 L33.6 9.4 L37 10.5 L33.6 11.6 L32.5 15
+                 L31.4 11.6 L28 10.5 L31.4 9.4 Z" fill="#3F9D24"/>
+      </svg>
+      <div>
+        <h1>Myrah <span>· jobs</span></h1>
+        <div class="sub" id="sub">loading…</div>
+      </div>
+    </div>
+    <button class="newq" id="newq">+ Quote</button>
+  </div>
+</header>
+
+<div class="tabs" id="tabs" role="tablist"></div>
+<main id="list"></main>
+<dialog id="sheet"><div class="sheet" id="sheetBody"></div></dialog>
+
+<script>
+const API="/api/admin";
+const money=c=>"KSh "+(c/100).toLocaleString("en-KE",{maximumFractionDigits:0});
+const COLS=["today","new","quoted","booked","done","unpaid"];
+const LABEL={today:"Today",new:"New",quoted:"Quoted",booked:"Booked",done:"Done",unpaid:"Unpaid"};
+let S={board:null,col:"today",pin:sessionStorage.getItem("myrah_pin")||"",cat:null};
+
+const hdrs=()=>({"Content-Type":"application/json","X-Admin-PIN":S.pin});
+async function api(p,o={}){
+  const r=await fetch(API+p,{headers:hdrs(),...o});
+  if(r.status===401){askPin(true);throw new Error("pin");}
+  return r;
+}
+// Surface what the SERVER said. The first version swallowed a perfectly clear
+// "choose a size for curtains" and showed "Could not price that" instead.
+async function reason(r){
+  try{const j=await r.json();return j.detail||j.reason||`request failed (${r.status})`;}
+  catch{return `request failed (${r.status})`;}
+}
+
+/* "2026-08-25 morning" is a timestamp; "Today · morning" is a plan. Mercy is
+   reading this one-handed in a hallway, so it says the second kind. Anything
+   this cannot parse is passed through untouched rather than guessed at. */
+const DAYS=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const MONS=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+function whenLine(raw){
+  if(!raw) return "not scheduled";
+  const m=String(raw).match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\w+))?/);
+  if(!m) return raw;
+  const [_,y,mo,d,win]=m;
+  // Built from parts, not Date.parse -- "2026-08-25" parses as UTC midnight and
+  // can render as the previous day in a west-of-UTC tz. Nairobi is UTC+3 so it
+  // would not bite here, but a date that is wrong anywhere is wrong.
+  const dt=new Date(+y,+mo-1,+d), today=new Date();
+  const midnight=x=>new Date(x.getFullYear(),x.getMonth(),x.getDate());
+  const days=Math.round((midnight(dt)-midnight(today))/86400000);
+  let label;
+  if(days===0) label="Today";
+  else if(days===1) label="Tomorrow";
+  else if(days===-1) label="Yesterday";
+  else label=`${DAYS[dt.getDay()]} ${+d} ${MONS[+mo-1]}`;
+  const w=win&&/morning|afternoon|evening/i.test(win)?win.toLowerCase():"";
+  return w?`${label} · ${w}`:label;
+}
+
+/* Human-readable service line. Mercy must never see the raw basket. */
+function serviceLine(job){
+  if(job.items && !job.items.trim().startsWith("{")) return job.items;
+  try{
+    const b=JSON.parse(job.items||"{}");
+    const bits=(b.items||[]).map(i=>{
+      const n=(S.cat?.services||[]).find(s=>s.key===i.service);
+      const nm=n?n.label:i.service;
+      if(i.size){
+        const tier=(n?.tiers||[]).find(x=>x.key===i.size);
+        return `${nm} ${tier?tier.label:i.size}`;
+      }
+      if(i.seats>1) return `${nm} — ${i.seats} seats`;
+      return nm;
+    });
+    (b.addons||[]).forEach(a=>bits.push("+ "+a.key));
+    return bits.join(" · ")||"—";
+  }catch{ return job.items||"—"; }
+}
+
+function askPin(again){
+  document.getElementById("sheetBody").innerHTML=`
+    <h2>Myrah jobs</h2>
+    <div class="when">${again?"That PIN was not accepted.":"Kept for this session only."}</div>
+    <label for="pin">PIN</label>
+    <input id="pin" type="password" autocomplete="off" autocapitalize="none" spellcheck="false">
+    <button class="act primary" id="go">Open</button>`;
+  const s=document.getElementById("sheet"); s.showModal();
+  const go=()=>{S.pin=document.getElementById("pin").value.trim();
+    sessionStorage.setItem("myrah_pin",S.pin);s.close();load();};
+  document.getElementById("go").onclick=go;
+  document.getElementById("pin").onkeydown=e=>{if(e.key==="Enter")go();};
+}
+
+async function load(){
+  if(!S.pin) return askPin(false);
+  try{
+    S.board=await (await api("/board")).json();
+    if(!S.cat) S.cat=await (await api("/catalogue")).json();
+  }catch(e){ if(e.message!=="pin") document.getElementById("sub").textContent=e.message; return; }
+  const b=S.board,tot=COLS.reduce((n,c)=>n+b.columns[c].length,0);
+  const owed=b.columns.unpaid.reduce((n,j)=>n+j.balance_cents,0);
+  document.getElementById("sub").textContent=
+    `${tot} job${tot===1?"":"s"} · ${b.deposit_pct}% deposit`+(owed?` · ${money(owed)} owing`:"");
+  document.getElementById("tabs").innerHTML=COLS.map(c=>
+    `<button class="tab" role="tab" aria-selected="${c===S.col}" data-c="${c}">${LABEL[c]}<span class="n">${b.columns[c].length}</span></button>`).join("");
+  document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{S.col=t.dataset.c;render();});
+  render();
+}
+
+function render(){
+  document.querySelectorAll(".tab").forEach(t=>t.setAttribute("aria-selected",t.dataset.c===S.col));
+  const jobs=S.board.columns[S.col],el=document.getElementById("list");
+  if(!jobs.length){el.innerHTML=`<div class="empty">Nothing in ${LABEL[S.col]} right now.</div>`;return;}
+  el.innerHTML=jobs.map(j=>{
+    const need=j.deposit_required_cents-j.deposit_paid_cents;
+    const pills=[];
+    if(j.visit_first) pills.push(`<span class="pill need">visit first — price after seeing it</span>`);
+    else if(need>0)   pills.push(`<span class="pill need">${money(need)} deposit to book</span>`);
+    else if(j.deposit_paid_cents>0) pills.push(`<span class="pill ok">deposit paid</span>`);
+    if(j.balance_cents>0&&j.paid_cents>0) pills.push(`<span class="pill owe">${money(j.balance_cents)} owing</span>`);
+    if(j.notes) pills.push(`<span class="pill note">has instructions</span>`);
+    return `<div class="card" data-ref="${j.ref}">
+      <div class="top"><span class="who">${j.client_name}</span><span class="amt">${money(j.total_cents)}</span></div>
+      <div class="svc">${serviceLine(j)}</div>
+      <div class="when">${j.area?j.area[0].toUpperCase()+j.area.slice(1):"—"} · ${whenLine(j.scheduled_at||j.preferred)}</div>
+      <div class="when"><span class="ref">${j.ref}</span></div>
+      ${pills.length?`<div class="pills">${pills.join("")}</div>`:""}
+    </div>`;}).join("");
+  el.querySelectorAll(".card").forEach(c=>c.onclick=()=>openJob(c.dataset.ref));
+}
+
+async function openJob(ref){
+  const j=await (await api("/jobs/"+ref)).json();
+  const log=await (await api(`/jobs/${ref}/changes`)).json();
+  const need=j.deposit_required_cents-j.deposit_paid_cents;
+  let acts="";
+  if(j.status==="quoted")    acts = need>0
+      ? `<button class="act primary" id="pay">Record ${money(need)} deposit</button>`
+      : `<button class="act primary" id="book">Book it</button>`;
+  else if(j.status==="booked")    acts=`<button class="act primary" id="done">Mark completed</button>`;
+  else if(j.status==="completed") acts=`<button class="act primary" id="pay">Record payment · ${money(j.balance_cents)} owing</button>`;
+  else if(j.status==="paid")      acts=`<button class="act ghost" id="rcpt">Receipt</button>`;
+
+  document.getElementById("sheetBody").innerHTML=`
+    <h2>${j.client_name}</h2>
+    <div class="when">${j.ref} · ${j.status} · ${j.area||"—"}</div>
+    <div class="svc" style="margin-top:10px">${serviceLine(j)}</div>
+    <div class="totals">
+      <div><span>Total</span><span class="big">${money(j.total_cents)}</span></div>
+      <div><span>Paid</span><span>${money(j.paid_cents)}</span></div>
+      ${j.balance_cents?`<div><span>Owing</span><span>${money(j.balance_cents)}</span></div>`:""}
+    </div>
+    ${j.notes?`<div class="log"><b>Instructions:</b> ${j.notes}</div>`:""}
+    ${log.changes.length?`<div class="log">${log.changes.map(c=>
+      `<div>${c.kind==="reprice"?`${money(c.old_total_cents)} → ${money(c.new_total_cents)}`:"instructions"} · ${c.detail} · ${c.at.slice(0,16).replace("T"," ")}</div>`).join("")}</div>`:""}
+    <div id="slot"></div>
+    ${acts}
+    <button class="act ghost" id="edit">Change scope or add instructions</button>
+    <button class="act ghost" id="close">Close</button>`;
+  const s=document.getElementById("sheet"); if(!s.open) s.showModal();
+  const B=id=>document.getElementById(id);
+  B("close").onclick=()=>{s.close();load();};
+  B("edit").onclick=()=>editForm(j);
+  if(B("book")) B("book").onclick=()=>bookForm(j);
+  if(B("pay"))  B("pay").onclick =()=>payForm(j);
+  if(B("done")) B("done").onclick=async()=>{await api(`/jobs/${j.ref}/complete`,{method:"POST"});openJob(j.ref);};
+  if(B("rcpt")) B("rcpt").onclick=async()=>{
+    const r=await (await api(`/jobs/${j.ref}/receipt`)).json();
+    B("slot").innerHTML=`<div class="msg good">${r.business.name}<br>${r.receipt_ref} · paid ${money(r.paid_cents)}<br>eTIMS: ${r.business.etims}</div>`;};
+}
+
+/* Strategy-aware chips. THE BUG: the first version sent {seats,qty} for every
+   service, so a size_tier service like curtains was rejected with
+   "choose a size for curtains" -- correctly, by the engine. */
+function chipRows(pre={}){
+  return (S.cat.services||[]).map(sv=>{
+    const on=pre[sv.key];
+    let ctrl="";
+    if(sv.strategy==="size_tier")
+      ctrl=`<select data-size="${sv.key}" ${on?"":"disabled"}>${(sv.tiers||[]).map(t=>
+            `<option value="${t.key}" ${on&&on.size===t.key?"selected":""}>${t.label}</option>`).join("")}</select>`;
+    else if(sv.strategy==="per_unit")
+      ctrl=`<input type="number" data-qty="${sv.key}" min="${sv.min_units||1}" value="${on?.seats||sv.min_units||1}" ${on?"":"disabled"}>`;
+    else ctrl=`<span class="when">quoted after a visit</span>`;
+    return `<label class="chip">
+      <input type="checkbox" data-k="${sv.key}" ${on?"checked":""}>
+      <span class="nm">${sv.label}</span>${ctrl}</label>`;}).join("");
+}
+function readChips(){
+  const items=[];
+  document.querySelectorAll("[data-k]").forEach(cb=>{
+    if(!cb.checked) return;
+    const k=cb.dataset.k, sv=S.cat.services.find(s=>s.key===k);
+    if(sv.strategy==="size_tier") items.push({service:k,size:document.querySelector(`[data-size="${k}"]`).value,qty:1});
+    else if(sv.strategy==="per_unit") items.push({service:k,seats:Number(document.querySelector(`[data-qty="${k}"]`).value)||1});
+    else items.push({service:k});
+  });
+  return items;
+}
+function wireChips(){
+  document.querySelectorAll("[data-k]").forEach(cb=>cb.onchange=()=>{
+    const c=document.querySelector(`[data-size="${cb.dataset.k}"]`)||document.querySelector(`[data-qty="${cb.dataset.k}"]`);
+    if(c) c.disabled=!cb.checked;});
+}
+
+async function quoteForm(){
+  if(!S.cat) S.cat=await (await api("/catalogue")).json();
+  document.getElementById("sheetBody").innerHTML=`
+    <h2>New quote</h2><div class="when">Same prices the customer sees.</div>
+    <label for="nm">Customer</label><input id="nm" placeholder="Name from the chat">
+    <label for="ar">Area</label><select id="ar">${S.cat.areas.map(a=>`<option value="${a.key}">${a.label}</option>`).join("")}</select>
+    <label>What needs cleaning?</label>${chipRows()}
+    <button class="act primary" id="go">Price it</button><div class="msg" id="m"></div>
+    <button class="act ghost" id="close">Cancel</button>`;
+  const s=document.getElementById("sheet"); if(!s.open) s.showModal();
+  wireChips();
+  document.getElementById("close").onclick=()=>{s.close();load();};
+  document.getElementById("go").onclick=async()=>{
+    const m=document.getElementById("m"),items=readChips();
+    if(!items.length){m.className="msg err";m.textContent="Pick at least one service.";return;}
+    const r=await api("/quotes",{method:"POST",body:JSON.stringify({items,addons:[],
+      area:document.getElementById("ar").value,
+      preferred:{day:new Date().toISOString().slice(0,10),window:"morning"},
+      contact:{name:document.getElementById("nm").value||"Walk-in"},recurring:false})});
+    if(!r.ok){m.className="msg err";m.textContent=await reason(r);return;}
+    const d=await r.json();
+    m.className="msg good";
+    m.innerHTML=`${d.quote_ref} · <b>${money(d.job.total_cents)}</b><br><a href="${d.whatsapp_url}" target="_blank" rel="noopener">Send it on WhatsApp →</a>`;
+    setTimeout(()=>{s.close();load();},2800);
+  };
+}
+
+/* §3b — change scope after a site visit or on the morning. */
+async function editForm(j){
+  let pre={};
+  try{const b=JSON.parse(j.items||"{}");(b.items||[]).forEach(i=>pre[i.service]=i);}catch{}
+  document.getElementById("sheetBody").innerHTML=`
+    <h2>Change this job</h2>
+    <div class="when">${j.ref} · re-prices with the same engine</div>
+    <label>Instructions for the day</label>
+    <textarea id="nt" placeholder="Gate code, dog, start upstairs…">${j.notes||""}</textarea>
+    <button class="act ghost" id="saveNotes">Save instructions</button><div class="msg" id="mn"></div>
+    <label>Scope</label>${chipRows(pre)}
+    <label for="rs">What changed?</label><input id="rs" placeholder="e.g. after site visit">
+    <button class="act navy" id="go">Re-price</button><div class="msg" id="m"></div>
+    <button class="act ghost" id="back">Back</button>`;
+  wireChips();
+  const B=id=>document.getElementById(id);
+  B("back").onclick=()=>openJob(j.ref);
+  B("saveNotes").onclick=async()=>{
+    const m=B("mn");
+    m.className="msg";m.textContent="Saving…";
+    const r=await api(`/jobs/${j.ref}/notes`,{method:"POST",body:JSON.stringify({notes:B("nt").value})});
+    if(r.ok){m.className="msg good";m.textContent="Instructions saved.";}
+    else {m.className="msg err";m.textContent=await reason(r);}
+  };
+  B("go").onclick=async()=>{
+    const m=B("m"),items=readChips();
+    if(!items.length){m.className="msg err";m.textContent="A job needs at least one service.";return;}
+    const r=await api(`/jobs/${j.ref}/reprice`,{method:"POST",
+      body:JSON.stringify({items,addons:[],reason:B("rs").value||"scope changed"})});
+    if(!r.ok){m.className="msg err";m.textContent=await reason(r);return;}
+    const d=await r.json();
+    m.className="msg good";
+    m.innerHTML=`${money(d.old_total_cents)} → <b>${money(d.new_total_cents)}</b>`+
+      (d.deposit_already_paid_cents?`<br>Deposit already paid (${money(d.deposit_already_paid_cents)}) stands.`:"");
+    setTimeout(()=>openJob(j.ref),2200);
+  };
+}
+
+function bookForm(j){
+  document.getElementById("slot").innerHTML=`
+    <label for="d">Day</label><input id="d" type="date" value="${new Date().toISOString().slice(0,10)}">
+    <label for="w">Window</label><select id="w"><option value="morning">Morning</option><option value="afternoon">Afternoon</option></select>
+    <button class="act navy" id="go">Confirm booking</button><div class="msg" id="m"></div>`;
+  document.getElementById("go").onclick=async()=>{
+    const r=await api(`/jobs/${j.ref}/book`,{method:"POST",body:JSON.stringify({
+      scheduled_at:document.getElementById("d").value,window:document.getElementById("w").value})});
+    const d=await r.json(),m=document.getElementById("m");
+    if(d.ok){m.className="msg good";m.textContent="Booked.";setTimeout(()=>openJob(j.ref),800);}
+    else{m.className="msg err";m.textContent=d.reason;}
+  };
+}
+function payForm(j){
+  const need=j.deposit_required_cents-j.deposit_paid_cents;
+  const kind=j.status==="quoted"?"deposit":"balance";
+  const pre=kind==="deposit"?need:j.balance_cents;
+  document.getElementById("slot").innerHTML=`
+    <label for="a">Amount (KSh)</label><input id="a" type="number" inputmode="numeric" value="${Math.round(pre/100)}">
+    <label for="r">M-Pesa code (optional)</label><input id="r" autocomplete="off" autocapitalize="characters" placeholder="TFE5G7H8L3">
+    <button class="act navy" id="go">Record ${kind}</button><div class="msg" id="m"></div>`;
+  document.getElementById("go").onclick=async()=>{
+    const r=await api(`/jobs/${j.ref}/payments`,{method:"POST",body:JSON.stringify({
+      amount_cents:Math.round(Number(document.getElementById("a").value)*100),kind,
+      mpesa_ref:document.getElementById("r").value.trim()||null})});
+    const d=await r.json(),m=document.getElementById("m");
+    if(d.ok){m.className="msg good";m.textContent="Recorded.";setTimeout(()=>openJob(j.ref),800);}
+    else{m.className="msg err";m.textContent=d.reason;}
+  };
+}
+
+document.getElementById("newq").onclick=quoteForm;
+load();
+</script>
+</body>
+</html>
