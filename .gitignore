@@ -62,3 +62,12 @@ Thumbs.db
 
 # staging worktree runtime data
 data/staging/
+
+# Database backups. These hold REAL customer names, phone numbers and payment
+# records -- a `git add -A` that swept them in would publish customer data to
+# the repo. Ignored so that cannot happen by accident.
+backups/
+
+# Incremental TypeScript build cache. Machine-local, changes on every build,
+# and was showing up as a spurious diff on every promote.
+apps/web/tsconfig.tsbuildinfo
