@@ -33,6 +33,9 @@
   header{background:var(--navy);color:#fff;padding:16px 16px calc(14px + env(safe-area-inset-top))}
   .brand{display:flex;align-items:center;justify-content:space-between;gap:12px}
   .lockup{display:flex;align-items:center;gap:10px;min-width:0}
+  .hbtns{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+  .hbtns .act.sm{margin-top:0;padding:0 12px;background:rgba(255,255,255,.10);
+                 border:1px solid rgba(255,255,255,.24);color:#fff}
   .mark{width:38px;height:38px;flex:0 0 38px;display:block}
   .brand h1{margin:0;font-size:19px;font-weight:800;letter-spacing:-.01em}
   .brand h1 span{color:#9fd98c;font-weight:700}
@@ -66,6 +69,7 @@
   .pill.ok{background:#eaf6e5;color:var(--green-deep)}
   .pill.owe{background:#fdeceb;color:var(--red)}
   .pill.note{background:#eef2f9;color:var(--navy)}
+  .pill.flag{background:#fff4e5;color:#8a5a00}
   .empty{color:var(--muted);text-align:center;padding:44px 14px;font-size:14.5px}
 
   button.act{width:100%;min-height:50px;border-radius:.75rem;border:0;font-size:15.5px;
@@ -96,6 +100,47 @@
   .chip input[type=checkbox]{width:22px;height:22px;flex:0 0 auto;accent-color:var(--green)}
   .chip .nm{flex:1;font-size:15px}
   .chip select,.chip input[type=number]{width:120px;padding:8px;font-size:14px}
+  /* composer -- sized for a thumb: every tap target clears 44px */
+  .pickgrid{display:flex;flex-direction:column;gap:6px;margin:6px 0 2px}
+  .pickchip{display:flex;align-items:center;gap:10px;min-height:48px;padding:10px 12px;
+            border:1px solid var(--line);border-radius:12px;background:#fff}
+  .pickchip.on{border-color:var(--green);box-shadow:inset 0 0 0 1px var(--green)}
+  .pickchip .nm{flex:1;font-weight:600;color:var(--navy)}
+  .pickchip .ph{font-size:12px;color:var(--muted)}
+  .grp{border:1px solid var(--line);border-radius:14px;padding:12px;margin:10px 0;background:#fff}
+  .grph{font-weight:700;color:var(--navy);margin-bottom:8px}
+  .line+.line{border-top:1px solid var(--line);margin-top:12px;padding-top:12px}
+  .lineh{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;
+         font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+  .rm{min-height:44px;padding:0 6px;background:none;border:0;color:#b42318;
+      text-decoration:underline;font-size:13px}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+  .tchip{min-height:44px;padding:8px 12px;border:1px solid var(--line);border-radius:999px;
+         background:#fff;font-size:13px;color:var(--navy)}
+  .tchip.on{background:var(--navy);border-color:var(--navy);color:#fff}
+  .row{display:flex;align-items:center;justify-content:space-between;gap:10px;
+       min-height:48px;font-size:14px;color:var(--ink)}
+  .ctr{display:flex;align-items:center;gap:6px}
+  .ctr button{width:44px;height:44px;border:1px solid var(--line);border-radius:10px;
+              background:#fff;font-size:18px;line-height:1;color:var(--navy)}
+  .ctr b{min-width:26px;text-align:center;font-variant-numeric:tabular-nums}
+  .vbadge{display:inline-block;margin:2px 0 6px;padding:4px 8px;border-radius:8px;
+          background:#fff4e5;color:#8a5a00;font-size:12px}
+  .act.sm{min-height:44px;font-size:13px;margin-top:8px}
+  .detbtn{min-height:44px;padding:0 4px;background:none;border:0;color:var(--muted);
+          font-size:12px;text-decoration:underline}
+  .det{border-top:1px dashed var(--line);margin-top:8px;padding-top:8px}
+  .det textarea{width:100%;min-height:60px;padding:8px;font:inherit;font-size:13px;
+                border:1px solid var(--line);border-radius:10px}
+  .det input{width:100%;min-height:44px;padding:8px;font:inherit;font-size:13px;
+             border:1px solid var(--line);border-radius:10px;margin-top:6px}
+  .prow{display:flex;align-items:center;gap:8px;min-height:48px}
+  .plab{flex:1;font-size:13px;color:var(--ink);min-width:0}
+  .pauto{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .pauto.struck{text-decoration:line-through}
+  .povr{width:92px;min-height:44px;padding:6px 8px;text-align:right;font:inherit;
+        font-size:13px;border:1px solid var(--line);border-radius:10px}
+  input.plab{min-height:44px;padding:6px 8px;border:1px solid var(--line);border-radius:10px}
 </style>
 </head>
 <body>
@@ -124,7 +169,10 @@
         <div class="sub" id="sub">loading…</div>
       </div>
     </div>
-    <button class="newq" id="newq">+ Quote</button>
+    <div class="hbtns">
+      <button class="act ghost sm" id="zones">Transport</button>
+      <button class="newq" id="newq">+ Quote</button>
+    </div>
   </div>
 </header>
 
@@ -177,22 +225,71 @@ function whenLine(raw){
   return w?`${label} · ${w}`:label;
 }
 
+/* Per-item flags, gathered for the card. "pet hair" on one sofa changes what
+   she packs in the van, so it has to survive to the glance-level view rather
+   than living three taps deep inside the edit form. */
+const FLAG_LABEL={urgent:"urgent",fragile:"fragile",pet_hair:"pet hair",extra_dirty:"extra dirty"};
+function jobFlags(job){
+  try{
+    const b=JSON.parse(job.items||"{}"),seen=new Set();
+    (b.items||[]).forEach(i=>(i.flags||[]).forEach(f=>seen.add(f)));
+    return [...seen];
+  }catch{ return []; }
+}
+function itemNotes(job){
+  try{
+    const b=JSON.parse(job.items||"{}");
+    return (b.items||[]).filter(i=>(i.note||"").trim()).map(i=>{
+      const n=(S.cat?.services||[]).find(s=>s.key===i.service);
+      return {label:n?n.label:i.service, note:i.note};
+    });
+  }catch{ return []; }
+}
+
 /* Human-readable service line. Mercy must never see the raw basket. */
 function serviceLine(job){
   if(job.items && !job.items.trim().startsWith("{")) return job.items;
   try{
     const b=JSON.parse(job.items||"{}");
-    const bits=(b.items||[]).map(i=>{
+    const bits=[];
+    (b.items||[]).map(i=>{
       const n=(S.cat?.services||[]).find(s=>s.key===i.service);
       const nm=n?n.label:i.service;
-      if(i.size){
+      let s;
+      if(i.tier){
+        const tr=(n?.tiers||[]).find(x=>x.key===i.tier);
+        s=`${nm} ${tr?tr.label:i.tier}`;
+        // Extra bedrooms are real work and real money; leaving them off the card
+        // sends Mercy to a bigger house than the line describes.
+        if(i.extra_bedrooms) s+=` +${i.extra_bedrooms} bedroom${i.extra_bedrooms>1?"s":""}`;
+      } else if(i.size){
         const tier=(n?.tiers||[]).find(x=>x.key===i.size);
-        return `${nm} ${tier?tier.label:i.size}`;
+        s=`${nm} ${tier?tier.label:i.size}`;
+        // ×4 sheers is four panels, not one. The count was being dropped.
+        if((i.qty||1)>1) s+=` ×${i.qty}`;
+      } else if(i.seats>1){
+        s=`${nm} — ${i.seats} seats`;
+      } else {
+        s=nm;
       }
-      if(i.seats>1) return `${nm} — ${i.seats} seats`;
-      return nm;
+      bits.push(s);
+      // Per-item extras (dining / office chairs) were missing entirely -- a
+      // KSh 1,000 chunk of a real quote that never reached the card.
+      (i.extras||[]).forEach(x=>{
+        const meta=(n?.extras||[]).find(e=>e.key===x.key);
+        bits.push(`+ ${meta?meta.label:x.key}${(x.qty||1)>1?` ×${x.qty}`:""}`);
+      });
+      (i.modifiers||[]).forEach(mk=>{
+        const meta=(n?.modifiers||[]).find(m=>m.key===mk);
+        bits.push(`+ ${meta?meta.label:mk}`);
+      });
     });
-    (b.addons||[]).forEach(a=>bits.push("+ "+a.key));
+    (b.addons||[]).forEach(a=>{
+      const meta=(S.cat?.addons||[]).find(x=>x.key===a.key);
+      bits.push(`+ ${meta?meta.label:a.key}${(a.qty||1)>1?` ×${a.qty}`:""}`);
+    });
+    // Work the price list has no entry for is still work Mercy has to do.
+    ((b.operator||{}).custom_lines||[]).forEach(c=>bits.push(`+ ${c.label}`));
     return bits.join(" · ")||"—";
   }catch{ return job.items||"—"; }
 }
@@ -239,6 +336,7 @@ function render(){
     else if(j.deposit_paid_cents>0) pills.push(`<span class="pill ok">deposit paid</span>`);
     if(j.balance_cents>0&&j.paid_cents>0) pills.push(`<span class="pill owe">${money(j.balance_cents)} owing</span>`);
     if(j.notes) pills.push(`<span class="pill note">has instructions</span>`);
+    jobFlags(j).forEach(f=>pills.push(`<span class="pill flag">${FLAG_LABEL[f]||f}</span>`));
     return `<div class="card" data-ref="${j.ref}">
       <div class="top"><span class="who">${j.client_name}</span><span class="amt">${money(j.total_cents)}</span></div>
       <div class="svc">${serviceLine(j)}</div>
@@ -271,6 +369,7 @@ async function openJob(ref){
       ${j.balance_cents?`<div><span>Owing</span><span>${money(j.balance_cents)}</span></div>`:""}
     </div>
     ${j.notes?`<div class="log"><b>Instructions:</b> ${j.notes}</div>`:""}
+    ${itemNotes(j).map(n=>`<div class="log"><b>${n.label}:</b> ${n.note}</div>`).join("")}
     ${log.changes.length?`<div class="log">${log.changes.map(c=>
       `<div>${c.kind==="reprice"?`${money(c.old_total_cents)} → ${money(c.new_total_cents)}`:"instructions"} · ${c.detail} · ${c.at.slice(0,16).replace("T"," ")}</div>`).join("")}</div>`:""}
     <div id="slot"></div>
@@ -289,38 +388,371 @@ async function openJob(ref){
     B("slot").innerHTML=`<div class="msg good">${r.business.name}<br>${r.receipt_ref} · paid ${money(r.paid_cents)}<br>eTIMS: ${r.business.etims}</div>`;};
 }
 
-/* Strategy-aware chips. THE BUG: the first version sent {seats,qty} for every
-   service, so a size_tier service like curtains was rejected with
-   "choose a size for curtains" -- correctly, by the engine. */
-function chipRows(pre={}){
-  return (S.cat.services||[]).map(sv=>{
-    const on=pre[sv.key];
-    let ctrl="";
-    if(sv.strategy==="size_tier")
-      ctrl=`<select data-size="${sv.key}" ${on?"":"disabled"}>${(sv.tiers||[]).map(t=>
-            `<option value="${t.key}" ${on&&on.size===t.key?"selected":""}>${t.label}</option>`).join("")}</select>`;
-    else if(sv.strategy==="per_unit")
-      ctrl=`<input type="number" data-qty="${sv.key}" min="${sv.min_units||1}" value="${on?.seats||sv.min_units||1}" ${on?"":"disabled"}>`;
-    else ctrl=`<span class="when">quoted after a visit</span>`;
-    return `<label class="chip">
-      <input type="checkbox" data-k="${sv.key}" ${on?"checked":""}>
-      <span class="nm">${sv.label}</span>${ctrl}</label>`;}).join("");
+/* ── The composer — a LINE-BASED model, mirroring the customer calculator ────
+   Written by reading apps/web/src/screens/Configure.tsx and reproducing every
+   degree of freedom it gives, control for control.
+
+   THE BUG THIS REPLACES: the previous version was a reduced reimplementation --
+   one checkbox per service, qty pinned to 1, and no extras, house tiers, extra
+   bedrooms, modifiers or add-ons at all. Mercy could not quote two sofas, or
+   sheers AND heavy curtains, or a 3-bedroom house, though any customer can do
+   all three unaided. The operator surface must be a strict SUPERSET of the
+   customer's, never a subset.
+
+   Every control is driven by CATALOGUE METADATA, never a hardcoded list, so a
+   new tier or modifier reaches both surfaces at once. test_operator_parity.py
+   fails if this surface is ever narrower than the catalogue allows.          */
+
+let LINES = [], ADDONS = {};
+let _uid = 0;
+const uid = () => `l${++_uid}`;
+
+const svcOf = k => (S.cat.services || []).find(s => s.key === k);
+// A house is one house. Sofas, carpets, curtains and mattresses come in
+// assorted sizes, so those repeat -- the same rule as Configure.tsx.
+const repeatable = sv => sv.strategy === "size_tier" || sv.strategy === "per_unit";
+const shillings = n => "KSh " + Number(n || 0).toLocaleString("en-KE");
+
+function addLine(k) {
+  LINES.push({ uid: uid(), service: k, qty: 1, extras: [], modifiers: [], extra_bedrooms: 0 });
 }
-function readChips(){
-  const items=[];
-  document.querySelectorAll("[data-k]").forEach(cb=>{
-    if(!cb.checked) return;
-    const k=cb.dataset.k, sv=S.cat.services.find(s=>s.key===k);
-    if(sv.strategy==="size_tier") items.push({service:k,size:document.querySelector(`[data-size="${k}"]`).value,qty:1});
-    else if(sv.strategy==="per_unit") items.push({service:k,seats:Number(document.querySelector(`[data-qty="${k}"]`).value)||1});
-    else items.push({service:k});
+function toggleService(k) {
+  if (LINES.some(l => l.service === k)) LINES = LINES.filter(l => l.service !== k);
+  else addLine(k);
+}
+function resetComposer() { LINES = []; ADDONS = {}; }
+
+function linesFromJob(j) {
+  resetComposer();
+  try {
+    const b = JSON.parse(j.items || "{}");
+    (b.items || []).forEach(i => LINES.push({
+      uid: uid(), service: i.service, tier: i.tier, size: i.size, seats: i.seats,
+      qty: i.qty ?? 1, extra_bedrooms: i.extra_bedrooms || 0,
+      modifiers: i.modifiers || [], extras: i.extras || [],
+      note: i.note || "", flags: i.flags || [], tags: i.tags || [],
+    }));
+    (b.addons || []).forEach(a => { ADDONS[a.key] = a.qty ?? 1; });
+  } catch {}
+}
+
+function counterRow(label, u, field, val) {
+  return `<div class="row"><span>${label}</span><span class="ctr">
+    <button type="button" data-step="${u}|${field}|-1" aria-label="less">–</button>
+    <b>${val}</b>
+    <button type="button" data-step="${u}|${field}|1" aria-label="more">+</button></span></div>`;
+}
+
+function lineHTML(l, sv, i, n) {
+  let body = "";
+  if (sv.strategy === "per_unit") {
+    body = counterRow(`How many ${sv.unit || "unit"}s?`, l.uid, "seats", l.seats ?? sv.min_units ?? 1);
+    // Dining and office chairs -- a real freedom the customer has and the
+    // operator did not.
+    (sv.extras || []).forEach(x => {
+      const q = (l.extras || []).find(e => e.key === x.key)?.qty || 0;
+      body += counterRow(`${x.label} · ${shillings(x.price)} each`, l.uid, `extra:${x.key}`, q);
+    });
+  } else if (sv.strategy === "tier") {
+    body = `<div class="chips">${(sv.tiers || []).map(t =>
+      `<button type="button" class="tchip ${l.tier === t.key ? "on" : ""}" data-set="${l.uid}|tier|${t.key}">${t.label} · ${shillings(t.price)}</button>`).join("")}</div>`;
+    const last = (sv.tiers || []).at(-1);
+    if (sv.extra && last && l.tier === last.key)
+      body += counterRow(`${sv.extra.label} · ${shillings(sv.extra.price)} each`, l.uid, "extra_bedrooms", l.extra_bedrooms || 0);
+  } else if (sv.strategy === "size_tier") {
+    const chips = (sv.tiers || []).map(t =>
+      `<button type="button" class="tchip ${l.size === t.key ? "on" : ""}" data-set="${l.uid}|size|${t.key}">${t.label}${sv.tier_unit ? " " + sv.tier_unit : ""} · ${shillings(t.price)}</button>`);
+    if (sv.above) chips.push(`<button type="button" class="tchip ${l.size === sv.above.key ? "on" : ""}" data-set="${l.uid}|size|${sv.above.key}">${sv.above.label} · from ${shillings(sv.above.price)}</button>`);
+    if (sv.larger === "visit") chips.push(`<button type="button" class="tchip ${l.size === "larger" ? "on" : ""}" data-set="${l.uid}|size|larger">Larger</button>`);
+    body = `<div class="chips">${chips.join("")}</div>`;
+    if (l.size === "larger" || (sv.above && l.size === sv.above.key))
+      body += `<div class="vbadge">priced after a visit</div>`;
+    (sv.modifiers || []).forEach(m => {
+      const on = (l.modifiers || []).includes(m.key);
+      body += `<div class="chips"><button type="button" class="tchip ${on ? "on" : ""}" data-mod="${l.uid}|${m.key}">${m.label}${m.add_range ? ` +${m.add_range[0]}–${m.add_range[1]}` : ""}</button></div>`;
+      if (on) body += `<div class="vbadge">priced after a visit</div>`;
+    });
+    body += counterRow("How many?", l.uid, "qty", l.qty ?? 1);
+  } else {
+    body = `<div class="when">quoted after a visit</div>`;
+  }
+  const hdr = n > 1
+    ? `<div class="lineh"><span>${sv.label} ${i + 1}</span><button type="button" class="rm" data-rm="${l.uid}">Remove</button></div>`
+    : "";
+  return `<div class="line">${hdr}${body}${detailHTML(l)}</div>`;
+}
+
+/* Operator-only per-item detail. A customer has no use for "extra dirty" or
+   "handle the silk gently"; Mercy needs it on the day, per item, not buried in
+   one job-level note. Collapsed by default -- most lines never need it, and an
+   always-open panel per line would bury the price controls. */
+const FLAGS = [
+  { key: "urgent",      label: "urgent" },
+  { key: "fragile",     label: "fragile" },
+  { key: "pet_hair",    label: "pet hair" },
+  { key: "extra_dirty", label: "extra dirty" },
+];
+
+function detailHTML(l) {
+  const n = (l.flags || []).length + ((l.note || "").trim() ? 1 : 0) + (l.tags || []).length;
+  if (!l._open) {
+    return `<button type="button" class="detbtn" data-det="${l.uid}">
+      + detail${n ? ` · ${n}` : ""}</button>`;
+  }
+  return `<div class="det">
+    <div class="chips">${FLAGS.map(f =>
+      `<button type="button" class="tchip ${(l.flags || []).includes(f.key) ? "on" : ""}" data-flag="${l.uid}|${f.key}">${f.label}</button>`).join("")}</div>
+    <textarea data-note="${l.uid}" placeholder="Special instructions for this item…">${l.note || ""}</textarea>
+    <input data-tags="${l.uid}" placeholder="tags, comma separated" value="${(l.tags || []).join(", ")}">
+    <button type="button" class="detbtn" data-det="${l.uid}">– hide detail</button>
+  </div>`;
+}
+
+function addonsHTML() {
+  if (!LINES.length) return "";
+  return `<div class="grp"><div class="grph">Anything else?</div>
+    ${(S.cat.addons || []).map(a => {
+      const q = ADDONS[a.key] || 0;
+      const price = a.price_range ? `${shillings(a.price_range[0])}–${shillings(a.price_range[1])}`
+                  : a.from ? `from ${shillings(a.price || 0)}` : shillings(a.price || 0);
+      return a.per === "unit"
+        ? counterRow(`${a.label} · ${price} each`, `addon:${a.key}`, "addon", q)
+        : `<div class="row"><span>${a.label} · ${price}</span><button type="button" class="tchip ${q ? "on" : ""}" data-atog="${a.key}">${q ? "Added" : "Add"}</button></div>`;
+    }).join("")}</div>`;
+}
+
+/* Prices — the operator-only deviation surface (§3b).
+
+   Shows each line the ENGINE produced with its own price, and lets Mercy adjust
+   THAT, rather than typing a total over a number she cannot see. Every change
+   here names itself in the job's change log.
+
+   The label is captured alongside the index and sent back with the override:
+   if the basket moved underneath it, the server refuses the whole re-price
+   rather than repricing a line nobody chose. */
+let PRICED = null, OVERRIDES = {}, CUSTOM = [], TRANSPORT = null;
+
+function pricesHTML() {
+  if (!PRICED) return "";
+  const rows = PRICED.lines.map((l, i) => {
+    const ov = OVERRIDES[i];
+    const changed = ov != null && ov !== l.amount;
+    return `<div class="prow">
+      <span class="plab">${l.label}</span>
+      <span class="pauto ${changed ? "struck" : ""}">${shillings(l.amount)}</span>
+      <input class="povr" inputmode="numeric" data-ovr="${i}"
+             value="${ov != null ? ov : ""}" placeholder="${l.amount}">
+    </div>`;
+  }).join("");
+  // Travel is not an engine LINE (it rides beside the subtotal, like the
+  // call-out floor), so it needs its own control rather than a line index.
+  const zone = PRICED.transport_zone_fee || 0;
+  const shown = TRANSPORT === null ? (PRICED.transport || 0) : TRANSPORT;
+  const transportRow = `<div class="prow">
+      <span class="plab">Transport${PRICED.area ? " · " + PRICED.area : ""}</span>
+      <span class="pauto ${shown !== zone ? "struck" : ""}">${shillings(zone)}</span>
+      <input class="povr" inputmode="numeric" data-tovr value="${TRANSPORT === null ? "" : TRANSPORT}" placeholder="${zone}">
+    </div>`;
+  const customRows = CUSTOM.map((c, i) => `<div class="prow">
+      <input class="plab" data-clab="${i}" value="${c.label}" placeholder="What is it?">
+      <input class="povr" inputmode="numeric" data-camt="${i}" value="${c.amount || ""}" placeholder="0">
+      <button type="button" class="rm" data-crm="${i}">Remove</button>
+    </div>`).join("");
+  return `<div class="grp"><div class="grph">Prices</div>
+    <div class="when">Auto price on the left. Type a different figure only if the job is not what the price list assumes.</div>
+    ${rows}
+    ${transportRow}
+    ${customRows}
+    <button type="button" class="act ghost sm" id="addcustom">+ Add something not on the price list</button>
+  </div>`;
+}
+
+function wirePrices(host, rerender) {
+  const q = s => host.querySelectorAll(s);
+  q("[data-ovr]").forEach(el => el.onblur = () => {
+    const i = Number(el.dataset.ovr), v = el.value.trim();
+    if (v === "") delete OVERRIDES[i]; else OVERRIDES[i] = Math.max(0, Number(v) || 0);
+    rerender();
   });
-  return items;
+  q("[data-tovr]").forEach(el => el.onblur = () => {
+    const v = el.value.trim();
+    TRANSPORT = v === "" ? null : Math.max(0, Number(v) || 0);
+    rerender();
+  });
+  q("[data-clab]").forEach(el => el.onblur = () => { CUSTOM[Number(el.dataset.clab)].label = el.value; });
+  q("[data-camt]").forEach(el => el.onblur = () => {
+    CUSTOM[Number(el.dataset.camt)].amount = Math.max(0, Number(el.value) || 0);
+  });
+  q("[data-crm]").forEach(b => b.onclick = () => { CUSTOM.splice(Number(b.dataset.crm), 1); rerender(); });
+  const add = host.querySelector("#addcustom");
+  if (add) add.onclick = () => { CUSTOM.push({ label: "", amount: 0 }); rerender(); };
 }
-function wireChips(){
-  document.querySelectorAll("[data-k]").forEach(cb=>cb.onchange=()=>{
-    const c=document.querySelector(`[data-size="${cb.dataset.k}"]`)||document.querySelector(`[data-qty="${cb.dataset.k}"]`);
-    if(c) c.disabled=!cb.checked;});
+
+function readOperator() {
+  return {
+    // null means "use the zone fee" -- only send an override if she typed one.
+    transport_override: TRANSPORT,
+    overrides: Object.entries(OVERRIDES)
+      .filter(([i, v]) => PRICED && PRICED.lines[i] && v !== PRICED.lines[i].amount)
+      .map(([i, v]) => ({ index: Number(i), label: PRICED.lines[i].label, amount: v,
+                          reason: document.getElementById("rs")?.value || "" })),
+    custom_lines: CUSTOM.filter(c => c.label.trim()).map(c => ({
+      label: c.label.trim(), amount: c.amount || 0 })),
+  };
+}
+
+function composerHTML() {
+  const picked = new Set(LINES.map(l => l.service));
+  const pick = (S.cat.services || []).map(sv =>
+    `<label class="pickchip ${picked.has(sv.key) ? "on" : ""}">
+       <input type="checkbox" data-svc="${sv.key}" ${picked.has(sv.key) ? "checked" : ""}>
+       <span class="nm">${sv.icon || ""} ${sv.label}</span>
+       <span class="ph">${sv.strategy === "visit" ? "after a visit" : sv.from_label ? "from " + shillings(sv.from_label) : ""}</span>
+     </label>`).join("");
+
+  const order = [], by = new Map();
+  LINES.forEach(l => {
+    if (!by.has(l.service)) { by.set(l.service, []); order.push(l.service); }
+    by.get(l.service).push(l);
+  });
+  const groups = order.map(k => {
+    const sv = svcOf(k); if (!sv) return "";
+    const rows = by.get(k);
+    return `<div class="grp"><div class="grph">${sv.icon || ""} ${sv.label}</div>
+      ${rows.map((l, i) => lineHTML(l, sv, i, rows.length)).join("")}
+      ${repeatable(sv) ? `<button type="button" class="act ghost sm" data-add="${k}">+ Add another</button>` : ""}</div>`;
+  }).join("");
+
+  return `<div class="pickgrid">${pick}</div>${groups}${addonsHTML()}`;
+}
+
+function wireComposer(host, rerender) {
+  const q = s => host.querySelectorAll(s);
+  q("[data-svc]").forEach(cb => cb.onchange = () => { toggleService(cb.dataset.svc); rerender(); });
+  q("[data-add]").forEach(b => b.onclick = () => { addLine(b.dataset.add); rerender(); });
+  q("[data-rm]").forEach(b => b.onclick = () => { LINES = LINES.filter(l => l.uid !== b.dataset.rm); rerender(); });
+  q("[data-set]").forEach(b => b.onclick = () => {
+    const [u, f, v] = b.dataset.set.split("|");
+    const l = LINES.find(x => x.uid === u); if (l) { l[f] = v; rerender(); }
+  });
+  q("[data-mod]").forEach(b => b.onclick = () => {
+    const [u, k] = b.dataset.mod.split("|");
+    const l = LINES.find(x => x.uid === u); if (!l) return;
+    const on = (l.modifiers || []).includes(k);
+    l.modifiers = on ? l.modifiers.filter(m => m !== k) : [...(l.modifiers || []), k];
+    rerender();
+  });
+  q("[data-det]").forEach(b => b.onclick = () => {
+    const l = LINES.find(x => x.uid === b.dataset.det); if (l) { l._open = !l._open; rerender(); }
+  });
+  q("[data-flag]").forEach(b => b.onclick = () => {
+    const [u, k] = b.dataset.flag.split("|");
+    const l = LINES.find(x => x.uid === u); if (!l) return;
+    const on = (l.flags || []).includes(k);
+    l.flags = on ? l.flags.filter(f => f !== k) : [...(l.flags || []), k];
+    rerender();
+  });
+  // Typed text is read on BLUR, not on every keystroke: re-rendering mid-word
+  // would move the caret and lose focus on a phone keyboard.
+  q("[data-note]").forEach(el => el.onblur = () => {
+    const l = LINES.find(x => x.uid === el.dataset.note); if (l) l.note = el.value;
+  });
+  q("[data-tags]").forEach(el => el.onblur = () => {
+    const l = LINES.find(x => x.uid === el.dataset.tags);
+    if (l) l.tags = el.value.split(",").map(s => s.trim()).filter(Boolean);
+  });
+  q("[data-atog]").forEach(b => b.onclick = () => {
+    const k = b.dataset.atog;
+    if (ADDONS[k]) delete ADDONS[k]; else ADDONS[k] = 1;
+    rerender();
+  });
+  q("[data-step]").forEach(b => b.onclick = () => {
+    const [u, f, d] = b.dataset.step.split("|"), step = Number(d);
+    const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+    if (u.startsWith("addon:")) {
+      const k = u.slice(6);
+      const next = clamp((ADDONS[k] || 0) + step, 0, 50);
+      if (next) ADDONS[k] = next; else delete ADDONS[k];
+      return rerender();
+    }
+    const l = LINES.find(x => x.uid === u); if (!l) return;
+    const sv = svcOf(l.service);
+    if (f.startsWith("extra:")) {
+      const key = f.slice(6);
+      const cur = (l.extras || []).find(e => e.key === key)?.qty || 0;
+      const next = clamp(cur + step, 0, 50);
+      l.extras = (l.extras || []).filter(e => e.key !== key);
+      if (next > 0) l.extras.push({ key, qty: next });
+    } else if (f === "seats") {
+      l.seats = clamp((l.seats ?? sv.min_units ?? 1) + step, sv.min_units ?? 1, sv.max_units ?? 20);
+    } else if (f === "qty") {
+      l.qty = clamp((l.qty ?? 1) + step, 1, 50);
+    } else if (f === "extra_bedrooms") {
+      l.extra_bedrooms = clamp((l.extra_bedrooms || 0) + step, 0, 10);
+    }
+    rerender();
+  });
+}
+
+/* Send only what each strategy actually uses, so the engine never receives a
+   field it will reject -- the original bug in reverse. */
+function readLines() {
+  return LINES.map(l => {
+    const sv = svcOf(l.service), o = { service: l.service };
+    if (!sv) return o;
+    if (sv.strategy === "per_unit") {
+      o.seats = l.seats ?? sv.min_units ?? 1;
+      if ((l.extras || []).length) o.extras = l.extras;
+    } else if (sv.strategy === "tier") {
+      if (l.tier) o.tier = l.tier;
+      if (l.extra_bedrooms) o.extra_bedrooms = l.extra_bedrooms;
+    } else if (sv.strategy === "size_tier") {
+      if (l.size) o.size = l.size;
+      o.qty = l.qty ?? 1;
+      if ((l.modifiers || []).length) o.modifiers = l.modifiers;
+    }
+    // Operator detail rides alongside; the engine ignores these keys and the
+    // repository stores the raw dict, so they survive without a schema change.
+    if ((l.note || "").trim()) o.note = l.note.trim();
+    if ((l.flags || []).length) o.flags = l.flags;
+    if ((l.tags || []).length) o.tags = l.tags;
+    return o;
+  });
+}
+function readAddons() {
+  return Object.entries(ADDONS).filter(([, q]) => q > 0).map(([key, qty]) => ({ key, qty }));
+}
+
+/* What Mercy charges to travel to each area (MYRAH_OPERATIONS_DESIGN §3d).
+
+   These are HERS. They ship at 0, which behaves exactly like the old
+   "transport confirmed on WhatsApp" world, so the mechanism could ship before
+   she had set a single number and nothing quietly started charging her clients
+   a figure nobody chose. */
+async function transportForm(){
+  const d=await (await api("/transport")).json();
+  document.getElementById("sheetBody").innerHTML=`
+    <h2>Transport by area</h2>
+    <div class="when">Added to every quote for that area, and the deposit is
+      worked out on the total including it — so a deposit covers your trip out.</div>
+    ${d.zones.map(z=>`<div class="prow">
+        <span class="plab">${z.label||z.area_key}${z.confirm?' <span class="when">· confirm cover</span>':''}</span>
+        <input class="povr" inputmode="numeric" data-fee="${z.area_key}" value="${z.fee||""}" placeholder="0">
+      </div>`).join("")}
+    <div class="msg" id="mz"></div>
+    <div class="when">Leave one at 0 and that area still quotes normally —
+      transport just stays "confirmed on WhatsApp" for it.</div>
+    <button class="act ghost" id="close">Close</button>`;
+  const s=document.getElementById("sheet"); if(!s.open) s.showModal();
+  const m=document.getElementById("mz");
+  document.querySelectorAll("[data-fee]").forEach(el=>el.onblur=async()=>{
+    const key=el.dataset.fee, fee=Math.max(0,Number(el.value)||0);
+    m.className="msg";m.textContent="Saving…";
+    const r=await api(`/transport/${key}`,{method:"PUT",body:JSON.stringify({fee})});
+    if(r.ok){m.className="msg good";m.textContent=`${key} transport saved.`;}
+    else {m.className="msg err";m.textContent=await reason(r);}
+  });
+  document.getElementById("close").onclick=()=>{s.close();load();};
 }
 
 async function quoteForm(){
@@ -329,16 +761,19 @@ async function quoteForm(){
     <h2>New quote</h2><div class="when">Same prices the customer sees.</div>
     <label for="nm">Customer</label><input id="nm" placeholder="Name from the chat">
     <label for="ar">Area</label><select id="ar">${S.cat.areas.map(a=>`<option value="${a.key}">${a.label}</option>`).join("")}</select>
-    <label>What needs cleaning?</label>${chipRows()}
+    <label>What needs cleaning?</label><div id="comp"></div>
     <button class="act primary" id="go">Price it</button><div class="msg" id="m"></div>
     <button class="act ghost" id="close">Cancel</button>`;
   const s=document.getElementById("sheet"); if(!s.open) s.showModal();
-  wireChips();
+  resetComposer();
+  const host=document.getElementById("comp");
+  const draw=()=>{host.innerHTML=composerHTML();wireComposer(host,draw);};
+  draw();
   document.getElementById("close").onclick=()=>{s.close();load();};
   document.getElementById("go").onclick=async()=>{
-    const m=document.getElementById("m"),items=readChips();
+    const m=document.getElementById("m"),items=readLines();
     if(!items.length){m.className="msg err";m.textContent="Pick at least one service.";return;}
-    const r=await api("/quotes",{method:"POST",body:JSON.stringify({items,addons:[],
+    const r=await api("/quotes",{method:"POST",body:JSON.stringify({items,addons:readAddons(),
       area:document.getElementById("ar").value,
       preferred:{day:new Date().toISOString().slice(0,10),window:"morning"},
       contact:{name:document.getElementById("nm").value||"Walk-in"},recurring:false})});
@@ -352,19 +787,33 @@ async function quoteForm(){
 
 /* §3b — change scope after a site visit or on the morning. */
 async function editForm(j){
-  let pre={};
-  try{const b=JSON.parse(j.items||"{}");(b.items||[]).forEach(i=>pre[i.service]=i);}catch{}
+  if(!S.cat) S.cat=await (await api("/catalogue")).json();
+  linesFromJob(j);
   document.getElementById("sheetBody").innerHTML=`
     <h2>Change this job</h2>
     <div class="when">${j.ref} · re-prices with the same engine</div>
     <label>Instructions for the day</label>
     <textarea id="nt" placeholder="Gate code, dog, start upstairs…">${j.notes||""}</textarea>
     <button class="act ghost" id="saveNotes">Save instructions</button><div class="msg" id="mn"></div>
-    <label>Scope</label>${chipRows(pre)}
+    <label>Scope</label><div id="comp"></div><div id="prices"></div>
     <label for="rs">What changed?</label><input id="rs" placeholder="e.g. after site visit">
     <button class="act navy" id="go">Re-price</button><div class="msg" id="m"></div>
     <button class="act ghost" id="back">Back</button>`;
-  wireChips();
+  const host=document.getElementById("comp"), phost=document.getElementById("prices");
+  const draw=()=>{
+    host.innerHTML=composerHTML();wireComposer(host,draw);
+    phost.innerHTML=pricesHTML();wirePrices(phost,draw);
+  };
+  draw();
+  // Line-by-line prices come from the engine, on demand, for this one job.
+  PRICED=null;OVERRIDES={};CUSTOM=[];TRANSPORT=null;
+  api(`/jobs/${j.ref}/lines`).then(r=>r.json()).then(d=>{
+    PRICED=d;
+    (d.operator?.custom_lines||[]).forEach(c=>CUSTOM.push({label:c.label,amount:c.amount}));
+    (d.operator?.overrides||[]).forEach(o=>{OVERRIDES[o.index]=o.amount;});
+    if(d.operator?.transport_override!=null) TRANSPORT=d.operator.transport_override;
+    draw();
+  }).catch(()=>{});
   const B=id=>document.getElementById(id);
   B("back").onclick=()=>openJob(j.ref);
   B("saveNotes").onclick=async()=>{
@@ -375,10 +824,11 @@ async function editForm(j){
     else {m.className="msg err";m.textContent=await reason(r);}
   };
   B("go").onclick=async()=>{
-    const m=B("m"),items=readChips();
+    const m=B("m"),items=readLines();
     if(!items.length){m.className="msg err";m.textContent="A job needs at least one service.";return;}
     const r=await api(`/jobs/${j.ref}/reprice`,{method:"POST",
-      body:JSON.stringify({items,addons:[],reason:B("rs").value||"scope changed"})});
+      body:JSON.stringify({items,addons:readAddons(),reason:B("rs").value||"scope changed",
+        operator:readOperator()})});
     if(!r.ok){m.className="msg err";m.textContent=await reason(r);return;}
     const d=await r.json();
     m.className="msg good";
@@ -420,6 +870,7 @@ function payForm(j){
 }
 
 document.getElementById("newq").onclick=quoteForm;
+document.getElementById("zones").onclick=transportForm;
 load();
 </script>
 </body>

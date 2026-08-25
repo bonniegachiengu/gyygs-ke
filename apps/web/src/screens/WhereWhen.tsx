@@ -1,4 +1,4 @@
-import { ActionBar, Button, Card, Chip, Field, Heading, Notice, Screen } from "../components/ui";
+import { ActionBar, Button, Card, Chip, Field, Heading, Screen } from "../components/ui";
 import { isoDayOffset } from "../lib/format";
 import type { Catalogue } from "../lib/useCatalogue";
 import { useQuote } from "../store/quote";
@@ -18,22 +18,10 @@ export function WhereWhen({ catalogue }: { catalogue: Catalogue }) {
       </Heading>
 
       <Card>
-        <h2 className="font-semibold text-navy">Your area</h2>
-        <div className="mt-3 flex flex-wrap gap-2">
-          {catalogue.areas.map((a) => (
-            <Chip key={a.key} selected={area === a.key} onClick={() => set({ area: a.key })}>
-              {a.label}
-            </Chip>
-          ))}
-        </div>
-
-        {selectedArea?.visit && (
-          <div className="mt-3">
-            {/* A coverage question, not a pricing one — the total stays. */}
-            <Notice>We&apos;ll confirm we cover you.</Notice>
-          </div>
-        )}
-
+        <h2 className="font-semibold text-navy">Where exactly?</h2>
+        <p className="mt-1 text-sm text-ink/60">
+          {selectedArea ? `${selectedArea.label} — ` : ""}chosen with your price.
+        </p>
         <div className="mt-3">
           <Field
             label="Estate, building or landmark"
@@ -43,10 +31,6 @@ export function WhereWhen({ catalogue }: { catalogue: Catalogue }) {
             placeholder="e.g. Kasarani, Membley, Block C"
           />
         </div>
-
-        <p className="mt-3 text-sm text-ink/55">
-          Transport is charged separately by area — confirmed on WhatsApp.
-        </p>
       </Card>
 
       <Card>

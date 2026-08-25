@@ -125,6 +125,10 @@ class Addon(BaseModel):
 class Area(BaseModel):
     key: str
     label: str
+    #: What Mercy charges to travel here (MYRAH_OPERATIONS_DESIGN.md §3d).
+    #: Whole shillings. 0 means "not set yet" and behaves exactly like the old
+    #: no-transport-line world, so nothing starts charging a number nobody chose.
+    transport: int = 0
     # True means "confirm we cover you" — a coverage question, NOT a pricing one.
     # It must never set visit_first: ARCHITECTURE §5 scopes that to items ("true if
     # any item is visit/quote/from") and QUOTE_CALCULATOR_SPEC §9 says an "Other"
@@ -273,6 +277,9 @@ class QuoteResponse(BaseModel):
     subtotal: int
     discount: int
     total: int
+    #: Travel to the job, by area. Additive and 0 by default, so anything built
+    #: against the old shape still reads a correct total.
+    transport: int = 0
     visit_first: bool
     transport_note: str
     whatsapp_url: str

@@ -26,6 +26,8 @@ export type Estimate = {
   subtotal: number;
   discount: number;
   total: number;
+  /** Travel to the job, by area. 0 when the zone has no fee set. */
+  transport: number;
   visitFirst: boolean;
   minimumApplied: boolean;
   minimumAdjustment: number;
@@ -40,6 +42,7 @@ export const EMPTY_ESTIMATE: Estimate = {
   subtotal: 0,
   discount: 0,
   total: 0,
+  transport: 0,
   visitFirst: false,
   minimumApplied: false,
   minimumAdjustment: 0,
@@ -220,6 +223,7 @@ export function estimate(
   addons: DraftAddon[],
   recurring: boolean,
   repeatCustomer = false,
+  transport = 0,
 ): Estimate {
   if (!cat) return EMPTY_ESTIMATE;
 
@@ -238,8 +242,15 @@ export function estimate(
     : 0;
 
   const net = subtotal - discount;
-  const total = Math.max(net, cat.minimum_callout);
-  const minimumApplied = total > net;
+  const floored = Math.max(net, cat.minimum_callout);
+  const minimumApplied = floored > net;
+
+  // Transport lands AFTER the discount and AFTER the floor, exactly as the
+  // server does it (app/domain/pricing.py). The repeat discount is a thank-you
+  // on Myrah's labour, not on her fuel; the floor measures the cleaning job,
+  // not the distance driven. Mirroring the order matters — if these two drift,
+  // the price the customer is shown stops matching the one they are charged.
+  const total = floored + transport;
 
   const visitFirst =
     lines.some((l) => l.visit) || Boolean(recurring && cat.rules.recurring_requires_visit);
@@ -249,8 +260,9 @@ export function estimate(
     subtotal,
     discount,
     total,
+    transport,
     visitFirst,
     minimumApplied,
-    minimumAdjustment: total - net,
+    minimumAdjustment: floored - net,
   };
 }

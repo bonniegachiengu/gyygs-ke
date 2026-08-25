@@ -11,7 +11,8 @@ import uuid
 from datetime import UTC, datetime
 
 from app.domain.models import PricingCatalogue, QuoteRequest, QuoteResponse
-from app.domain.pricing import ETIMS_NOTE, TRANSPORT_NOTE, compute_quote
+from app.domain.pricing import (ETIMS_NOTE, TRANSPORT_NOTE, TRANSPORT_NOTE_UNSET,
+                                compute_quote)
 from app.domain.whatsapp import build_handoff, build_message
 from app.repositories.base import Lead, LeadRepository
 from app.services.ref_service import QuoteRefAllocator
@@ -42,6 +43,7 @@ def create_quote(
     vat_registered: bool = False,
     vat_rate: int = 16,
     now: datetime | None = None,
+    transport: int = 0,
 ) -> QuoteResponse:
     now = now or datetime.now(UTC)
 
@@ -57,6 +59,7 @@ def create_quote(
         vat_registered=vat_registered,
         vat_rate=vat_rate,
         repeat_customer=False,
+        transport=transport,
     )
 
     quote_ref = refs.next_ref(now)
@@ -72,6 +75,7 @@ def create_quote(
         estate=req.estate,
         site_host=site_host,
         visit_first=comp.visit_first,
+        transport=comp.transport,
         preferred=req.preferred,
         contact_name=req.contact.name,
         discount=comp.discount,
@@ -126,7 +130,8 @@ def create_quote(
         discount=comp.discount,
         total=comp.total,
         visit_first=comp.visit_first,
-        transport_note=TRANSPORT_NOTE,
+        transport=comp.transport,
+        transport_note=TRANSPORT_NOTE if comp.transport > 0 else TRANSPORT_NOTE_UNSET,
         whatsapp_url=whatsapp_url,
         created_at=now,
         vat=comp.vat or None,

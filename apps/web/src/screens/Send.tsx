@@ -35,7 +35,8 @@ export function Send({ catalogue }: { catalogue: Catalogue }) {
   const [copied, setCopied] = useState(false);
   const posted = useRef(false);
 
-  const est = estimate(catalogue, items, addons, state.recurring);
+  const areaFee = catalogue.areas.find((a) => a.key === state.area)?.transport ?? 0;
+  const est = estimate(catalogue, items, addons, state.recurring, false, areaFee);
   const areaLabel = catalogue.areas.find((a) => a.key === state.area)?.label ?? state.area ?? "";
   const preferred = formatPreferred(state.day ?? undefined, state.window ?? undefined);
 

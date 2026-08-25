@@ -114,9 +114,10 @@ def test_worked_example_end_to_end(client: TestClient) -> None:
     assert q["total"] == 3800
     assert q["visit_first"] is False
     assert q["currency"] == "KSh"
-    assert q["transport_note"] == (
-        "Transport charged separately based on your area — confirmed on WhatsApp."
-    )
+    # §3d: transport is in the quote now. The worked example's zone has no fee
+    # set, so the honest line is that it will be confirmed -- not a silent 0.
+    assert q["transport_note"] == "Transport for your area is confirmed on WhatsApp."
+    assert q["transport"] == 0
     assert re.fullmatch(r"MY-\d{6}-\d{3,}", q["quote_ref"])
     assert q["created_at"].endswith("Z")
     assert q["whatsapp_url"].startswith(f"https://wa.me/{get_settings().whatsapp_number}?text=")

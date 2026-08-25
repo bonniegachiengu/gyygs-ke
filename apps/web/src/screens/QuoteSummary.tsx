@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 
-import { ActionBar, Button, Card, Heading, Notice, Screen } from "../components/ui";
+import { ActionBar, Button, Card, Chip, Heading, Notice, Screen } from "../components/ui";
 import { ksh } from "../lib/format";
 import { estimate } from "../lib/pricing/estimate";
 import type { Catalogue } from "../lib/useCatalogue";
@@ -16,18 +16,41 @@ export function QuoteSummary({ catalogue }: { catalogue: Catalogue }) {
   const rawItems = useQuote((s) => s.items);
   const rawAddons = useQuote((s) => s.addons);
   const recurring = useQuote((s) => s.recurring);
+  const area = useQuote((s) => s.area);
+  const set = useQuote((s) => s.set);
   const setStep = useQuote((s) => s.setStep);
+  const selectedArea = catalogue.areas.find((a) => a.key === area);
 
   const items = useMemo(() => toDraftItems(rawItems), [rawItems]);
   const addons = useMemo(() => toDraftAddons(rawAddons), [rawAddons]);
   const est = useMemo(
-    () => estimate(catalogue, items, addons, recurring),
-    [catalogue, items, addons, recurring],
+    () => estimate(catalogue, items, addons, recurring, false, selectedArea?.transport ?? 0),
+    [catalogue, items, addons, recurring, selectedArea],
   );
 
   return (
     <Screen>
       <Heading>Your quote</Heading>
+
+      <Card>
+        <h2 className="font-semibold text-navy">Where are you?</h2>
+        <p className="mt-1 text-sm text-ink/60">
+          Transport depends on the area, so the price below includes it.
+        </p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {catalogue.areas.map((a) => (
+            <Chip key={a.key} selected={area === a.key} onClick={() => set({ area: a.key })}>
+              {a.label}
+            </Chip>
+          ))}
+        </div>
+        {selectedArea?.visit && (
+          <div className="mt-3">
+            {/* A coverage question, not a pricing one — the total stays. */}
+            <Notice>We&apos;ll confirm we cover you.</Notice>
+          </div>
+        )}
+      </Card>
 
       <Card>
         <ul className="flex flex-col gap-2">
@@ -57,6 +80,12 @@ export function QuoteSummary({ catalogue }: { catalogue: Catalogue }) {
             <Row label="Minimum call-out" value={ksh(est.minimumAdjustment)} muted />
           )}
 
+          {/* Travel to the job. Its own row, never buried in the subtotal --
+              the customer should see what makes up the number. */}
+          {est.transport > 0 && (
+            <Row label={`Transport · ${selectedArea?.label ?? ""}`} value={ksh(est.transport)} muted />
+          )}
+
           <div className="mt-2 flex items-baseline justify-between gap-3 border-t border-navy/10 pt-2">
             <span className="font-semibold text-navy">
               {est.visitFirst ? "Estimated from" : "Estimated total"}
@@ -68,9 +97,13 @@ export function QuoteSummary({ catalogue }: { catalogue: Catalogue }) {
         </div>
 
         <p className="mt-3 text-sm text-ink/55">
-          {est.visitFirst
-            ? "Priced on a quick visit · transport charged separately"
-            : `Fixed price · transport charged separately · ${catalogue.rules.deposit_pct}% to book, balance after the clean`}
+          {!area
+            ? "Pick your area above to include transport in the price."
+            : est.visitFirst
+              ? "Priced on a quick visit. The deposit covers the visit and the trip out."
+              : est.transport > 0
+                ? `Fixed price, transport included · ${catalogue.rules.deposit_pct}% to book covers the trip out, balance after the clean`
+                : `Fixed price · transport for your area is confirmed on WhatsApp · ${catalogue.rules.deposit_pct}% to book, balance after the clean`}
         </p>
 
         {/* Unconditional: this screen is where the price lands, so it is where
@@ -105,7 +138,7 @@ export function QuoteSummary({ catalogue }: { catalogue: Catalogue }) {
       </Button>
 
       <ActionBar>
-        <Button full onClick={() => setStep("where")}>
+        <Button full disabled={!area} onClick={() => setStep("where")}>
           Continue
         </Button>
       </ActionBar>

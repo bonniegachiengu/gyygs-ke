@@ -21,7 +21,7 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel, Field
 
-from app.api.deps import CatalogueDep, SettingsDep, get_pin_limiter
+from app.api.deps import CatalogueDep, SettingsDep, TransportDep, get_pin_limiter
 from app.core.ratelimit import SlidingWindowLimiter, client_ip
 from app.domain.jobs import Job, JobSource, JobStatus, Payment, PaymentKind, PaymentMethod
 from app.services import job_service
@@ -64,6 +64,33 @@ def require_pin(
                 headers={"Retry-After": str(retry_after)},
             )
         raise HTTPException(401, "bad or missing PIN")
+
+
+class TransportFeeBody(BaseModel):
+    """One zone's fee, in whole shillings — the same unit the engine uses."""
+    fee: int = Field(ge=0, le=1_000_000)
+
+
+@router.get("/transport", dependencies=[Depends(require_pin)])
+def transport_zones(transport: TransportDep):
+    """What Mercy charges to travel to each area (MYRAH_OPERATIONS_DESIGN §3d).
+
+    These are hers to set. They ship at 0, which behaves exactly like the old
+    no-transport world, so nothing starts charging a number nobody chose.
+    """
+    return {"zones": transport.list_zones()}
+
+
+@router.put("/transport/{area_key}", dependencies=[Depends(require_pin)])
+def set_transport_fee(area_key: str, body: TransportFeeBody, transport: TransportDep):
+    try:
+        transport.set_fee(area_key, body.fee)
+    except KeyError:
+        raise HTTPException(404, f"no zone '{area_key}'")
+    except ValueError as e:
+        # House convention: a refusal Mercy needs to READ, not an error page.
+        return {"ok": False, "reason": str(e)}
+    return {"ok": True, "zones": transport.list_zones()}
 
 
 def _repo(settings: SettingsDep):
