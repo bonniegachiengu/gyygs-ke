@@ -1,5 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<!-- CLIPS GALLERY FLAG
+     data-clips="off"  section 03 hidden, later sections renumber to 03/04/05
+     data-clips="on"   section 03 shown, numbering returns to 03/04/05/06
+     Off until the screen recordings exist. Flip this one word to ship it;
+     the markup below is intact and needs no other change. -->
+<html lang="en" data-clips="off">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -182,6 +187,16 @@ label.fld .cap{font-family:var(--mono);font-size:10.5px;letter-spacing:0.14em;te
 
 /* gallery */
 .film{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+/* Clips gallery flag. See the comment above <html>. Hiding the section
+   also hides the rule above it, or the page would show two rules with
+   nothing between them. */
+[data-clips="off"] #clips,[data-clips="off"] #clipsRule{display:none}
+/* Order matters. The bare .n-off rule is the default, so a missing or
+   unknown attribute falls back to the real numbering. The [off] rules
+   then swap the pair. Writing the default LAST would hide both spans. */
+.n-off{display:none}
+[data-clips="off"] .n-on{display:none}
+[data-clips="off"] .n-off{display:inline}
 @media(min-width:760px){.film{grid-template-columns:repeat(4,1fr)}}
 .clip{position:relative;border:1px solid var(--line);border-radius:12px;aspect-ratio:9/13;overflow:hidden;background:linear-gradient(160deg,var(--ink-2),var(--ink-3));display:flex;flex-direction:column;justify-content:space-between;padding:14px}
 .clip .idx{font-family:var(--mono);font-size:10px;letter-spacing:0.14em;color:var(--grey)}
@@ -421,10 +436,10 @@ footer{border-top:1px solid var(--line);padding:34px 0 60px}
   </div>
 </section>
 
-<hr class="rule" />
+<hr class="rule" id="clipsRule" />
 
 <!-- 03 LIVING GALLERY -->
-<section>
+<section id="clips">
   <div class="wrap">
     <div class="sec-head reveal">
       <div class="sec-idx">03</div>
@@ -479,7 +494,7 @@ footer{border-top:1px solid var(--line);padding:34px 0 60px}
 <section>
   <div class="wrap">
     <div class="sec-head reveal">
-      <div class="sec-idx">04</div>
+      <div class="sec-idx"><span class="n-on">04</span><span class="n-off">03</span></div>
       <div>
         <div class="sec-title">What I can build for you.</div>
         <div class="sec-sub">From a simple tool to custom software. Start anywhere.</div>
@@ -521,7 +536,7 @@ footer{border-top:1px solid var(--line);padding:34px 0 60px}
 <section>
   <div class="wrap">
     <div class="sec-head reveal">
-      <div class="sec-idx">05</div>
+      <div class="sec-idx"><span class="n-on">05</span><span class="n-off">04</span></div>
       <div>
         <div class="sec-title">Proof.</div>
         <div class="sec-sub">Myrah, a Nairobi cleaning business.</div>
@@ -554,7 +569,7 @@ footer{border-top:1px solid var(--line);padding:34px 0 60px}
   <div class="wrap reveal">
     <div class="cta">
       <div>
-        <div class="kicker" style="margin-bottom:14px"><span class="n">06</span> &nbsp;/&nbsp; Start here</div>
+        <div class="kicker" style="margin-bottom:14px"><span class="n"><span class="n-on">06</span><span class="n-off">05</span></span> &nbsp;/&nbsp; Start here</div>
         <h2>What eats your day?<br />Tell me and I'll build the tool that ends it.</h2>
         <p>One message and I'll tell you what I'd build, and what it costs.</p>
         <div class="cta-row">
