@@ -1,11 +1,39 @@
 <!DOCTYPE html>
-<html lang="en">
+<!-- CLIPS GALLERY FLAG
+     data-clips="off"  section 03 hidden, later sections renumber to 03/04/05
+     data-clips="on"   section 03 shown, numbering returns to 03/04/05/06
+     Off until the screen recordings exist. Flip this one word to ship it;
+     the markup below is intact and needs no other change. -->
+<html lang="en" data-clips="off">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>LaunchGear — small tools that make your work easier. Built by Bonnie.</title>
+<title>LaunchGear · I build software that does your annoying work</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%20width%3D%22512%22%20height%3D%22512%22%20role%3D%22img%22%20aria-label%3D%22LaunchGear%22%3E%20%3Cdefs%3E%20%3Cmask%20id%3D%22lgi%22%20maskUnits%3D%22userSpaceOnUse%22%20x%3D%220%22%20y%3D%220%22%20width%3D%22100%22%20height%3D%22100%22%3E%20%3Cpath%20d%3D%22M42.5%2C18.9%20L46.9%2C10.1%20L53.1%2C10.1%20L57.5%2C18.9%20L62.2%2C20.4%20L70.9%2C15.9%20L76.0%2C19.6%20L74.3%2C29.2%20L77.3%2C33.3%20L87.0%2C34.7%20L88.9%2C40.7%20L81.9%2C47.5%20L81.9%2C52.5%20L88.9%2C59.3%20L87.0%2C65.3%20L77.3%2C66.7%20L74.3%2C70.8%20L76.0%2C80.4%20L70.9%2C84.1%20L62.2%2C79.6%20L57.5%2C81.1%20L53.1%2C89.9%20L46.9%2C89.9%20L42.5%2C81.1%20L37.8%2C79.6%20L29.1%2C84.1%20L24.0%2C80.4%20L25.7%2C70.8%20L22.7%2C66.7%20L13.0%2C65.3%20L11.1%2C59.3%20L18.1%2C52.5%20L18.1%2C47.5%20L11.1%2C40.7%20L13.0%2C34.7%20L22.7%2C33.3%20L25.7%2C29.2%20L24.0%2C19.6%20L29.1%2C15.9%20L37.8%2C20.4%20Z%22%20fill%3D%22%23fff%22%20stroke%3D%22%23fff%22%20stroke-width%3D%224.5%22%20stroke-linejoin%3D%22round%22%2F%3E%20%3Cpath%20d%3D%22M50%2C18%20L56%2C34%20L56%2C46%20L62%2C54%20L62%2C58%20L55%2C54.5%20L55%2C57%20L45%2C57%20L45%2C54.5%20L38%2C58%20L38%2C54%20L44%2C46%20L44%2C34%20Z%22%20fill%3D%22%23000%22%20stroke%3D%22%23000%22%20stroke-width%3D%221.5%22%20stroke-linejoin%3D%22round%22%2F%3E%20%3Ccircle%20cx%3D%2250%22%20cy%3D%2271%22%20r%3D%2210%22%20fill%3D%22%23000%22%2F%3E%20%3Ccircle%20cx%3D%2233%22%20cy%3D%2276%22%20r%3D%2211%22%20fill%3D%22%23000%22%2F%3E%20%3Ccircle%20cx%3D%2267%22%20cy%3D%2276%22%20r%3D%2211%22%20fill%3D%22%23000%22%2F%3E%20%3Cpath%20d%3D%22M6%2C71%20L94%2C71%20L94%2C100%20L6%2C100%20Z%22%20fill%3D%22%23000%22%2F%3E%20%3C%2Fmask%3E%20%3C%2Fdefs%3E%20%3Crect%20width%3D%22100%22%20height%3D%22100%22%20rx%3D%2222%22%20fill%3D%22%23E4712B%22%2F%3E%20%3Csvg%20x%3D%2217%22%20y%3D%2226%22%20width%3D%2266%22%20height%3D%2252%22%20viewBox%3D%228%206%2084%2066%22%3E%3Crect%20width%3D%22100%22%20height%3D%22100%22%20fill%3D%22%231C1E22%22%20mask%3D%22url(%23lgi)%22%2F%3E%3C%2Fsvg%3E%20%3C%2Fsvg%3E" />
-<meta name="description" content="Custom software for Kenyan businesses — quotes, bookings, payments, the books. Live in a week. Built by Bonnie." />
+<meta name="description" content="I build software that does your annoying work. Quotes, bookings, payments, the books, for Kenyan businesses. Live in a week. Built by Bonnie." />
+
+<!-- Link preview. The ads point here and most sharing happens on WhatsApp,
+     where a link with no og:image renders as a bare grey URL. og-1200x630.png
+     is built from this page's own type and palette.
+     Canonical is lg.*, the host printed on every creative; launchgear.* serves
+     the same site and should not compete with it in search. -->
+<link rel="canonical" href="https://lg.vyybandasky.online/" />
+<meta name="theme-color" content="#1C1E22" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="LaunchGear" />
+<meta property="og:url" content="https://lg.vyybandasky.online/" />
+<meta property="og:title" content="I build software that does your annoying work" />
+<meta property="og:description" content="Quotes that price themselves. M-Pesa and bank messages sorted into the books. Small software for Kenyan businesses, live in a week. Built by Bonnie, Nairobi." />
+<meta property="og:image" content="https://lg.vyybandasky.online/og-1200x630.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="LaunchGear. I build software that does your annoying work." />
+<meta property="og:locale" content="en_KE" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="I build software that does your annoying work" />
+<meta name="twitter:description" content="Quotes that price themselves. M-Pesa and bank messages sorted into the books. Live in a week." />
+<meta name="twitter:image" content="https://lg.vyybandasky.online/og-1200x630.png" />
 <script>document.documentElement.className='js';</script>
 <style>
 :root{
@@ -67,6 +95,15 @@ section{padding:76px 0;position:relative}
 .hero h1 .u{color:var(--orange);font-style:italic;font-weight:600}
 .hero .sub{margin-top:22px;font-size:clamp(16px,2.1vw,19px);color:var(--bone-dim);max-width:48ch}
 .hero .cta-row{margin-top:30px;display:flex;gap:12px;flex-wrap:wrap}
+/* The four jobs people actually hand over. Each names a real build; the
+   first two are running further down this page. */
+.eats{list-style:none;margin:24px 0 0;padding:0;max-width:56ch;border-top:1px solid var(--line)}
+.eats li{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;padding:11px 0;border-bottom:1px solid var(--line);font-size:15px}
+.eats .e-pain{color:var(--bone-dim)}
+.eats .e-arw{color:var(--orange);font-family:var(--mono)}
+.eats .e-fix{color:var(--bone)}
+.eats .e-fix b{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--grey);font-weight:400;margin-left:6px}
+@media(max-width:560px){.eats li{font-size:14px}.eats .e-arw{display:none}}
 .hero .trust{margin-top:26px;display:flex;gap:18px;flex-wrap:wrap;font-family:var(--mono);font-size:11.5px;letter-spacing:0.1em;color:var(--grey);text-transform:uppercase}
 .hero .trust span{display:inline-flex;align-items:center;gap:7px}
 .hero .trust i{width:5px;height:5px;background:var(--teal);border-radius:50%;font-style:normal}
@@ -173,6 +210,16 @@ label.fld .cap{font-family:var(--mono);font-size:10.5px;letter-spacing:0.14em;te
 
 /* gallery */
 .film{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+/* Clips gallery flag. See the comment above <html>. Hiding the section
+   also hides the rule above it, or the page would show two rules with
+   nothing between them. */
+[data-clips="off"] #clips,[data-clips="off"] #clipsRule{display:none}
+/* Order matters. The bare .n-off rule is the default, so a missing or
+   unknown attribute falls back to the real numbering. The [off] rules
+   then swap the pair. Writing the default LAST would hide both spans. */
+.n-off{display:none}
+[data-clips="off"] .n-on{display:none}
+[data-clips="off"] .n-off{display:inline}
 @media(min-width:760px){.film{grid-template-columns:repeat(4,1fr)}}
 .clip{position:relative;border:1px solid var(--line);border-radius:12px;aspect-ratio:9/13;overflow:hidden;background:linear-gradient(160deg,var(--ink-2),var(--ink-3));display:flex;flex-direction:column;justify-content:space-between;padding:14px}
 .clip .idx{font-family:var(--mono);font-size:10px;letter-spacing:0.14em;color:var(--grey)}
@@ -265,7 +312,7 @@ footer{border-top:1px solid var(--line);padding:34px 0 60px}
   <div class="wrap">
     <div class="brand"><svg class="bmk" viewBox="8 6 84 66" aria-hidden="true"><rect width="100" height="100" fill="#E4712B" mask="url(#lgFinal)"></rect></svg>LaunchGear</div>
     <div class="tag">Built by <b>Bonnie</b> · Nairobi</div>
-    <a class="btn btn-o btn-sm wa" href="https://wa.me/254754413351" target="_blank" rel="noopener">WhatsApp me</a>
+    <a class="btn btn-o btn-sm wa" href="https://wa.me/254754413351?text=Hi%20Bonnie%2C%20I%20saw%20LaunchGear.%20The%20thing%20that%20eats%20my%20day%20is%3A%20" target="_blank" rel="noopener">WhatsApp me</a>
   </div>
 </div>
 
@@ -274,11 +321,17 @@ footer{border-top:1px solid var(--line);padding:34px 0 60px}
   <div class="wrap hero-grid">
     <div>
       <div class="kicker"><span class="n">Software studio</span> &nbsp;/&nbsp; Nairobi</div>
-      <h1>I build software that does your <span class="u">busywork</span>.</h1>
-      <p class="sub">Small apps for Kenyan businesses — quotes, bookings, payments, the books. Live in a week.</p>
+      <h1>I build software that does your <span class="u">annoying work</span>.</h1>
+      <p class="sub">Small apps for Kenyan businesses. Quotes, bookings, payments, the books. Live in a week.</p>
+      <ul class="eats">
+        <li><span class="e-pain">Answering &ldquo;how much?&rdquo; all day</span><span class="e-arw">&rarr;</span><span class="e-fix">the quote tool <b>Myrah, live</b></span></li>
+        <li><span class="e-pain">Sorting M-Pesa and bank messages into the books</span><span class="e-arw">&rarr;</span><span class="e-fix">the parser <b>VOS, live</b></span></li>
+        <li><span class="e-pain">Chasing who has paid and who has not</span><span class="e-arw">&rarr;</span><span class="e-fix">contributions ledger <b>365+</b></span></li>
+        <li><span class="e-pain">Typing the same quote again</span><span class="e-arw">&rarr;</span><span class="e-fix">pro-forma and receipts <b>NCS</b></span></li>
+      </ul>
       <div class="cta-row">
         <a class="btn btn-o" href="#try">See it work ↓</a>
-        <a class="btn btn-ghost" href="https://wa.me/254754413351" target="_blank" rel="noopener">WhatsApp me</a>
+        <a class="btn btn-ghost" href="https://wa.me/254754413351?text=Hi%20Bonnie%2C%20I%20saw%20LaunchGear.%20The%20thing%20that%20eats%20my%20day%20is%3A%20" target="_blank" rel="noopener">WhatsApp me</a>
       </div>
     </div>
     <div class="phone-wrap" aria-hidden="true">
@@ -358,7 +411,7 @@ footer{border-top:1px solid var(--line);padding:34px 0 60px}
                   <option>Salaries / Wages</option>
                   <option>Uncategorised</option>
                 </select>
-                <span class="learned" id="learned"><b>✓</b> Learned — next time auto-filed</span>
+                <span class="learned" id="learned"><b>✓</b> Learned. Next time it files itself</span>
               </div>
             </div>
           </div>
@@ -406,16 +459,16 @@ footer{border-top:1px solid var(--line);padding:34px 0 60px}
   </div>
 </section>
 
-<hr class="rule" />
+<hr class="rule" id="clipsRule" />
 
 <!-- 03 LIVING GALLERY -->
-<section>
+<section id="clips">
   <div class="wrap">
     <div class="sec-head reveal">
       <div class="sec-idx">03</div>
       <div>
         <div class="sec-title">Watch it work.</div>
-        <div class="sec-sub">Screen recordings of each build, in use. Being filmed this week — the two demos above are the real thing, running, right now.</div>
+        <div class="sec-sub">The two demos above are the real thing, running right now. Screen recordings of each build in use are on the way.</div>
       </div>
     </div>
     <div class="film reveal">
@@ -464,10 +517,10 @@ footer{border-top:1px solid var(--line);padding:34px 0 60px}
 <section>
   <div class="wrap">
     <div class="sec-head reveal">
-      <div class="sec-idx">04</div>
+      <div class="sec-idx"><span class="n-on">04</span><span class="n-off">03</span></div>
       <div>
         <div class="sec-title">What I can build for you.</div>
-        <div class="sec-sub">From a simple tool to custom software — start anywhere.</div>
+        <div class="sec-sub">From a simple tool to custom software. Start anywhere.</div>
       </div>
     </div>
     <div class="offers reveal">
@@ -482,7 +535,7 @@ footer{border-top:1px solid var(--line);padding:34px 0 60px}
         <div class="oi">Core tool</div>
         <h3>A core tool</h3>
         <div class="price"><span class="big">from 8K</span>KSh · in a week</div>
-        <p>Quote, booking or records — the one thing that eats your day.</p>
+        <p>Quote, booking or records. The one thing that eats your day.</p>
       </div>
       <div class="offer">
         <div class="oi">Custom</div>
@@ -506,17 +559,17 @@ footer{border-top:1px solid var(--line);padding:34px 0 60px}
 <section>
   <div class="wrap">
     <div class="sec-head reveal">
-      <div class="sec-idx">05</div>
+      <div class="sec-idx"><span class="n-on">05</span><span class="n-off">04</span></div>
       <div>
         <div class="sec-title">Proof.</div>
-        <div class="sec-sub">Myrah — a Nairobi cleaning business.</div>
+        <div class="sec-sub">Myrah, a Nairobi cleaning business.</div>
       </div>
     </div>
     <div class="proof-grid reveal">
       <div class="card">
         <div class="quote-block">
           <div class="qm" id="testimonial">“The calculator answers ‘how much?’ for me now. I just confirm the job and go clean.”</div>
-          <div class="qa">— Mercy · Myrah Cleaning Services</div>
+          <div class="qa">Mercy · Myrah Cleaning Services</div>
         </div>
       </div>
       <div class="card">
@@ -539,11 +592,11 @@ footer{border-top:1px solid var(--line);padding:34px 0 60px}
   <div class="wrap reveal">
     <div class="cta">
       <div>
-        <div class="kicker" style="margin-bottom:14px"><span class="n">06</span> &nbsp;/&nbsp; Start here</div>
-        <h2>What eats your day?<br />Tell me — I'll build the tool that ends it.</h2>
-        <p>One message and I'll tell you what I'd build — and what it costs.</p>
+        <div class="kicker" style="margin-bottom:14px"><span class="n"><span class="n-on">06</span><span class="n-off">05</span></span> &nbsp;/&nbsp; Start here</div>
+        <h2>What eats your day?<br />Tell me and I'll build the tool that ends it.</h2>
+        <p>One message and I'll tell you what I'd build, and what it costs.</p>
         <div class="cta-row">
-          <a class="btn btn-o" href="https://wa.me/254754413351" target="_blank" rel="noopener">WhatsApp me → 0754 413 351</a>
+          <a class="btn btn-o" href="https://wa.me/254754413351?text=Hi%20Bonnie%2C%20I%20saw%20LaunchGear.%20The%20thing%20that%20eats%20my%20day%20is%3A%20" target="_blank" rel="noopener">WhatsApp me → 0754 413 351</a>
           <a class="btn btn-ghost" href="#try">Play with the demos</a>
         </div>
       </div>
@@ -784,7 +837,7 @@ function recalc(){
   lines.innerHTML='';
   items.forEach(([n,p])=>{ const d=document.createElement('div'); d.className='qline';
     d.innerHTML='<span>'+n+'</span>'+(p==='visit'?'<span class="p visit">ON A VISIT</span>':'<span class="p">KSh '+p.toLocaleString('en-KE')+'</span>'); lines.appendChild(d); });
-  if(visit && subtotal===0){ totWrap.style.display='none'; meta.textContent='Big / commercial job — we confirm the exact price on a quick site visit.'; }
+  if(visit && subtotal===0){ totWrap.style.display='none'; meta.textContent='Big or commercial job. We confirm the exact price on a quick site visit.'; }
   else { const total=Math.max(subtotal,P.MIN); totWrap.style.display='flex';
     $('qtot').innerHTML='<small>'+(visit?'from KSh':'KSh')+'</small>'+total.toLocaleString('en-KE');
     meta.innerHTML=(subtotal<P.MIN?'Minimum job KSh 1,500 · ':'')+'Transport charged separately'+(visit?' · some items confirmed on a visit':'')+(visit?'':' · 30% to book, balance after the clean')+'.'; }
